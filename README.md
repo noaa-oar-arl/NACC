@@ -133,7 +133,7 @@ The variables listed here are set by the user in the NACC script (run_mcip.csh),
 
 **Compile NACC**
 
-NACC is compiled with a Makefile. The configuration options in the Makefile include the compiler and compiler flags to use for building the executable. Note that this version of NACC is not a parallelized code, so parallel versions of netCDF and I/O API are not required.  The Makefile is located in the directory with the NACC source code (`$CMAQ_HOME/PREP/mcip/src`). To compile NACC, source the config_cmaq.csh file and invoke the Makefile at the command line:
+NACC is compiled with a Makefile. The configuration options in the Makefile include the compiler and compiler flags to use for building the executable. Note that this version of NACC is either serial or parallelized code (time splitting), so MPI libraries are required for ONLY the parallel version.  The Makefile is located in the directory with the NACC source code (`$CMAQ_HOME/PREP/mcip/src`). To compile NACC, source the config_cmaq.csh file and invoke the Makefile at the command line:
 
 ```
 cd $CMAQ_HOME/PREP/mcip/src/
