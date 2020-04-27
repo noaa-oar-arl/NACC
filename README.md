@@ -16,7 +16,7 @@ NACC performs the following functions using the output (history) file from WRF o
 
 -   Outputs files that contain meteorological and geospatial information used by the emissions model and the CCTM.  The output can be either in I/O API or netCDF.
 
-NACC is written in FORTRAN, and this version runs on a single processor in a Unix/Linux environment. NACC is driven by a C-shell or K-shell script with several run-time options that are defined through a FORTRAN namelist. It is typical to use NACC to process hourly output fields from the meteorological model for each one-day period.
+NACC is written in FORTRAN, and this version runs on a single (serial) or multiple (parallel) processors in a Unix/Linux environment. NACC is driven by a C-shell or K-shell script with several run-time options that are defined through a FORTRAN namelist. It is typical to use NACC to process hourly output fields from the meteorological model for each one-day period.
 
 NACC is often updated concurrently with the CCTM.  The changes to NACC are documented with each update to the software, and a "Frequently Asked Questions" (FAQ) file exists that is specific to NACC.
 
