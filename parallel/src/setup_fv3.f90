@@ -161,8 +161,6 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
 !                        variables available with KF convective scheme with
 !                        radiative feedbacks.  (T. Spero)
 !           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
-!           11 Mar 2020  Added MPI capability to speed up nf90 reads (P. C.
-!                         Campbell)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -173,7 +171,6 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   USE netcdf_io
   USE const, ONLY: pi180
   USE netcdf
-  !USE mpi
 
   IMPLICIT NONE
 
@@ -664,8 +661,6 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
       iflufrc = .FALSE.
     ELSE
       flg = file_geo
-!      rcode = nf90_open (flg, nf90_nowrite, cdfidg, &
-!                     comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
 
       IF ( rcode /= nf90_noerr ) THEN
@@ -783,8 +778,6 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
       iflai = .FALSE.
     ELSE
       flg = file_geo
-!      rcode = nf90_open (flg, nf90_nowrite, cdfidg, &
-!                     comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
 
       IF ( rcode /= nf90_noerr ) THEN

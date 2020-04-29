@@ -180,8 +180,6 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 !           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
 !           24 Feb 2020  Added horiz LCC interpolation and wind rotation 
 !                        Y. Tang and P. C. Campbell)
-!           11 Mar 2020  Added MPI capability to speed up nf90 reads (P. C.
-!                         Campbell, Youhua Tang)
 !-------------------------------------------------------------------------------
 
   USE date_pack
@@ -193,7 +191,6 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   USE netcdf_io
   USE netcdf
   USE m3utilio
-  USE mpi
 
   IMPLICIT NONE
 
@@ -442,9 +439,6 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     & /, 1x, '***   WILL DEFINE FROM OTHER FIELDS LATER', &
     & /, 1x, 70('*'))"
 
-  ! MPI stuff: number of processors, rank of this processor, and error
-  ! code.
-    INTEGER                          :: p, my_rank, ierr
 !-------------------------------------------------------------------------------
 ! Interfaces for FV3GFS getxyindex, horizontal interpolation, and wind rotation
 ! 
@@ -495,13 +489,6 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     END SUBROUTINE windrotation
 
   END INTERFACE
-
-!-------------------------------------------------------------------------------
-! Learn MPI local rank and total number of processors.
-!-------------------------------------------------------------------------------
-
-!   CALL MPI_Comm_rank(MPI_COMM_WORLD, my_rank, ierr)
-!   CALL MPI_Comm_size(MPI_COMM_WORLD, p, ierr)
 
 !-------------------------------------------------------------------------------
 ! Define additional staggered grid dimensions. (***No staggered FV3 dimensions,e.g., nxm=met_nx***)
@@ -777,10 +764,8 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 
 !-------------------------------------------------------------------------------------
 ! Open FV3GFS files and check headers
-! MPI Time Splitting Applied
 !-------------------------------------------------------------------------------------
 
-  CALL MPI_Comm_rank(MPI_COMM_WORLD, my_rank, ierr)
 
 !open 3d atm file
   write(str3,'(i3.3)')nn-1
@@ -907,9 +892,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 ! Read FV3 data for this domain.
 !-------------------------------------------------------------------------------
   it=1
-  print*,'before read ugrd ',my_rank 
   CALL get_var_3d_real_cdf (cdfid, 'ugrd', dum3d, it, rcode)
-  print*,'after read ugrd ',my_rank
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
     call myinterp(dum3d(:,:,k),met_nx,met_ny,utmp,xdindex,ydindex,ncols_x+1,nrows_x+1,2)  ! put it into Dot point for later rotation
