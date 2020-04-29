@@ -170,5 +170,6 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: znt        ( : , : )
   REAL,          ALLOCATABLE   :: znt_mos    ( : , : , : )
   REAL,          ALLOCATABLE   :: zpbl       ( : , : )
-
+!! FV3 temporary
+!  REAL,          ALLOCATABLE   :: dum3d    ( : , : , : )
 END MODULE metvars

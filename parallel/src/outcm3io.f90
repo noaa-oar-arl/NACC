@@ -28,6 +28,8 @@ SUBROUTINE outcm3io (sdate, stime)
 !                        with radiative feedbacks.  (T. Spero)
 !           15 Jul 2019  Corrected error in setting units for 3D microphysics
 !                        fields.  (T. Spero)
+!           04 Feb 2020  Parallelize the code with timestep splitting
+!                        (Youhua Tang, NOAA/ARL)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -36,18 +38,20 @@ SUBROUTINE outcm3io (sdate, stime)
   USE files
   USE vgrd
   USE m3utilio
-
+  USE mpi
+  
   IMPLICIT NONE
 
   REAL,               PARAMETER     :: epsilonq    = 1.0e-30
   LOGICAL, SAVE                     :: first       = .TRUE.
   INTEGER                           :: ii
-  INTEGER                           :: n
-  INTEGER                           :: nchar
+  INTEGER                           :: m,n,npe,my_rank,mstatus(MPI_STATUS_SIZE),ierr
+  INTEGER                           :: nchar,nowdate,idate,nowtime,itime
   CHARACTER(LEN=16),  PARAMETER     :: pname       = 'OUTCM3IO'
   INTEGER,            INTENT(IN)    :: sdate
   INTEGER,            INTENT(IN)    :: stime
-  
+  real, allocatable                 :: xrcold(:,:),xrnold(:,:),xtmp(:,:)
+    
 !-------------------------------------------------------------------------------
 ! Error, warning, and informational messages.
 !-------------------------------------------------------------------------------
@@ -62,6 +66,10 @@ SUBROUTINE outcm3io (sdate, stime)
     & /, 1x, '***   ERROR WRITING TO FILE ', a, &
     & /, 1x, 70('*'))"
 
+  CALL MPI_Comm_rank(MPI_COMM_WORLD, my_rank, ierr)
+  CALL MPI_Comm_size(MPI_COMM_WORLD, npe, ierr) 
+
+  if(my_rank.eq.0) then
 !-------------------------------------------------------------------------------
 ! Build common header for I/O API output.
 !-------------------------------------------------------------------------------
@@ -79,7 +87,6 @@ SUBROUTINE outcm3io (sdate, stime)
     nchar = LEN_TRIM(fld2dxyt(n)%fldname)
     vname3d(n)(1:nchar)  = TRIM(fld2dxyt(n)%fldname)
     vname3d(n)(nchar+1:) = ' '
-
     nchar = LEN_TRIM(fld2dxyt(n)%units)
     units3d(n)(1:nchar)  = TRIM(fld2dxyt(n)%units)
     units3d(n)(nchar+1:) = ' '
@@ -111,25 +118,74 @@ SUBROUTINE outcm3io (sdate, stime)
       WRITE (*,f9000) TRIM(pname), TRIM(metcro2d)
       CALL graceful_stop (pname)
     ENDIF
+    allocate(xrcold(ncols,nrows),xrnold(ncols,nrows),xtmp(ncols,nrows))
   ENDIF
 
-  IF ( .NOT. desc3 (metcro2d) ) THEN
-    CALL m3err ('METCRO', sdate, stime,  &
-                'Could not read DESC of ' // metcro2d // ' file', .TRUE.)
-  ENDIF
+!  IF ( .NOT. desc3 (metcro2d) ) THEN
+!    CALL m3err ('METCRO', sdate, stime,  &
+!                'Could not read DESC of ' // metcro2d // ' file', .TRUE.)
+!  ENDIF
 
-  DO n = 1, nfld2dxyt
-    IF ( .NOT. write3 (metcro2d, vname3d(n), sdate, stime,  &
+  nowdate=sdate
+  nowtime=stime
+
+  do m=1,npe  ! timestep    
+   if(m.gt.1) then
+!    print*,'1 nowdate=',nowdate
+    call mpi_recv(idate,1,MPI_INTEGER,m-1,MPI_ANY_TAG,MPI_COMM_WORLD,mstatus,ierr)
+!    print*,'2 nowdate=',nowdate 
+    call mpi_recv(itime,1,MPI_INTEGER,m-1,MPI_ANY_TAG,MPI_COMM_WORLD,mstatus,ierr)
+!    print*,'3 nowdate=',nowdate
+    if(nowdate.ne.idate.or.nowtime.ne.itime) then
+     print*,'metcro2d inconsistent time between master and node',m-1
+     print*,'nowdate,nowtime,idate,itime=',nowdate,nowtime,idate,itime
+     stop
+    endif
+   endif
+     
+   DO n = 1, nfld2dxyt
+    if(m.eq.1) then
+     if(vname3d(n).eq.'RC') xrcold(:,:)=fld2dxyt(n)%fld(:,:)
+     if(vname3d(n).eq.'RN') xrnold(:,:)=fld2dxyt(n)%fld(:,:)
+    else if(m.gt.1) then
+     call mpi_recv(fld2dxyt(n)%fld,ncols*nrows,MPI_REAL,m-1,MPI_ANY_TAG, &
+        MPI_COMM_WORLD,mstatus,ierr)     
+     if(vname3d(n).eq.'RC') then
+       xtmp(:,:)=fld2dxyt(n)%fld(:,:)
+       fld2dxyt(n)%fld=amax1(0.,fld2dxyt(n)%fld*m-xrcold*(m-1))
+       xrcold=xtmp       
+     else if(vname3d(n).eq.'RN') then
+       xtmp(:,:)=fld2dxyt(n)%fld(:,:)
+       fld2dxyt(n)%fld=amax1(0.,fld2dxyt(n)%fld*m-xrnold*(m-1))
+       xrnold=xtmp
+     endif  
+    endif
+    print*,'write metcro2d ',vname3d(n),fld2dxyt(n)%fld(ncols/2,nrows/2) 
+    IF ( .NOT. write3 (metcro2d, vname3d(n), nowdate, nowtime,  &
                        fld2dxyt(n)%fld) ) THEN
       WRITE (*,f9100) TRIM(pname), TRIM(metcro2d)
       CALL graceful_stop (pname)
     ENDIF
-  ENDDO
+   ENDDO
+!   print*,'before nowdate,nowtime=',nowdate,nowtime,grstep   
+   call nextime(nowdate,nowtime,grstep)
+!   print*,'after nowdate,nowtime=',nowdate,nowtime,grstep   
+  enddo 
+ 
+ else ! other nodes
+   call mpi_send(sdate,1, MPI_INTEGER,0,2020,MPI_COMM_WORLD,ierr)
+   call mpi_send(stime,1, MPI_INTEGER,0,2020,MPI_COMM_WORLD,ierr)
+   DO n = 1, nfld2dxyt
+    call mpi_send(fld2dxyt(n)%fld,ncols*nrows, MPI_REAL,0,2020,MPI_COMM_WORLD,ierr)
+   enddo   
+ endif
 
 !-------------------------------------------------------------------------------
 ! Write MET_CRO_3D.
 !-------------------------------------------------------------------------------
 
+ if(my_rank.eq.0) then
+ 
   DO n = 1, nfld3dxyzt
 
     vtype3d(n) = m3real
@@ -199,7 +255,8 @@ SUBROUTINE outcm3io (sdate, stime)
     CALL m3err ('METCRO', sdate, stime,  &
                 'Could not read DESC of ' // metcro3d // ' file', .TRUE.)
   ENDIF
-
+ endif
+ 
   WHERE ( ABS(c_qv%fld(:,:,:)) < epsilonq ) c_qv%fld(:,:,:) = 0.0
 
   IF ( ASSOCIATED(c_qc) ) THEN
@@ -237,9 +294,28 @@ SUBROUTINE outcm3io (sdate, stime)
   IF ( ASSOCIATED(c_cldfra_sh) ) THEN
     WHERE ( ABS(c_cldfra_sh%fld(:,:,:)) < epsilonq ) c_cldfra_sh%fld(:,:,:) = 0.0
   ENDIF
-
+  
+ if (my_rank.eq.0) then
+  nowdate=sdate
+  nowtime=stime
+  
+  do m=1,npe
+   if(m.gt.1) then
+    call mpi_recv(idate,1,MPI_INTEGER,m-1,MPI_ANY_TAG,MPI_COMM_WORLD,mstatus,ierr)
+    call mpi_recv(itime,1,MPI_INTEGER,m-1,MPI_ANY_TAG,MPI_COMM_WORLD,mstatus,ierr)
+    if(nowdate.ne.idate.or.nowtime.ne.itime) then
+     print*,'metcro3d inconsistent time between master and node',m
+     print*,'nowdate,nowtime,idate,itime=',nowdate,nowtime,idate,itime
+     stop
+    endif
+   endif
+ 
   DO n = 1, nfld3dxyzt
-    IF ( .NOT. write3 (metcro3d, vname3d(n), sdate, stime,  &
+   
+   if(m.gt.1) call mpi_recv(fld3dxyzt(n)%fld,ncols*nrows*nlays,MPI_REAL,m-1,MPI_ANY_TAG, &
+        MPI_COMM_WORLD,mstatus,ierr)
+
+    IF ( .NOT. write3 (metcro3d, vname3d(n), nowdate, nowtime,  &
                        fld3dxyzt(n)%fld) ) THEN
       WRITE (*,f9100) TRIM(pname), TRIM(metcro2d)
       CALL graceful_stop (pname)
@@ -248,18 +324,39 @@ SUBROUTINE outcm3io (sdate, stime)
 
   IF ( nqspecies > 0 ) THEN
     DO n = 1, nfld3dxyzt_q
-      IF ( .NOT. write3 (metcro3d, vname3d(nfld3dxyzt+n), sdate, stime,  &
+    if(m.gt.1) call mpi_recv(fld3dxyzt_q(n)%fld,ncols*nrows*nlays,MPI_REAL,m-1,MPI_ANY_TAG, &
+        MPI_COMM_WORLD,mstatus,ierr)
+
+      IF ( .NOT. write3(metcro3d, vname3d(nfld3dxyzt+n), nowdate, nowtime,  &
                          fld3dxyzt_q(n)%fld) ) THEN
         WRITE (*,f9100) TRIM(pname), TRIM(metcro2d)
         CALL graceful_stop (pname)
       ENDIF
     ENDDO
   ENDIF
-
+ 
+ call nextime(nowdate,nowtime,tstep3d)
+ 
+ enddo
+ 
+ else  ! other nodes
+   call mpi_send(sdate,1, MPI_INTEGER,0,2020,MPI_COMM_WORLD,ierr)
+   call mpi_send(stime,1, MPI_INTEGER,0,2020,MPI_COMM_WORLD,ierr)
+   DO n = 1, nfld3dxyzt
+    call mpi_send(fld3dxyzt(n)%fld,ncols*nrows*nlays, MPI_REAL,0,2020,MPI_COMM_WORLD,ierr)
+   enddo   
+   IF ( nqspecies > 0 ) THEN
+    DO n = 1, nfld3dxyzt_q
+     call mpi_send(fld3dxyzt_q(n)%fld,ncols*nrows*nlays, MPI_REAL,0,2020,MPI_COMM_WORLD,ierr)
+    enddo
+   endif
+   
+ endif
+ 
 !-------------------------------------------------------------------------------
 ! Write MET_BDY_3D.  Header is the same as MET_CRO_3D except for file type.
 !-------------------------------------------------------------------------------
-
+ if(my_rank.eq.0) then
   ftype3d = bndary3
 
   IF ( first ) THEN
@@ -273,7 +370,8 @@ SUBROUTINE outcm3io (sdate, stime)
     CALL m3err ('METCRO', sdate, stime,  &
                 'Could not read DESC of ' // metbdy3d // ' file', .TRUE.)
   ENDIF
-
+ endif
+ 
   WHERE ( ABS(c_qv%bdy(:,:)) < epsilonq ) c_qv%bdy(:,:) = 0.0
 
   IF ( ASSOCIATED(c_qc) ) THEN
@@ -311,9 +409,26 @@ SUBROUTINE outcm3io (sdate, stime)
   IF ( ASSOCIATED(c_cldfra_sh) ) THEN
     WHERE ( ABS(c_cldfra_sh%bdy(:,:)) < epsilonq ) c_cldfra_sh%bdy(:,:) = 0.0
   ENDIF
+ 
+ if (my_rank.eq.0) then
+  nowdate=sdate
+  nowtime=stime
+  
+  do m=1,npe
+   if(m.gt.1) then
+    call mpi_recv(idate,1,MPI_INTEGER,m-1,MPI_ANY_TAG,MPI_COMM_WORLD,mstatus,ierr)
+    call mpi_recv(itime,1,MPI_INTEGER,m-1,MPI_ANY_TAG,MPI_COMM_WORLD,mstatus,ierr)
+    if(nowdate.ne.idate.or.nowtime.ne.itime) then
+     print*,'metbdy3d inconsistent time between master and node',m
+     print*,'nowdate,nowtime,idate,itime=',nowdate,nowtime,idate,itime
+     stop
+    endif
+   endif
 
   DO n = 1, nfld3dxyzt
-    IF ( .NOT. write3 (metbdy3d, vname3d(n), sdate, stime,  &
+   if(m.gt.1) call mpi_recv(fld3dxyzt(n)%bdy,nbndy*nlays,MPI_REAL,m-1,MPI_ANY_TAG, &
+        MPI_COMM_WORLD,mstatus,ierr)
+    IF ( .NOT. write3 (metbdy3d, vname3d(n), nowdate, nowtime,  &
                        fld3dxyzt(n)%bdy) ) THEN
       WRITE (*,f9100) TRIM(pname), TRIM(metbdy3d)
       CALL graceful_stop (pname)
@@ -322,18 +437,40 @@ SUBROUTINE outcm3io (sdate, stime)
 
   IF ( nqspecies > 0 ) THEN
     DO n = 1, nfld3dxyzt_q
-      IF ( .NOT. write3 (metbdy3d, vname3d(nfld3dxyzt+n), sdate, stime,  &
+    if(m.gt.1) call mpi_recv(fld3dxyzt_q(n)%bdy,nbndy*nlays,MPI_REAL,m-1,MPI_ANY_TAG, &
+        MPI_COMM_WORLD,mstatus,ierr)
+	
+      IF ( .NOT. write3 (metbdy3d, vname3d(nfld3dxyzt+n), nowdate, nowtime,  &
                          fld3dxyzt_q(n)%bdy) ) THEN
         WRITE (*,f9100) TRIM(pname), TRIM(metbdy3d)
         CALL graceful_stop (pname)
       ENDIF
     ENDDO
   ENDIF
+ call nextime(nowdate,nowtime,tstep3d)
+ 
+ enddo
+ 
+ else  ! other nodes
+ 
+   call mpi_send(sdate,1, MPI_INTEGER,0,2020,MPI_COMM_WORLD,ierr)
+   call mpi_send(stime,1, MPI_INTEGER,0,2020,MPI_COMM_WORLD,ierr)
+   DO n = 1, nfld3dxyzt
+    call mpi_send(fld3dxyzt(n)%bdy,nbndy*nlays, MPI_REAL,0,2020,MPI_COMM_WORLD,ierr)
+   enddo   
+   IF ( nqspecies > 0 ) THEN
+    DO n = 1, nfld3dxyzt_q
+     call mpi_send(fld3dxyzt_q(n)%bdy,nbndy*nlays, MPI_REAL,0,2020,MPI_COMM_WORLD,ierr)
+    enddo
+   endif
+   
+ endif
 
 !-------------------------------------------------------------------------------
 ! Write MET_DOT_3D.
 !-------------------------------------------------------------------------------
-
+ if(my_rank.eq.0) then
+ 
   DO n = 1, nfld3dxyzt_d
 
     vtype3d(n) = m3real
@@ -376,20 +513,52 @@ SUBROUTINE outcm3io (sdate, stime)
     CALL m3err ('METDOT', sdate, stime,  &
                 'Could not read DESC of ' // metdot3d // ' file', .TRUE.)
   ENDIF
+  
+  nowdate=sdate
+  nowtime=stime
+  
+  do m=1,npe
+
+   if(m.gt.1) then
+    call mpi_recv(idate,1,MPI_INTEGER,m-1,MPI_ANY_TAG,MPI_COMM_WORLD,mstatus,ierr)
+    call mpi_recv(itime,1,MPI_INTEGER,m-1,MPI_ANY_TAG,MPI_COMM_WORLD,mstatus,ierr)
+    if(nowdate.ne.idate.or.nowtime.ne.itime) then
+     print*,'metdot3d inconsistent time between master and node',m
+     print*,'nowdate,nowtime,idate,itime=',nowdate,nowtime,idate,itime
+     stop
+    endif
+   endif
 
   DO n = 1, nfld3dxyzt_d
-    IF ( .NOT. write3 (metdot3d, vname3d(n), sdate, stime,  &
+   if(m.gt.1) call mpi_recv(fld3dxyzt_d(n)%fld,(ncols+1)*(nrows+1)*nlays,MPI_REAL,m-1,MPI_ANY_TAG, &
+        MPI_COMM_WORLD,mstatus,ierr)
+	
+    IF ( .NOT. write3 (metdot3d, vname3d(n), nowdate, nowtime,  &
                        fld3dxyzt_d(n)%fld) ) THEN
       WRITE (*,f9100) TRIM(pname), TRIM(metdot3d)
       CALL graceful_stop (pname)
     ENDIF
   ENDDO
-
+   
+   call nextime(nowdate,nowtime,tstep3d)
+   
+  enddo 
+ 
+ else ! other nodes
+   call mpi_send(sdate,1, MPI_INTEGER,0,2020,MPI_COMM_WORLD,ierr)
+   call mpi_send(stime,1, MPI_INTEGER,0,2020,MPI_COMM_WORLD,ierr)
+  DO n = 1, nfld3dxyzt_d
+    call mpi_send(fld3dxyzt_d(n)%fld,(ncols+1)*(nrows+1)*nlays, MPI_REAL,0,2020,MPI_COMM_WORLD,ierr)
+   enddo   
+ endif
+  
 !-------------------------------------------------------------------------------
 ! Write SOI_CRO.
 !-------------------------------------------------------------------------------
 
   IF ( ifsoil ) THEN
+
+   if(my_rank.eq.0) then
 
     CALL comheader_soi (sdate, stime)
 
@@ -432,16 +601,30 @@ SUBROUTINE outcm3io (sdate, stime)
       CALL m3err ('SOICRO', sdate, stime,  &
                   'Could not read DESC of ' // soicro // ' file', .TRUE.)
     ENDIF
+    
+    nowdate=sdate
+    nowtime=stime
+    do m=1,npe
 
     DO n = 1, nfld3dxyst
-      IF ( .NOT. write3 (soicro, vname3d(n), sdate, stime,  &
+     if(m.gt.1) call mpi_recv(fld3dxyst(n)%fld,ncols*nrows*metsoi,MPI_REAL,m-1,MPI_ANY_TAG, &
+        MPI_COMM_WORLD,mstatus,ierr)
+
+      IF ( .NOT. write3 (soicro, vname3d(n), nowdate, nowtime,  &
                          fld3dxyst(n)%fld) ) THEN
         WRITE (*,f9100) TRIM(pname), TRIM(soicro)
         CALL graceful_stop (pname)
       ENDIF
     ENDDO
+    call nextime(nowdate,nowtime,tstep3d)
+   enddo
 
-  ENDIF
+ else ! other nodes
+  DO n = 1, nfld3dxyst
+    call mpi_send(fld3dxyst(n)%fld,ncols*nrows*metsoi, MPI_REAL,0,2020,MPI_COMM_WORLD,ierr)
+   enddo   
+ endif 
+ENDIF
 
 !-------------------------------------------------------------------------------
 ! Write MOSAIC_CRO.
@@ -449,6 +632,7 @@ SUBROUTINE outcm3io (sdate, stime)
 
   IF ( ifmosaic ) THEN
 
+   if(my_rank.eq.0) then
     CALL comheader_mos (sdate, stime)
 
     DO n = 1, nfld3dxymt
@@ -490,14 +674,31 @@ SUBROUTINE outcm3io (sdate, stime)
       CALL m3err ('MOSCRO', sdate, stime,  &
                   'Could not read DESC of ' // mosaiccro // ' file', .TRUE.)
     ENDIF
+  
+   nowdate=sdate
+   nowtime=stime
+  
+   do m=1,npe
 
     DO n = 1, nfld3dxymt
-      IF ( .NOT. write3 (mosaiccro, vname3d(n), sdate, stime,  &
+     
+     if(m.gt.1) call mpi_recv(fld3dxymt(n)%fld,ncols*nrows*nummosaic,MPI_REAL,m-1,MPI_ANY_TAG, &
+        MPI_COMM_WORLD,mstatus,ierr)
+	
+      IF ( .NOT. write3 (mosaiccro, vname3d(n), nowdate, nowtime,  &
                          fld3dxymt(n)%fld) ) THEN
         WRITE (*,f9100) TRIM(pname), TRIM(mosaiccro)
         CALL graceful_stop (pname)
       ENDIF
     ENDDO
+    call nextime(nowdate,nowtime,tstep3d)
+   enddo
+
+ else ! other nodes
+  DO n = 1, nfld3dxymt
+    call mpi_send(fld3dxymt(n)%fld,ncols*nrows*nummosaic, MPI_REAL,0,2020,MPI_COMM_WORLD,ierr)
+   enddo   
+ endif 
 
   ENDIF
 

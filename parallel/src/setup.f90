@@ -16,7 +16,7 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-SUBROUTINE setup (ctmlays)
+SUBROUTINE setup (ctmlays,itimestep)
 
 !-------------------------------------------------------------------------------
 ! Name:     Set Up the Input Meteorology Domain Attributes
@@ -67,7 +67,8 @@ SUBROUTINE setup (ctmlays)
   CHARACTER(LEN=16),  PARAMETER     :: pname     = 'SETUP'
   INTEGER                           :: rcode, rcode2
   CHARACTER(LEN=80)                 :: wrfversion
-
+  character                 :: ctmp3*3
+  integer, intent(IN)       :: itimestep
 !-------------------------------------------------------------------------------
 ! Error, warning, and informational messages.
 !-------------------------------------------------------------------------------
@@ -163,13 +164,13 @@ SUBROUTINE setup (ctmlays)
 !                     comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)    
 !    rcode2 = nf90_open (trim(file_sfc(1))//'000'//trim(file_sfc(2)), nf90_nowrite, cdfid2, &
 !                     comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
-
-        rcode = nf90_open (trim(file_mm(1))//'000'//trim(file_mm(2)),nf90_nowrite, cdfid)
-        rcode2 = nf90_open (trim(file_sfc(1))//'000'//trim(file_sfc(2)),nf90_nowrite, cdfid2)
-
+    write(ctmp3,'(i3.3)')itimestep
+    rcode = nf90_open (trim(file_mm(1))//ctmp3//trim(file_mm(2)),nf90_nowrite, cdfid)
+    rcode2 = nf90_open (trim(file_sfc(1))//ctmp3//trim(file_sfc(2)),nf90_nowrite, cdfid2)
+ 
     IF ( rcode.ne.nf90_noerr .or. rcode2.ne.nf90_noerr ) then
-     WRITE (*,f9000) TRIM(pname), TRIM(file_mm(1)), TRIM(nf90_strerror(rcode))
-     WRITE (*,f9000) TRIM(pname), TRIM(file_sfc(1)), TRIM(nf90_strerror(rcode))
+     WRITE (*,f9000) TRIM(pname),trim(file_mm(1))//ctmp3//trim(file_mm(2)), TRIM(nf90_strerror(rcode))
+     WRITE (*,f9000) TRIM(pname),trim(file_sfc(1))//ctmp3//trim(file_sfc(2)), TRIM(nf90_strerror(rcode2))
      CALL graceful_stop (pname)
     endif 
      

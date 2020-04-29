@@ -1,7 +1,7 @@
 #!/bin/ksh
 #BSUB -J jnacc_test_v1
-#BSUB -o /gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/CMAQ_REPO/PREP/mcip/scripts/jnacc_test.out
-#BSUB -e /gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/CMAQ_REPO/PREP/mcip/scripts/jnacc_test.err
+#BSUB -o /gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/serial/scripts/jnacc_test.out
+#BSUB -e /gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/serial/scripts/jnacc_test.err
 ##BSUB -q debug
 #BSUB -q dev
 ##BSUB -extsched "CRAYLINUX[]" -R "1*{select[craylinux && !vnode]} + 576*{select[craylinux && vnode] span [ptile=24]}"

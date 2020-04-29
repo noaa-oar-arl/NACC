@@ -1,10 +1,35 @@
 #!/bin/ksh -l
+#BSUB -J par-tsplit
+#BSUB -o jnacc_par.out1
+#BSUB -e jnacc_par.err1
+#BSUB -q debug
+##BSUB -q dev
+##BSUB -extsched "CRAYLINUX[]" -R "1*{select[craylinux && !vnode]} + 576*{select[craylinux && vnode] span [ptile=24]}"
+#BSUB -M 3000
+##BSUB -W 01:00
+#BSUB -W 00:30
+#BSUB -P CMAQ-T2O
+#BSUB -extsched 'CRAYLINUX[]'
+#BSUB -cwd .
+
+#Module settings
+module intel
+module load PrgEnv-intel
+module load cray-netcdf/4.3.2
+module load cray-hdf5/1.8.13
+module load cray-mpich/7.3.1
+
+export LD_LIBRARY_PATH=/opt/cray/hdf5/1.8.13/INTEL/140/lib:$LD_LIBRARY_PATH
+
+#Set number of nacc times  = processors, and # of nodes
+NTIMES=73
+export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/12z_hourly
+InMetDir=/gpfs/hps2/ptmp/$USER/fv3gfs_v16_test/12z_hourly
 InGeoDir=$InMetDir
-OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/output
-ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/CMAQ_REPO/PREP/mcip/src
+OutDir=/gpfs/hps2/ptmp/$USER/fv3gfs_v16_test/output
+ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then
   echo "No such input directory $InMetDir"
@@ -50,7 +75,7 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   mcip_start = "2019-07-12-12:00:00.0000"
-  mcip_end   = "2019-07-13-12:00:00.0000"
+  mcip_end   = "2019-07-15-12:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"
@@ -64,8 +89,7 @@ cat>namelist.mcip<<!
   btrim      =  -1
   lprt_col   =  0
   lprt_row   =  0
-  ntimes     =  1
-  wrf_lc_ref_lat = 40.0
+  ntimes     = $NTIMES
   projparm = 2., 33.,45., -97., -97., 40.
   domains = -2508000., -1716000., 12000., 12000., 442, 265
  &END
@@ -94,8 +118,5 @@ export MOSAIC_CRO=${APPL}.mosaiccro.ncf
 
 rm -f *.ncf 
 
-#Serial
-#$ProgDir/mcip.exe
-
-# LSF
-aprun -n${PROCS} -N${NODES} $ProgDir/mcip.exe
+# LSF Parallel
+aprun -n$NTIMES -m8000 $ProgDir/mcip.exe

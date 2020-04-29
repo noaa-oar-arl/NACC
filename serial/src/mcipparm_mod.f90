@@ -315,13 +315,22 @@ MODULE mcipparm
   INTEGER           :: lprt_xrow  ! ROW-coordinate in X domain
 
 !-------------------------------------------------------------------------------
-! Program and version descriptors.
+! MCIP Program and version descriptors.
 !-------------------------------------------------------------------------------
 
   CHARACTER(LEN=80)                 :: fdesc      ( mxdesc3 )
   CHARACTER(LEN=16),  PARAMETER     :: progname   = 'MCIP'
   CHARACTER(LEN=10),  PARAMETER     :: vdate      = '07/15/2019'
   CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.0'
+
+!-------------------------------------------------------------------------------
+! NACC Program and version descriptors.
+!-------------------------------------------------------------------------------
+ 
+  CHARACTER(LEN=16),  PARAMETER     :: progname_nacc   = 'NACC'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate_nacc      = '04/30/2020'
+  CHARACTER(LEN=8),   PARAMETER     :: ver_nacc        = 'V1.0.0'
+
 
   real projparm(6)  ! map projection type, lat1,lat2,projlon, center_lon, center_lat
   real domains(6)   ! xorig, yorig,xcell,ycell,ncols,nrows

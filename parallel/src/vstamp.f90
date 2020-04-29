@@ -35,11 +35,20 @@ SUBROUTINE vstamp
 !                        "RELEASED" to "FROZEN" in the prints to be more
 !                        technically correct.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           29 Apr 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
 
   IMPLICIT NONE
+
+  WRITE (*, "(/, 1x, 78('='), /)")
+  WRITE (*, "(18x, a)") 'NATIONAL AIR QUALITY FORECAST CAPABILITY'
+  WRITE (*, "(20x, a, /)") 'NOAA-ARL ATMOSPHERE-CHEMISTRY COUPLER'
+  WRITE (*, "(27x, a, 1x, a, ' FROZEN ', a)")  &
+                                     TRIM(progname_nacc), TRIM(ver_nacc), vdate_nacc
+  WRITE (*, "(/, 1x, 78('='), ///)")
+
 
   WRITE (*, "(/, 1x, 78('='), /)")
   WRITE (*, "(18x, a)") 'US EPA COMMUNITY MULTISCALE AIR QUALITY MODEL'

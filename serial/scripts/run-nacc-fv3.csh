@@ -1,9 +1,9 @@
 #!/bin/csh -f
 set APPL=aqm.t12z
-set InMetDir=/scratch2/NAGAPE/arl/Patrick.C.Campbell/fv3gfs_v16_test/12z_hourly
+set InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/12z_hourly
 set InGeoDir=$InMetDir
-set OutDir=/scratch2/NAGAPE/arl/Patrick.C.Campbell/fv3gfs_v16_test/output
-set ProgDir=/scratch2/NAGAPE/arl/Patrick.C.Campbell/models/CMAQ_REPO/PREP/mcip/src
+set OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/output
+set ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/serial/src
 
 if ( ! -s $InMetDir ) then
   echo "No such input directory $InMetDir"
@@ -36,7 +36,7 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/gfs.t12z.atmf','.nc'
   file_sfc   = '$InMetDir/gfs.t12z.sfcf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.01.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.07.nc'
   ioform     =  1
  &END
 
@@ -49,8 +49,8 @@ cat>namelist.mcip<<!
   lpv        =  0
   lwout      =  1
   luvbout    =  1
-  mcip_start = "2020-01-12-12:00:00.0000"
-  mcip_end   = "2020-01-15-13:00:00.0000"
+  mcip_start = "2019-07-12-12:00:00.0000"
+  mcip_end   = "2019-07-15-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"
@@ -64,8 +64,7 @@ cat>namelist.mcip<<!
   btrim      =  -1
   lprt_col   =  0
   lprt_row   =  0
-  ntimes     =  72
-  wrf_lc_ref_lat = 40.0
+  ntimes     =  73
   projparm = 2., 33.,45., -97., -97., 40.
   domains = -2508000., -1716000., 12000., 12000., 442, 265
  &END
@@ -92,8 +91,9 @@ setenv SOI_CRO     ${APPL}.soicro.ncf
 setenv MOSAIC_CRO  ${APPL}.mosaiccro.ncf
 
 rm -f *.ncf
-#Serial
-#$ProgDir/mcip.exe
 
-#LSF
-aprun -n${PROCS} -N${NODES} $ProgDir/mcip.exe
+# Serial
+$ProgDir/mcip.exe
+
+# LSF Serial
+#aprun -n${PROCS} -N${NODES} $ProgDir/mcip.exe

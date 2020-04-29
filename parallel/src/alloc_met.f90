@@ -81,44 +81,56 @@ SUBROUTINE alloc_met
 !-------------------------------------------------------------------------------
 ! Allocate time-invariant fields.
 !-------------------------------------------------------------------------------
-
-  ALLOCATE ( albedo   (met_nx, met_ny) )   ! time varying in P-X LSM
-  ALLOCATE ( landmask (met_nx, met_ny) )   ! time varying in NOAH LSM
-  ALLOCATE ( landuse  (met_nx, met_ny) )
-  ALLOCATE ( latcrs   (met_nx, met_ny) )
-  ALLOCATE ( latdot   (met_nx, met_ny) )
-  ALLOCATE ( latu     (met_nx, met_ny) )
-  ALLOCATE ( latv     (met_nx, met_ny) )
-  ALLOCATE ( loncrs   (met_nx, met_ny) )
-  ALLOCATE ( londot   (met_nx, met_ny) )
-  ALLOCATE ( lonu     (met_nx, met_ny) )
-  ALLOCATE ( lonv     (met_nx, met_ny) )
-  ALLOCATE ( mapcrs   (met_nx, met_ny) )
-  ALLOCATE ( mapdot   (met_nx, met_ny) )
-  ALLOCATE ( mapu     (met_nx, met_ny) )
-  ALLOCATE ( mapv     (met_nx, met_ny) )
+  integer ix, jy
+  if(met_model.eq.2) then
+   ix=met_nx
+   jy=met_ny
+  else if (met_model.eq.3) then ! fv3
+   ix=ncols_x+1
+   jy=nrows_x+1
+!   allocate(dum3d(met_nx,met_ny,met_nz))
+  else
+   print*,'wrong met_model ',met_model
+   stop
+  endif
+       
+  ALLOCATE ( albedo   (ix, jy) )   ! time varying in P-X LSM
+  ALLOCATE ( landmask (ix, jy) )   ! time varying in NOAH LSM
+  ALLOCATE ( landuse  (ix, jy) )
+  ALLOCATE ( latcrs   (ix, jy) )
+  ALLOCATE ( latdot   (ix, jy) )
+  ALLOCATE ( latu     (ix, jy) )
+  ALLOCATE ( latv     (ix, jy) )
+  ALLOCATE ( loncrs   (ix, jy) )
+  ALLOCATE ( londot   (ix, jy) )
+  ALLOCATE ( lonu     (ix, jy) )
+  ALLOCATE ( lonv     (ix, jy) )
+  ALLOCATE ( mapcrs   (ix, jy) )
+  ALLOCATE ( mapdot   (ix, jy) )
+  ALLOCATE ( mapu     (ix, jy) )
+  ALLOCATE ( mapv     (ix, jy) )
   ALLOCATE ( sigmaf                   (met_nz+1) )
   ALLOCATE ( sigmah                   (met_nz) )
   IF ( met_model == 3 ) THEN  ! FV3
-   ALLOCATE ( pfull                    (met_nz+1) )
-   ALLOCATE ( phalf                    (met_nz) )
-   ALLOCATE ( dpres                    (met_nx, met_ny,met_nz) )
-   ALLOCATE ( delz                     (met_nx, met_ny, met_nz) )
-   ALLOCATE ( b_k                      (met_nz+1) )
+   ALLOCATE ( pfull(met_nz+1) )
+   ALLOCATE ( phalf(met_nz) )
+   ALLOCATE ( dpres(ix, jy,met_nz) )
+   ALLOCATE ( delz (ix, jy, met_nz) )
+   ALLOCATE ( b_k  (met_nz+1) )
   ENDIF
-  ALLOCATE ( terrain  (met_nx, met_ny) )
-  ALLOCATE ( znt      (met_nx, met_ny) )
+  ALLOCATE ( terrain  (ix, jy) )
+  ALLOCATE ( znt      (ix, jy) )
 
   IF ( iflufrc ) THEN
-    ALLOCATE ( lufrac (met_nx, met_ny, nummetlu) )
+    ALLOCATE ( lufrac (ix, jy, nummetlu) )
     IF ( ifmosaic ) THEN
-      ALLOCATE ( lufrac2   (met_nx, met_ny, nummetlu) )
-      ALLOCATE ( moscatidx (met_nx, met_ny, nummetlu) )
+      ALLOCATE ( lufrac2   (ix, jy, nummetlu) )
+      ALLOCATE ( moscatidx (ix, jy, nummetlu) )
     ENDIF
   ENDIF
 
   IF ( lpv > 0 ) THEN  ! potential vorticity; get Coriolis
-    ALLOCATE ( coriolis (met_nx, met_ny) )
+    ALLOCATE ( coriolis (ix, jy) )
   ENDIF
 
    IF ( met_hybrid >= 0 ) THEN
@@ -136,140 +148,140 @@ SUBROUTINE alloc_met
 ! Allocate time-varying fields.
 !-------------------------------------------------------------------------------
 
-  ALLOCATE ( glw     (met_nx, met_ny) )
-  ALLOCATE ( groundt (met_nx, met_ny) )
-  ALLOCATE ( hfx     (met_nx, met_ny) )
-  ALLOCATE ( i_rainc (met_nx, met_ny) )
-  ALLOCATE ( i_rainnc(met_nx, met_ny) )
-  ALLOCATE ( ircold  (met_nx, met_ny) )
-  ALLOCATE ( irnold  (met_nx, met_ny) )
-  ALLOCATE ( lh      (met_nx, met_ny) )
-  ALLOCATE ( pp      (met_nx, met_ny, met_nz) )
-  ALLOCATE ( psa     (met_nx, met_ny) )
-  ALLOCATE ( qca     (met_nx, met_ny, met_nz) )
-  ALLOCATE ( qga     (met_nx, met_ny, met_nz) )
-  ALLOCATE ( qia     (met_nx, met_ny, met_nz) )
-  ALLOCATE ( qra     (met_nx, met_ny, met_nz) )
-  ALLOCATE ( qsa     (met_nx, met_ny, met_nz) )
-  ALLOCATE ( qva     (met_nx, met_ny, met_nz) )
-  ALLOCATE ( raincon (met_nx, met_ny) )
-  ALLOCATE ( rainnon (met_nx, met_ny) )
-  ALLOCATE ( rcold   (met_nx, met_ny) )   ! save this variable on each call
-  ALLOCATE ( rgrnd   (met_nx, met_ny) )
-  ALLOCATE ( rnold   (met_nx, met_ny) )   ! save this variable on each call
-  ALLOCATE ( seaice  (met_nx, met_ny) )
-  ALLOCATE ( snowcovr(met_nx, met_ny) )
-  ALLOCATE ( snowh   (met_nx, met_ny) )
-  ALLOCATE ( ta      (met_nx, met_ny, met_nz) )
-  ALLOCATE ( ua      (met_nx, met_ny, met_nz) )
-  ALLOCATE ( ust     (met_nx, met_ny) )
-  ALLOCATE ( va      (met_nx, met_ny, met_nz) )
-  ALLOCATE ( wa      (met_nx, met_ny, met_nz) )
-  ALLOCATE ( zpbl    (met_nx, met_ny) )
+  ALLOCATE ( glw     (ix, jy) )
+  ALLOCATE ( groundt (ix, jy) )
+  ALLOCATE ( hfx     (ix, jy) )
+  ALLOCATE ( i_rainc (ix, jy) )
+  ALLOCATE ( i_rainnc(ix, jy) )
+  ALLOCATE ( ircold  (ix, jy) )
+  ALLOCATE ( irnold  (ix, jy) )
+  ALLOCATE ( lh      (ix, jy) )
+  ALLOCATE ( pp      (ix, jy, met_nz) )
+  ALLOCATE ( psa     (ix, jy) )
+  ALLOCATE ( qca     (ix, jy, met_nz) )
+  ALLOCATE ( qga     (ix, jy, met_nz) )
+  ALLOCATE ( qia     (ix, jy, met_nz) )
+  ALLOCATE ( qra     (ix, jy, met_nz) )
+  ALLOCATE ( qsa     (ix, jy, met_nz) )
+  ALLOCATE ( qva     (ix, jy, met_nz) )
+  ALLOCATE ( raincon (ix, jy) )
+  ALLOCATE ( rainnon (ix, jy) )
+  ALLOCATE ( rcold   (ix, jy) )   ! save this variable on each call
+  ALLOCATE ( rgrnd   (ix, jy) )
+  ALLOCATE ( rnold   (ix, jy) )   ! save this variable on each call
+  ALLOCATE ( seaice  (ix, jy) )
+  ALLOCATE ( snowcovr(ix, jy) )
+  ALLOCATE ( snowh   (ix, jy) )
+  ALLOCATE ( ta      (ix, jy, met_nz) )
+  ALLOCATE ( ua      (ix, jy, met_nz) )
+  ALLOCATE ( ust     (ix, jy) )
+  ALLOCATE ( va      (ix, jy, met_nz) )
+  ALLOCATE ( wa      (ix, jy, met_nz) )
+  ALLOCATE ( zpbl    (ix, jy) )
 
   IF ( ift2m ) THEN  ! 2-m temperature available
-    ALLOCATE ( t2    (met_nx, met_ny) )
+    ALLOCATE ( t2    (ix, jy) )
   ENDIF
 
   IF ( ifq2m ) THEN  ! 2-m mixing ratio available
-    ALLOCATE ( q2    (met_nx, met_ny) )
+    ALLOCATE ( q2    (ix, jy) )
   ENDIF
 
   IF ( ifw10m ) THEN  ! 10-m wind components available
-    ALLOCATE ( u10   (met_nx, met_ny) )
-    ALLOCATE ( v10   (met_nx, met_ny) )
+    ALLOCATE ( u10   (ix, jy) )
+    ALLOCATE ( v10   (ix, jy) )
   ENDIF
 
   IF ( met_model == 2 ) THEN  ! WRF
-    ALLOCATE ( mu    (met_nx, met_ny) )
-    ALLOCATE ( mub   (met_nx, met_ny) )
-    ALLOCATE ( pb    (met_nx, met_ny, met_nz)   )
-    ALLOCATE ( ph    (met_nx, met_ny, met_nz+1) )
-    ALLOCATE ( phb   (met_nx, met_ny, met_nz+1) )
+    ALLOCATE ( mu    (ix, jy) )
+    ALLOCATE ( mub   (ix, jy) )
+    ALLOCATE ( pb    (ix, jy, met_nz)   )
+    ALLOCATE ( ph    (ix, jy, met_nz+1) )
+    ALLOCATE ( phb   (ix, jy, met_nz+1) )
   ELSE 
     !test
   ENDIF
 
   IF ( iflai ) THEN  ! leaf area index available
-    ALLOCATE ( lai    (met_nx, met_ny) )
+    ALLOCATE ( lai    (ix, jy) )
   ENDIF
 
   IF ( ifmol ) THEN  ! Monin-Obukhov length available
-    ALLOCATE ( mol    (met_nx, met_ny) )
+    ALLOCATE ( mol    (ix, jy) )
   ENDIF
 
   IF ( ifresist ) THEN  ! aerodynamic and stomatal resistances available
-    ALLOCATE ( ra     (met_nx, met_ny) )
-    ALLOCATE ( rstom  (met_nx, met_ny) )
+    ALLOCATE ( ra     (ix, jy) )
+    ALLOCATE ( rstom  (ix, jy) )
   ENDIF
 
   IF ( ifveg ) THEN  ! vegetation fraction available
-    ALLOCATE ( veg    (met_nx, met_ny) )
+    ALLOCATE ( veg    (ix, jy) )
   ENDIF
 
   IF ( ifwr ) THEN  ! canopy wetness available
-    ALLOCATE ( wr     (met_nx, met_ny) )
+    ALLOCATE ( wr     (ix, jy) )
   ENDIF
 
   IF ( ifsoil ) THEN  ! soil moisture, temperature, and type available
-    ALLOCATE ( isltyp (met_nx, met_ny) )
-    ALLOCATE ( soilt1 (met_nx, met_ny) )
-    ALLOCATE ( soilt2 (met_nx, met_ny) )
-    ALLOCATE ( w2     (met_nx, met_ny) )
-    ALLOCATE ( wg     (met_nx, met_ny) )
-    ALLOCATE ( soim3d (met_nx, met_ny, met_ns) )
-    ALLOCATE ( soit3d (met_nx, met_ny, met_ns) )
+    ALLOCATE ( isltyp (ix, jy) )
+    ALLOCATE ( soilt1 (ix, jy) )
+    ALLOCATE ( soilt2 (ix, jy) )
+    ALLOCATE ( w2     (ix, jy) )
+    ALLOCATE ( wg     (ix, jy) )
+    ALLOCATE ( soim3d (ix, jy, met_ns) )
+    ALLOCATE ( soit3d (ix, jy, met_ns) )
   ENDIF
   
   IF ( iftke ) THEN  ! turbulent kinetic energy available
     IF ( iftkef ) THEN  ! TKE on full-levels
-      ALLOCATE ( tke   (met_nx, met_ny, met_nz+1) )
+      ALLOCATE ( tke   (ix, jy, met_nz+1) )
     ELSE  ! TKE on half-levels
-      ALLOCATE ( tke   (met_nx, met_ny, met_nz) )
+      ALLOCATE ( tke   (ix, jy, met_nz) )
     ENDIF
   ENDIF
 
   IF ( lpv > 0 .OR. ifmolpx ) THEN  ! need potential temperature
-    ALLOCATE ( theta (met_nx, met_ny, met_nz) )
+    ALLOCATE ( theta (ix, jy, met_nz) )
   ENDIF
 
   IF ( ifmolpx ) THEN  ! recalculate Monin-Obukhov length for WRF-ACM2
-    ALLOCATE ( qfx   (met_nx, met_ny) )
+    ALLOCATE ( qfx   (ix, jy) )
   ENDIF
 
   IF ( met_urban_phys >= 1 ) THEN  ! urban canopy model in WRF
-    ALLOCATE ( frc_urb   (met_nx, met_ny) )
+    ALLOCATE ( frc_urb   (ix, jy) )
   ENDIF
 
   IF ( ifcld3d ) THEN
-    ALLOCATE ( cldfra (met_nx, met_ny, met_nz) )
+    ALLOCATE ( cldfra (ix, jy, met_nz) )
   ENDIF
 
   IF ( ifmosaic ) THEN
-    ALLOCATE ( lai_mos (met_nx, met_ny, nummosaic) )
-    ALLOCATE ( ra_mos  (met_nx, met_ny, nummosaic) )
-    ALLOCATE ( rs_mos  (met_nx, met_ny, nummosaic) )
-    ALLOCATE ( tsk_mos (met_nx, met_ny, nummosaic) )
-    ALLOCATE ( znt_mos (met_nx, met_ny, nummosaic) )
-    ALLOCATE ( wspdsfc (met_nx, met_ny) )
-    ALLOCATE ( xlaidyn (met_nx, met_ny) )
+    ALLOCATE ( lai_mos (ix, jy, nummosaic) )
+    ALLOCATE ( ra_mos  (ix, jy, nummosaic) )
+    ALLOCATE ( rs_mos  (ix, jy, nummosaic) )
+    ALLOCATE ( tsk_mos (ix, jy, nummosaic) )
+    ALLOCATE ( znt_mos (ix, jy, nummosaic) )
+    ALLOCATE ( wspdsfc (ix, jy) )
+    ALLOCATE ( xlaidyn (ix, jy) )
   ENDIF
 
   IF ( ifpxwrf41 ) THEN
-    ALLOCATE ( lai_px    (met_nx, met_ny) )
-    ALLOCATE ( wsat_px   (met_nx, met_ny) )
-    ALLOCATE ( wfc_px    (met_nx, met_ny) )
-    ALLOCATE ( wwlt_px   (met_nx, met_ny) )
-    ALLOCATE ( csand_px  (met_nx, met_ny) )
-    ALLOCATE ( fmsand_px (met_nx, met_ny) )
-    ALLOCATE ( clay_px   (met_nx, met_ny) )
+    ALLOCATE ( lai_px    (ix, jy) )
+    ALLOCATE ( wsat_px   (ix, jy) )
+    ALLOCATE ( wfc_px    (ix, jy) )
+    ALLOCATE ( wwlt_px   (ix, jy) )
+    ALLOCATE ( csand_px  (ix, jy) )
+    ALLOCATE ( fmsand_px (ix, jy) )
+    ALLOCATE ( clay_px   (ix, jy) )
   ENDIF
 
   IF ( ifkfradextras ) THEN
-    ALLOCATE ( qc_cu     (met_nx, met_ny, met_nz) )
-    ALLOCATE ( qi_cu     (met_nx, met_ny, met_nz) )
-    ALLOCATE ( cldfra_dp (met_nx, met_ny, met_nz) )
-    ALLOCATE ( cldfra_sh (met_nx, met_ny, met_nz) )
+    ALLOCATE ( qc_cu     (ix, jy, met_nz) )
+    ALLOCATE ( qi_cu     (ix, jy, met_nz) )
+    ALLOCATE ( cldfra_dp (ix, jy, met_nz) )
+    ALLOCATE ( cldfra_sh (ix, jy, met_nz) )
   ENDIF
 
 END SUBROUTINE alloc_met

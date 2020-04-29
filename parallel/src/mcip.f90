@@ -76,7 +76,7 @@ PROGRAM mcip
 !                        (T. Spero)
 !           11 Mar 2020  Added MPI capability to speed up nf90 reads (P. C.
 !                         Campbell)
-!           22 Apr 2020  Added MPI/time splitting to speed up program (P.C. 
+!           24 Apr 2020  Added MPI/time splitting to speed up program (P.C. 
 !                        Campbell and Y. Tang
 !-------------------------------------------------------------------------------
 
@@ -121,6 +121,14 @@ PROGRAM mcip
   CALL init_io
 
 !-------------------------------------------------------------------------------
+! Initialize MPI before read meteorology input.
+!-------------------------------------------------------------------------------
+
+  CALL MPI_Init(ierr)
+  CALL MPI_Comm_rank(MPI_COMM_WORLD, my_rank, ierr)
+  CALL MPI_Comm_size(MPI_COMM_WORLD, p, ierr) 
+
+!-------------------------------------------------------------------------------
 ! Read user options from namelist.
 !-------------------------------------------------------------------------------
 
@@ -134,7 +142,7 @@ PROGRAM mcip
 ! Set up input meteorology.
 !-------------------------------------------------------------------------------
 
-  CALL setup (ctmlays)
+  CALL setup (ctmlays, my_rank)
 
 !-------------------------------------------------------------------------------
 ! Set up grid definitions from input meteorology and user input.
@@ -164,55 +172,47 @@ PROGRAM mcip
 
   CALL vertarys (ctmlays)
 
-!-------------------------------------------------------------------------------
-! Initialize MPI before read meteorology input.
-!-------------------------------------------------------------------------------
-
-  CALL MPI_Init(ierr)
-  CALL MPI_Comm_rank(MPI_COMM_WORLD, my_rank, ierr)
-  CALL MPI_Comm_size(MPI_COMM_WORLD, p, ierr) 
 
 !-------------------------------------------------------------------------------
 ! MPI Ranks over time to get input, process fields, and write output.
 ! Total number of processors/ranks must  = ntimes  
 !-------------------------------------------------------------------------------
 
-!  if(ntimes.le.0) ntimes=999999999 ! assign a large number
-!  timeloop: DO nn=1,ntimes
    if(ntimes.ne.p) then
     WRITE (*,f300) TRIM(pname), ntimes, p
     CALL graceful_stop (pname)
    endif
 
-    WRITE (*,f100) mcip_now
+   print*,'before getmet',my_rank
 !    CALL getmet (mcip_now,nn)         ! Read input meteorology file.
      CALL getmet (mcip_now,my_rank+1)
+!   print*,'after getmet ',my_rank
 
-  if(my_rank.eq.0) then
+!  if(my_rank.eq.0) then
 
-    IF ( first ) THEN
+!    IF ( first ) THEN
       CALL statflds                   ! Put time-independent fields on MCIP grid
       CALL gridproc                   ! Parse and process time-independent data.
-      first = .FALSE.
-    ENDIF
+!      first = .FALSE.
+!    ENDIF
+!  endif
+  
+   CALL dynflds                      ! Put time-varying fields on MCIP grid.
 
-    CALL dynflds                      ! Put time-varying fields on MCIP grid.
-
-    CALL ctmproc                      ! Parse and process time-varying data.
+   CALL ctmproc                      ! Parse and process time-varying data.
     
-    CALL gridout (sdate, stime)       ! Output time-independent data.
-    CALL ctmout  (mcip_now, sdate, stime)        ! Output time-varying data.
-   
+   if(my_rank.eq.0) CALL gridout (sdate, stime)       ! Output time-independent data.
+ 
+   CALL getsdt (mcip_now, sdate, stime)
+   CALL ctmout (mcip_now, sdate, stime)        ! Output time-varying data.
+ 
+!-------------------------------------------------------------------------------
+! Deallocate arrays.
+!-------------------------------------------------------------------------------
 
-    ! Update SDATE and STIME for next I/O API header.
-
-    CALL geth_newdate (mcip_next, mcip_now, intvl*60)
-!    IF ( mcip_next > mcip_end ) EXIT timeloop
-    mcip_now = mcip_next
-    CALL getsdt (mcip_now, sdate, stime)
-
-   endif
-!  ENDDO timeloop
+  CALL dealloc_met
+  CALL dealloc_x
+  CALL dealloc_ctm
 
   WRITE (*,f200)
   WRITE (*,'(a)') fdesc(:)
@@ -222,14 +222,6 @@ PROGRAM mcip
 !-------------------------------------------------------------------------------
 
   CALL MPI_Finalize(ierr)
-
-!-------------------------------------------------------------------------------
-! Deallocate arrays.
-!-------------------------------------------------------------------------------
-
-  CALL dealloc_met
-  CALL dealloc_x
-  CALL dealloc_ctm
 
 !-------------------------------------------------------------------------------
 ! Close output files.

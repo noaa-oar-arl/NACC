@@ -57,16 +57,16 @@ SUBROUTINE outclog
 
   IF ( (k1 - 1) > 0 ) THEN
     IF ( k2 > 0 ) THEN
-      ifmt1 = "(/,1x,a9,5(2x,f12.4)," // str1 // "(/,10x,5(2x,f12.4)),/,10x," &
+      ifmt1 = "(/,1x,a9,5(2x,f14.4)," // str1 // "(/,10x,5(2x,f14.4)),/,10x," &
         & // str2 // "(2x,f12.4))"
     ELSE
-      ifmt1 = "(/,1x,a9,5(2x,f12.4)," // str1 // "(/,10x,5(2x,f12.4)))"
+      ifmt1 = "(/,1x,a9,5(2x,f14.4)," // str1 // "(/,10x,5(2x,f14.4)))"
     ENDIF
   ELSE
     IF ( k2 > 0 ) THEN
-      ifmt1 = "(/,1x,a9,5(2x,f12.4),/,10x," // str2 // "(2x,f12.4))"
+      ifmt1 = "(/,1x,a9,5(2x,f14.4),/,10x," // str2 // "(2x,f14.4))"
     ELSE
-      ifmt1 = "(/,1x,a9,5(2x,f12.4))"
+      ifmt1 = "(/,1x,a9,5(2x,f14.4))"
     ENDIF
   ENDIF
 

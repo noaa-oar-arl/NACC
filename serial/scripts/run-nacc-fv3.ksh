@@ -4,7 +4,7 @@ APPL=aqm.t12z
 InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/12z_hourly
 InGeoDir=$InMetDir
 OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/output
-ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/CMAQ_REPO/PREP/mcip/src
+ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/serial/src
 
 if [ ! -s $InMetDir ]; then
   echo "No such input directory $InMetDir"
@@ -50,7 +50,7 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   mcip_start = "2019-07-12-12:00:00.0000"
-  mcip_end   = "2019-07-13-13:00:00.0000"
+  mcip_end   = "2019-07-15-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"
@@ -64,8 +64,7 @@ cat>namelist.mcip<<!
   btrim      =  -1
   lprt_col   =  0
   lprt_row   =  0
-  ntimes     = 24
-  wrf_lc_ref_lat = 40.0
+  ntimes     = 73
   projparm = 2., 33.,45., -97., -97., 40.
   domains = -2508000., -1716000., 12000., 12000., 442, 265
  &END
@@ -94,8 +93,8 @@ export MOSAIC_CRO=${APPL}.mosaiccro.ncf
 
 rm -f *.ncf 
 
-#Serial
-#$ProgDir/mcip.exe
+# Serial
+$ProgDir/mcip.exe
 
-# LSF
-aprun -n${PROCS} -N${NODES} $ProgDir/mcip.exe
+# LSF Serial
+#aprun -n${PROCS} -N${NODES} $ProgDir/mcip.exe

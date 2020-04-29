@@ -16,7 +16,7 @@ NACC performs the following functions using the output (history) file from WRF o
 
 -   Outputs files that contain meteorological and geospatial information used by the emissions model and the CCTM.  The output can be either in I/O API or netCDF.
 
-NACC is written in FORTRAN, and this version runs on a single (serial) or multiple (parallel) processors in a Unix/Linux environment. NACC is driven by a C-shell or K-shell script with several run-time options that are defined through a FORTRAN namelist. It is typical to use NACC to process hourly output fields from the meteorological model for each one-day period.
+NACC is written in FORTRAN, and this version runs on a single (serial; WRF or FV3GFS) or multiple (parallel; only for FV3GFS) processors in a Unix/Linux environment. NACC is driven by a C-shell or K-shell script with several run-time options that are defined through a FORTRAN namelist. It is typical to use NACC to process hourly output fields from the meteorological model for each one-day period.
 
 NACC is often updated concurrently with the CCTM.  The changes to NACC are documented with each update to the software, and a "Frequently Asked Questions" (FAQ) file exists that is specific to NACC.
 
@@ -133,7 +133,7 @@ The variables listed here are set by the user in the NACC script (run_mcip.csh),
 
 **Compile NACC**
 
-NACC is compiled with a Makefile. The configuration options in the Makefile include the compiler and compiler flags to use for building the executable. Note that this version of NACC is either serial or parallelized code (time splitting), so MPI libraries are required for ONLY the parallel version.  The Makefile is located in the directory with the NACC source code (e.g., `NACC/serial/src`). To compile NACC, simply invoke the Makefile at the command line:
+NACC is compiled with a Makefile. The configuration options in the Makefile include the compiler and compiler flags to use for building the executable. Note that this version of NACC is either serial (WRF or FV3GFS) or parallelized code (FV3GFS Only), so MPI libraries are required for ONLY the parallel version.  The parallel version is meant to be used with the global FV3GFSv16, as it significantly speeds up the total IO throughput wall clock time.  The Makefile is located in the directory with the NACC source code (e.g., `NACC/serial/src` or `NACC/parallel/src`). To compile NACC, simply invoke the Makefile at the command line:
 
 ```
 ./make |& tee make.nacc.log

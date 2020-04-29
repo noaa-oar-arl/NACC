@@ -49,7 +49,7 @@ SUBROUTINE getmet (mcip_now,nn)
 
   IMPLICIT NONE
 
-  CHARACTER(LEN=24),  INTENT(IN)    :: mcip_now
+  CHARACTER(LEN=24),  INTENT(INOUT)    :: mcip_now
   CHARACTER(LEN=16),  PARAMETER     :: pname      = 'GETMET'
   INTEGER, INTENT(IN)    :: nn
 !-------------------------------------------------------------------------------
