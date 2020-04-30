@@ -1,0 +1,792 @@
+
+I/O API: NEW STUFF WITH VERSIONS 3.X:
+ 
+   On Github: I/O API-3.2 
+   CF-compliant geospatial metadata option 
+   PNCF/MPI distributed I/O option 
+   Snoop-Mode option for read-operations 
+   New Module MODATTS3 
+   New Module MODGCTP 
+   New Module MODNCFIO 
+   New Fortran-90 Generic Routines 
+   m3tools Programs 
+   New SUBROUTINEs and FUNCTIONs 
+   gfortran hacks 
+   netCDF-4 Issues 
+   Climatology-year versions 
+   Memory-Model issues 
+   Other Issues 
+
+
+On Github:
+
+    I/O API-3.2 Version 3.2 of the I/O API library code is available
+    for download in gzipped-tar source code form from the CMAS
+    Center web-site, or is available on GitHub from
+    <https://github.com/cjcoats/ioapi-3.2>. To install a
+    distribution-copy using git directly from GitHub, go to the
+    directory under which do the installation, and then do the command 
+
+        git clone https://github.com/cjcoats/ioapi-3.2
+
+    This will create a directory "ioapi-3.2" with the following
+    sub-directories and files: 
+
+        HTML: documentation directory 
+        ioapi: library source directory 
+        m3tools: tools-program source directory 
+        LICENSE: GPL-2 text 
+        Makefile: Top-level make file, for user-customization
+        Makefile.template: master copy of top-level make file 
+        README.TXT: ASCII "readme" 
+        README.md: markup-language "readme" 
+        VERSION.txt: tarball-release date file 
+        exclude: file used in "make gtar" tarball-creation 
+
+    NOTE that the download tar-ball does not create this sub-directory
+    but creates all of its contents.
+
+    TO DO: The HTML sub-directory in this project-repository has the
+    full set of documentation git-configuration-managed as HTML pages,
+    in a manner consistent with the release-tarballs and the CMAS Center
+    I/O API web-pages. I've read the GitHub docs on project pages, and
+    found them remarkably un-helpful. Is it their idea that I need to
+    create a duplicate copy of the docs and maintain both copies ?! 
+    Help !! 
+
+
+CF-compliant geospatial metadata option
+
+    I/O API-3.2:
+
+    Creation of CF-compliant geospatial metadata during file-creation
+    can be turned on by environment variable IOAPI_CFMETA:
+
+        setenv IOAPI_CFMETA  Y 
+
+    or by calling subroutine INITCF() in MODULE MODATTS3: see below. 
+
+
+PnetCDF/MPI distributed I/O option
+
+    I/O API-3.2: 
+
+    The I/O API can now be configured to use PnetCDF to provide
+    distributed I/O for CMAQ (turning this on is a build-time option for
+    the I/O API), on a file-by-file basis. Distributed I/O is only
+    supported for gridded files on the cross-point grid; to turn it on,
+    prefix the path-name by a MPI: prefix, as in the example below: 
+
+        setenv  CHEMCONC3D  MPI:/mydir/cmaq.conc.US36_CRO.2015233.ncf
+
+    See this description:
+    https://www.cmascenter.org/ioapi/documentation/all_versions/html/BUFFERED.html#pncf
+
+    I/O API libraries and builds using PnetCDF are not link compatible with
+    ordinary builds, and should be kept carefully separate from them. You
+    can build the I/O API to use PnetCDF/MPI distributed I/O using
+    make -f Makefile.pncf and the following binary types and Makeinclude
+    files (or use them as templates to build your own custom binary type): 
+
+        Makeinclude.Linux2_x86_64gfortmpi 
+        Makeinclude.Linux2_x86_64ifortmpi 
+        Makeinclude.Linux2_x86_64pgmpi 
+        Makeinclude.Linux2_x86_64sunmpi 
+
+    When performing the link-step to create model-executables, you will need
+    to put the PnetCDF libraries in the library-build directory, and add the
+    PnetCDF libraries to the link-step command line: 
+
+        ... -lpnetcdf -lnetcdff -lnetcdf ... 
+
+    See also MODULE MODNCFIO below. 
+
+
+Snoop-Mode option for read-operations
+
+    I/O API-3.2: 
+
+    The I/O API can now be configured (e.g., for
+    forecast-modeling-system operations) to enable "model-pipelining" by
+    responding to end-of-file conditions with multiple re-tries,
+    controlled by environment variables SNOOPTRY3, SNOOPSECS3: 
+
+        If SNOOPTRY3, SNOOPSECS3 > 0: when read-operations READ3(),
+        XTRACT3(), INTERP3(), CHECK3(), or DDTVAR3() encounter end-of-file,
+        they will re-try for up to SNOOPTRY3 attempts, with delay SNOOPSECS3
+        seconds in between attempts. 
+
+        If SNOOPTRY3 = 0, SNOOPSECS3 > 0 then the number of re-tries as
+        above is (almost) unlimited. 
+
+        If SNOOPTRY3 < 0 or SNOOPSECS3 ‰¤ 0, then Snoop Mode is turned off. 
+
+    This not only allows the generation of early-hour products well
+    before the entire forecast is complete, it also enables the
+    operating system to make better use of its internal I/O-buffers,
+    further increasing modeling system efficiency. 
+
+
+New Module MODATTS3
+
+    I/O API-3.1: MODULE M3ATTS has only the matrix-attribute routines
+    and metadata described below. 
+
+    I/O API-3.2:
+    See https://www.cmascenter.org/ioapi/documentation/all_versions/html/MODATTS3.html
+
+    New MODULE MODATTS3 replaces MODULE MATXATTS (so that all
+    USE MATXATTS statements need to become USE MODATTS3 in your codes): 
+
+    Matrix-attribute routines (add extra netCDF file attributes to
+    describe input and output grids for matrix-files): 
+
+        INITMTXATT()
+        GETMTXATT()
+        SETMTXATT()
+        CHKMTXATT()
+        ENDMTXATT() 
+
+    CF-convention geospatial-metadata routines, turned on by environment
+    variable IOAPI_CFMETA, make newly-created files CF compliant.
+
+    See http://cfconventions.org/. 
+
+        setenv IOAPI_CF  Y 
+
+        INITCF()
+        SETCF()
+        ENDCF() 
+
+    "Standard" CMAQ data structures and routines for CMAQ metadata,
+    turned on by environment variable IOAPI_CMAQMETA: 
+
+        setenv IOAPI_CMAQMETA  Y 
+
+        INITCMAQ()
+        ISCMAQ()
+        GETCMAQ()
+        LOGCMAQ()
+        SETCMAQ()
+        ENDCMAQ() 
+
+    Place-holder for "standard" SMOKE metadata data structures and
+    routines (not yet implemented; what this metadata contains needs to
+    be determined...), turned on by environment variable
+    IOAPI_SMOKEMETA:
+
+        setenv IOAPI_SMOKEMETA  Y 
+
+        INITSMOKE()
+        ISSMOKE()
+        GETSMOKE()
+        LOGSMOKE()
+        SETSMOKE()
+        ENDSMOKE() 
+
+    Developing the data dictionary for standard SMOKE metadata is an
+    open issue below, that is needed before the "guts" of these routines
+    can be filled in. 
+
+
+New Module MODGCTP
+
+    I/O API-3.2:  see
+    https://www.cmascenter.org/ioapi/documentation/all_versions/html/MODGCTP.html
+
+    New MODULE MODGCTP with all the coordinate-transform related routines
+    and INTERFACEs:
+
+    Old but modified: (moved from MODULE M3UTILIO) 
+
+        INTERFACE for GTPZ0() 
+
+        INTERFACEs and new implementations for GTPZ0()-spheroid
+        initialization procedures SETSPHERE(), INITSPHERES(),
+        SPHEREDAT() 
+
+        INTERFACEs and new implementations for
+        single-precision/single-point/specific-projection
+        coordinate-transform functions INITPROJ(), ..., LAMBERT(), ...,
+        ALB2EQM() 
+
+    New: 
+
+        PARAMETERs STDSPHERES(0:21) and SPHERENAMES(0:21) for GCTP
+        spheroid names and indices; 
+
+        GTPZ0()-argument initialization procedure M3TOGTPZ() 
+
+        Scattered-point-array generic coordinate-transform procedure
+        XY2XY() 
+
+        Grid-node-array generic coordinate-transform procedure
+        GRID2XY() 
+
+        High-performance OpenMP-Parallel generic bilinear interpolation
+        package GRID2INDX(), PNTS2INDX(), INDXMULT() 
+
+New Module MODNCFIO
+
+    I/O API-3.2:  see 
+    https://www.cmascenter.org/ioapi/documentation/all_versions/html/MODNCFIO.html
+
+    Due to inconsistencies between them, it was difficult to use the
+    vendor supplied INCLUDE files "netcdf.inc" (or "NETCDF.EXT") and
+    "pnetcdf.inc" for the I/O API Distributed-I/O Mode: the latter defined
+    some but not all of the netCDF definitions that were needed, so it
+    was not possible to use "#ifdefs" to select between them. New
+    MODULE MODNCFIO puts all the definitions in a consistent form in one
+    place (with conditional compilation, to determine whether or not
+    PnetCDF is active). 
+
+    This module also supplies new routines for use with a specified
+    "raw netCDF" file: 
+
+        DESCNCVAR() returns the list of variables and their units, types,
+        and dimensions, and 
+
+        READNCVAR() is a generic routine that reads a specified 1-D, 2-D,
+        3-D, or 4-D variable of type INTEGER, REAL, REAL*8, INTEGER*1, or
+        INTEGER*2, with both fully-dimensioned and single-indexed forms for
+        the output-buffers. 
+
+    The upcoming SMOKE uses READNCVAR() to read global gridded emissions
+    data. Many other uses (e.g., to read INTEGER*2 gridded NLDAS land
+    cover for CONUS) can easily be imagined. 
+
+
+New Fortran-90 Generic Routines
+
+    Many of these are what's needed to provide explicit INTERFACEs where
+    arguments may have been previously single-indexed or not, or to
+    provide for both REAL and REAL8 arguments, etc. Transform routines
+    in MODULE MODGCTP exist in both same-sphere and sphere-to-sphere
+    forms. In addition to the many generic routines now found in
+    MODULE M3ATTS and MODULE MODGCTP, the following generic interfaces
+    are now defined in MODULE M3UTILIO 
+
+    Note that these generic INTERFACEs require USE M3UTILIO, and also
+    have the argument-type-specific forms listed with each. 
+
+        SUBROUTINE BILIN(): 
+            BILIN11L(), BILIN12L(), BILIN21L(), BILIN22L(), BILIN11(),
+            BILIN12(), BILIN2L(), BILIN22()
+            I/O API-3.2 and later 
+
+        SUBROUTINE BMATVEC(): 
+            BMATVEC11(), BMATVEC12(), BMATVEC21(), BMATVEC22(),
+            BMATVEC01(), BMATVEC02(), BMATVEC021(), BMATVEC022() 
+
+        LOGICAL FUNCTION ENVLIST(): 
+            INTLIST(), REALIST(), DBLLIST(), STRLIST()
+            I/O API-3.2 and later 
+
+        <type> FUNCTION ENVGET(): 
+            BENVINT(), BENVDBLE(), BENVREAL(), ENVINT(), ENVDBLE(),
+            ENVREAL(), ENVSTR(), ENVYN()
+            I/O API-3.2 and later 
+
+        INTEGER FUNCTION FINDKEY(): 
+            FINDC(), FIND1(), FIND2(), FIND3(), FIND4(),
+            FINDL1(), FINDL2(), FINDL3(), FINDL4(),
+            FINDR1(), FINDR2(), FINDR3(), FINDR4()
+            I/O API-3.1 and later 
+
+        <type> FUNCTION GETVAL(): 
+            GETDBLE(), GETDBLE1(), GETMENU(), GETNUM(),
+            GETNUM1(), GETREAL(), GETREAL1(), GETYN()
+            I/O API-3.2 and later 
+
+        INTEGER FUNCTION LOCATE(): 
+            LOCAT1(), LOCAT2(), LOCAT3(), LOCAT4(), LOCATC(),
+            LOCATL1(), LOCATL2(), LOCATL3(), LOCATL4(),
+            LOCATR1(), LOCATR2(), LOCATR3(), LOCATR4()
+            I/O API-3.1 and later 
+
+        SUBROUTINE PMATVEC(): 
+            PMATVEC11(), PMATVEC12(), PMATVEC21(), PMATVEC22()
+            I/O API-3.2 and later 
+
+        SUBROUTINE SORTI(): 
+            SORTIC4(), SORTIC8(), SORTINC4(), SORTINC8(),
+            SORTI1(), SORTI2(), SORTI3(), SORTI4(),
+            SORTL1(), SORTL2(), SORTL3(), SORTL4(),
+            SORTR1(),SORTR2(), SORTR3(), SORTR4()
+            I/O API-3.1 and later 
+
+        SUBROUTINE UNGRIDB(): 
+            UNGRIDBS1(), UNGRIDBS2(), UNGRIDBD1(), UNGRIDBD2() 
+
+        SUBROUTINE UNGRIDI(): 
+            UNGRIDIS1(), UNGRIDIS2(), UNGRIDID1(), UNGRIDID2()
+
+
+"M3TOOLS" Programs:  see
+https://www.cmascenter.org/ioapi/documentation/all_versions/html/AA.html#tools
+
+    Date-and-Time Manipulation for Scripting:
+
+    I/O API-3.1 and later:
+
+        datshift, greg2jul, jul2greg, juldiff, julshift, timeshift
+
+    These echo the program's result (without any extraneous stuff). Here
+    are some sample uses (where note that "enclose in back-quotes" means
+    to take the result of the program and use it, e.g., as the
+    right-hand side of set ... = , and that the :r "root" and :e
+    "extension" operators take the left and right hand sides of the
+    period in shell-variable values): 
+
+        set jdate = `greg2jul today`
+        set kdate = `greg2jul 20150103`             # converts Jan. 3, 2015 to YYYYDDD format
+        set idate = `julshift ${jdate} 7`           # Julian date for this day next week
+        set days  = `juldiff ${jdate} ${kdate}`     # is two less than today's day-number, assuming today in 2015005.
+        timeshift 2014029.120000 183000             # echoes 2014030.063000
+        set foo = `timeshift 2014029.120000 183000`
+        echo $foo:r                                 # echoes 2014030
+        echo $foo:e                                 # echoes 063000
+    
+    New Programs: 
+
+        I/O API-3.1 and later: 
+        bcwndw, camxtom3, dayagg, vertimeproc, vertintegral
+
+        I/O API-3.2: 
+        findwndw, gridprobe, insertgrid, m3mask, m3probe, m3totxt,
+        wrfgriddesc, wrftom3
+
+    OpenMP-Parallel Programs: 
+
+        I/O API-3.2: 
+
+        bcwndw, dayagg, m3agmask, m3agmax, m3combo, m3cple, m3interp,
+        m3mask, m3tproc, mtxcalc mtxcple, presz, vertimeproc,
+        vertintegral, vertot 
+
+    Codes now in Fortran-90 "Free" (.f90) source format: 
+
+        I/O API-3.2: 
+        bcwndw.f90, camxtom3.f90, datshift.f90, dayagg.f90, factor.f90,
+        fakestep.f90, fills.f90, greg2jul.f90, gregdate.f90,
+        jul2greg.f90, juldate.f90, juldiff.f90, julshift.f90,
+        latlon.f90, m3combo.f90, m3cple.f90, m3fake.f90, m3mask.f90,
+        m3pair.f90, m3probe.f90, m3totxt.f90, m3tproc.f90, m3tshift.f90,
+        m3wndw.f90, mtxcalc.f90, pairstep.f90, presz.f90, timeshift.f90,
+        vertimeproc.f90, vertintegral.f90, vertot.f90 
+
+    New SAMPLE PROGRAMS page: updated to demonstrate I/O API-3.x
+    capabilities and MODULEs, .f90 source format and coding style:  see
+    https://www.cmascenter.org/ioapi/documentation/all_versions/html/SAMPLE.html
+
+    Removed program "utmtool" (deprecated in I/O API-3.0), in favor of
+    program "projtool" which has greatly extended capabilities:
+    I/O API-3.2 
+
+
+New SUBROUTINEs and FUNCTIONs
+
+    INTERFACE-specific forms: I/O API-3.2 
+
+        needed for MODULE M3UTILIO to provide INTERFACEs for multiple
+        argument-rank cases, as described in the section on Fortran-90
+        Generics, above. 
+
+    SUBROUTINE LASTTIME( SDATE,STIME,TSTEP,NRECS, EDATE,ETIME ): I/O API-3.1 
+        computes the last date and time for a time step sequence,
+        robustly avoiding INTEGER-overflow problems (Limit: NRECS
+        overflows beyond about 68 years with 1-sec timestep, or 8947
+        years with 1-hour timestep. I've done 33-year runs with no
+        problems, with I/O API-3.1 codes). 
+
+    GETNUM1(), GETREAL1(), GETDBLE1(): I/O API-3.2 
+        Have only arguments for DEFAULT and PROMPT, but not LO, HI as do
+        the original GETNUM(), GETREAL(), GETDBLE() 
+
+    BENVINT(), BENVDBLE(), BENVREAL(): I/O API-3.2 
+        accept bounded ranges of inputs: do have LO, HI arguments 
+
+    M3TOGTPZ(),XY2XY(),GRID2XY(), GRID2INDX(), PNTS2INDX(), INDXMULT()
+        in MODULE MODGCTP: I/O API-3.2 
+
+    FINDL1(), FINDL2(), FINDL3(), FINDL4(), LOCATL1(), LOCATL2(),
+    LOCATL3(), LOCATL4(), SORTL1(), SORTL2(), SORTL3(), SORTL4():
+    I/O API-3.1 
+        ...for INTEGER*8 key-tuples (needed for CARB SMOKE extensions)
+
+    SORTINC4(), SORTINC8(): I/O API-3.1 
+        ...only the first N characters are significant. 
+
+    SORTIC8(), SORTINC8(): I/O API-3.1 
+        ...use INTEGER*8 table-subscripting, and require compilation for
+        the Medium-64 memory model to be useful (-mcmodel=medium for
+        "ifort"). [SMOKE-CARB request where they want to have more than
+        2G "sources" for program "smkreport"]
+
+
+gfortran hacks
+
+    I/O API-3.1 and later:
+
+    Recent versions of "gfortran" insist on breaking compatibility with
+    all other compilers we use (including earlier versions of gfortran),
+    not accepting command-line-argument routines IARGC() and GETARG()
+    (which are an industry standard Fortran extension), and accepting
+    only Fortran-2003 routines GET_COMMAND_ARGUMENT() and
+    COMMAND_ARGUMENT_COUNT(). This version conditionally implements
+    IARGC() and GETARG() internally in "init3.F", depending upon
+    preprocessor-definition -DNEED_ARGS=1 which is now set in
+    Makeinclude.Linux2_x86, Makeinclude.Linux2_x86gfort,
+    Makeinclude.Linux2_x86_64, and Makeinclude.Linux2_x86_64gfort.
+    Depending upon gfortran version, you either need to have it, or need
+    *not* to have it. 
+
+
+Climatology-Year Versions
+
+    I/O API-3.2 and later:
+
+    You can build the I/O API to use a 360-day or 365-day climatology
+    year, using the following binary types and Makeinclude files: 
+
+        Makeinclude.Linux2_x86_64_360 
+        Makeinclude.Linux2_x86_64_365 
+        Makeinclude.Linux2_x86_64gfort_360 
+        Makeinclude.Linux2_x86_64gfort_365 
+        Makeinclude.Linux2_x86_64ifort_360 
+        Makeinclude.Linux2_x86_64ifort_365 
+        Makeinclude.Linux2_x86_64pg_360 
+        Makeinclude.Linux2_x86_64pg_365 
+
+    Note that you need to keep these builds distinct from the
+    (not-compatible) "normal" builds. 
+
+
+Memory-Model Issues
+
+    I/O API-3.2 and later:
+
+    See Notes on Linux2_x86_64 memory models:
+    https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#medium
+    http://eli.thegreenplace.net/2012/01/03/understanding-the-x64-code-models
+    https://software.intel.com/en-us/node/525162
+
+    There are three different memory-models for programs on 64-bit
+    x86_64 Linux machines, which offer differing degrees of support for
+    huge (>2 GB) arrays and huge object-files. Most compilers default to
+    the "small" memory model, which suffices for the vast majority of
+    uses. You can build the I/O API to use the "medium" memory model
+    (at some cost in performance), using the following binary types and
+    Makeinclude files: 
+
+        Makeinclude.Linux2_x86_64gfort_medium 
+        Makeinclude.Linux2_x86_64ifort_medium 
+        Makeinclude.Linux2_x86_64pg_medium 
+
+    Compiler-flags for memory model tend to take one of the following forms: 
+
+        -mcmodel=small
+        -mcmodel=medium
+        -mcmodel=large 
+
+    For CMAQ, you will need the medium memory model if your full CONC
+    field is larger than 2 GB, i.e., if your grid dimensions are much
+    larger than about 300 rows x 400 columns x 40 layers x 100 species
+    (or equivalent).
+
+    Note that you need to build *all* model-components with the same set
+    of memory-model flags and to keep these builds distinct from the
+    (not-compatible) "normal" builds. 
+
+
+Other Issues
+
+    These issues generally relate to the I/O API, but are not,
+    strictly speaking, part of it.
+
+    INTEGER Date-&-Time Overflow Issues 
+
+        Note that time intervals coded HHMMSS will suffer
+        INTEGER-overflow after a little more than 24.5 years; however,
+        a number of I/O API routines -- CURREC(), CURRSTEP(), JSTEP3(),
+        LASTTIME(), NEXTTIME() -- are now carefully coded so as to avoid
+        such overflow, and can be used for time periods as long as
+        several thousand years. 
+
+        Programs that use starting date and time and run-duration
+        (formatted YYYYDDD, HHMMSS, and HHMMSS) as run-control
+        parameters will necessarily have the matching overflow problems;
+        it is recommended that starting and ending dates and times be
+        used for control instead. This latter style is safe for
+        multi-century runs... 
+
+
+    Environment variables 
+
+        ...of length up to 64K are now supported internally for
+        I/O API-3.1 and later. Note that your operating system may well
+        barf over this kind of thing: POSIX only mandates up to 512
+        bytes ;-( 
+
+
+    GET_ENVLIST() 
+
+        Why re-invent the wheel? ...un-safely? ...and repeatedly?
+        (there being 5 different copies of this routine in the
+        CMAQ-5.0.1 source!)
+
+        There was already a well-written routine STRLIST() with the same
+        basic  functionality, except that it did so safely, with bounds
+        checking: by putting a too-long list into a CMAQ script, one can
+        crash CMAQ any time you want! This would not be true if it used
+        the already-written I/O API routines. 
+
+
+    CHECKMEM() 
+
+        Note that this is mostly found in SMOKE-descended codes, and in
+        SMOKE itself... 
+
+        Versions of this routine prior to the one found in SMOKE-4.0
+        violate Models-3 standards by failing to log the "status"
+        argument, which when non-zero is is the actual reason for
+        program failure -- in one case I know of, it cost more than two
+        person-weeks of debugging a development-version of SMOKE program
+        "movesmrg", before it was turned over to me and I replaced this
+        routine by one which did report the status, at which point it
+        took me about ten minutes to re-compile and do a test-run, five
+        more minutes to look up the failure-status in Intel's web-docs,
+        and then a final fifteen minutes to find and fix the problem. 
+
+        Moreover, CHECKMEM() use both suppresses optimization
+        opportunities and at the same time makes the code less readable.
+        For example, compare this example taken from CMAQ's BDSNP_MOD.F
+        (which hides its actual content among a forest of CHECKMEMs): 
+
+         ALLOCATE( SOILM( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'SOILM', PNAME )
+         
+         ALLOCATE( SOILMPREV( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'SOILMPREV', PNAME )
+
+         ALLOCATE( SOILT( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'SOILT', PNAME )
+
+         ALLOCATE( ISLTYP( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'ISLTYP', PNAME )
+
+         ALLOCATE( DRYPERIOD( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PTYPE', PNAME )
+         
+         ALLOCATE( NDEPRES( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PTYPE', PNAME )
+         
+         ALLOCATE( NDEPRATE( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PTYPE', PNAME )
+         
+         NDEPRATE = 0.0
+
+         ALLOCATE( PFACTOR( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PFACTOR', PNAME )
+         
+         ALLOCATE( ARID( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'ARID', PNAME )
+         
+         ALLOCATE( NONARID( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'NONARID', PNAME )
+         
+         ALLOCATE( LANDFRAC( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'LANDFRAC', PNAME )
+         
+         ALLOCATE( FERT( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'FERT', PNAME )
+         
+         ALLOCATE( T1_NH3( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'T1_NH3', PNAME )
+         
+         ALLOCATE( T1_NO3( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'T1_NO3', PNAME )
+
+         ALLOCATE( T1_ON( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'T1_ON', PNAME )
+
+         ALLOCATE( EPICN( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'EPICN', PNAME )
+
+         ALLOCATE( CRF( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'CRF', PNAME )
+         
+         ALLOCATE( CRFAVG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'CRF', PNAME )
+         
+         ALLOCATE( PULSEAVG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PULSEAVG', PNAME )
+         
+         ALLOCATE( BASESUM( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'BASESUM', PNAME )
+         
+C ------ Diagnostics -----------------------------------         
+         ALLOCATE( THETA_DIAG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'THETA_DIAG', PNAME )
+         
+         ALLOCATE( WET_DIAG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'WET_DIAG', PNAME )
+         
+         ALLOCATE( TEMP_DIAG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'TEMP_DIAG', PNAME )
+         
+         ALLOCATE( A_DIAG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'A_DIAG(', PNAME )
+         
+         ALLOCATE( AFERT_DIAG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'AFERT_DIAG', PNAME )
+         
+         ALLOCATE( NRES_FERT_DIAG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'NRES_FERT_DIAG', PNAME )
+         
+         ALLOCATE( NRES_DEP_DIAG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'NRES_DEP_DIAG', PNAME )
+    
+    with the following equivalent code, which I find both much more
+    readable and more informative in case of an error: 
+
+         ALLOCATE( SOILM( NCOLS,NROWS ),
+     &         SOILMPREV( NCOLS,NROWS ),
+     &             SOILT( NCOLS,NROWS ),
+     &            ISLTYP( NCOLS,NROWS ),
+     &         DRYPERIOD( NCOLS,NROWS ),
+     &           NDEPRES( NCOLS,NROWS ),
+     &          NDEPRATE( NCOLS,NROWS ),
+     &           PFACTOR( NCOLS,NROWS ),
+     &              ARID( NCOLS,NROWS ),
+     &           NONARID( NCOLS,NROWS ),
+     &          LANDFRAC( NCOLS,NROWS ),
+     &              FERT( NCOLS,NROWS ),
+     &            T1_NH3( NCOLS,NROWS ),
+     &            T1_NO3( NCOLS,NROWS ),
+     &             T1_ON( NCOLS,NROWS ),
+     &             EPICN( NCOLS,NROWS ),
+     &               CRF( NCOLS,NROWS ),
+     &            CRFAVG( NCOLS,NROWS ),
+     &          PULSEAVG( NCOLS,NROWS ),
+     &           BASESUM( NCOLS,NROWS ),
+     &        THETA_DIAG( NCOLS,NROWS ),    !!  diagnostic variables:
+     &          WET_DIAG( NCOLS,NROWS ),
+     &         TEMP_DIAG( NCOLS,NROWS ),
+     &            A_DIAG( NCOLS,NROWS ),
+     &        AFERT_DIAG( NCOLS,NROWS ),
+     &    NRES_FERT_DIAG( NCOLS,NROWS ),
+     &     NRES_DEP_DIAG( NCOLS,NROWS ), STAT=IOS )
+         IF ( IOS .NE. 0 ) THEN
+             WRITE( MESG, '(A, I9)' ) 
+     &          'ERROR allocating SOILM...NRES_DEP_DIAG.  STATUS=', IOS
+             CALL M3EXIT( PNAME, 0,0, MESG, 2 )
+         END IF
+         
+         NDEPRATE = 0.0
+
+    
+    Array-of-TYPE code architecture 
+
+        If you take nVidia's courses on GPU programming, one of the very
+        first things they will say (using C-programmer language,
+        "struct" instead of Fortran-90 "TYPE") is: 
+
+        Many codes can be structured either as array-of-structs or as
+        struct-of-arrays (or even as parallel arrays). Array-of-structs
+        code will kill GPU-computing performance. 
+
+        And actually the same is true for for killing performance on the
+        upcoming Intel PHI Xeons and, though to a lesser degree, for
+        all current cache based microprocessors... 
+        
+        Forcing the aerosol-code structure into this form is not a
+        good idea ;-(
+
+
+    Module names 
+
+        With a very few exceptions (Absoft, PathScale, Cray), Fortran-9x
+        compiler behavior for generating MODULE-file names is 
+
+          *) Downcase the MODULE-name
+
+          *) Add a trailing ".mod"
+
+        Therefore, if we name MODULE-source files by a similar pair of
+        rules: 
+
+          *) One MODULE per source-file
+
+          *) Optionally, name all modules "mod<something>" so that
+             module-source files are immediately obvious
+
+          *) Downcase the MODULE-name for the base of the source-file name,
+             and add a trailing .f or .f90, as appropriate.
+
+          *) For example MODULE MODQUX should live in source-file modqux.f90
+             or  modqux.f
+
+        then we can put rule based--and correct!--MODULE and precise
+        dependency handling into "Makefiles", and avoid a number of
+        problems caused by the hacks found in the current systems.
+        For example, the rules allow us to define the sets of module
+        and object files as below, leading to a very simple "clean"
+        make-target in the following Makefile-extract (or for more
+        examples, see the "ioapi" and "m3tools" Makefiles):
+
+.SUFFIXES: .m4 .c .F .f .f90 .F90 .mod
+...
+
+FFLAGS  = ...
+LDFLAGS = ...
+LIBS    = ...
+
+######  Lists of source files:
+##  fixed-format non-module source files
+fSRC = ...
+
+##  fixed-format+pre-process non-module source files
+FSRC = ...
+
+##  free-format non-module source files
+f90SRC = foo.f90 ...
+
+##  fixed-format module source files
+mSRC = ...
+
+##  free-format module source files
+m90SRC = ...
+
+##  free-format+pre-process module source files
+M90SRC = modncfio.F90
+
+...
+MODS = $(mSRC:.f=.mod) $(m90SRC:.f90=.mod) $(M90SRC:.F90=.mod)
+MOBJ = $(mSRC:.F90=.o) $(m90SRC:.f90=.o)   $(M90SRC:.F90=.o)
+OBJS = $(fSRC:.f=.o)   $(FSRC:.f=.o)       $(f90SRC:.f90=.o) ${MOBJ}
+
+##  Executable programs
+
+EXE = foo ...
+   
+######    High Level Targets:  --------------------------
+   
+all:  ${EXE}
+
+clean:  ${OBJDIR}
+	cd ${OBJDIR}; rm  ${EXE}  ${MODS}  ${OBJS}
+
+
+######    RULES:  --------------------------
+
+%.o : %.mod        #  Disable "gmake"s obnoxious implicit Modula-2 rule !!
+
+.f.mod .f.o .f90.mod .f90.o .F.mod .F.o .F90.mod .F90.o:
+	cd ${OBJDIR}; $(FC) -c $(FFLAGS) ${SRCDIR}/$<
+
+######    Dependencies:  --------------------------
+
+foo:  foo.o modncfio.o
+	cd ${OBJDIR}; $(FC) ${LDFLAGS} $^ ${LIBS} -o $@
+...

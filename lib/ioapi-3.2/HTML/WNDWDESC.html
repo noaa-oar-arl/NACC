@@ -1,0 +1,88 @@
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<!-- "$Id: WNDWDESC.html 116 2019-06-11 21:16:16Z coats $" -->
+<META NAME="MSSmartTagsPreventParsing" CONTENT="TRUE"> 
+<TITLE> Program GRIDPROBE </TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" 
+      TOPMARGIN="15" 
+      MARGINHEIGHT="15" 
+      LEFTMARGIN="15" 
+      MARGINWIDTH="15">
+
+<H1>    Program WNDWDESC </H1>
+
+<H2> Summary </H2>
+<BLOCKQUOTE>
+
+    The <VAR>wndwdesc</VAR> program computes corners and write grid description
+    for a Lat-Lon described window ${WNDWNAME} into an I/O API grid ${GRIDNAME}.
+    <P>
+
+    Source code for program <CODE>wndwdesc</CODE> is available
+    <A HREF = "gpl.txt">under the GNU GPL License, Version 2</A>, and
+    can be downloaded from the CMAS web site as part of the I/O&nbsp;API
+    distribution tar-ball <A HREF = "AVAIL.html">from this page</A>.
+    <P>
+</BLOCKQUOTE>
+
+<H2> Usage </H2>
+<BLOCKQUOTE>
+
+    <PRE>
+    setenv  GRIDDESC    &lt;path name for  input file&gt;
+    setenv  WNDWDESC    &lt;path name for output file&gt;
+    wndwgrid &lt;LAT1&gt; &lt;LON1&gt; &lt;LAT2&gt; &lt;LON2&gt; &lt;GRIDNAME&gt; &lt;WNDWNAME&gt;
+    </PRE>
+    where 
+    <UL>
+        <LI> <CODE>GRIDDESC</CODE> is the logical name for an existing GRIDDESC-file
+        <LI> <CODE>WNDWDESC</CODE> is the logical name for the output GRIDDESC-file
+        <LI> <CODE>GRIDNAME</CODE> is the name of a grid in <CODE>GRIDDESC</CODE>
+        <LI> <CODE>(LAT1,LON1)</CODE> and <CODE>(LAT2,LON2)</CODE> are the Lat-Lon
+             coordinates for points in two opposing corners of the requested
+             output grid.
+        <LI> <CODE>WNDWNAME</CODE> is the name of the windowed sub-grid of
+             <CODE>GRIDNAME</CODE> that encloses <CODE>(LAT1,LON1)</CODE>
+             and <CODE>(LAT2,LON2)</CODE>
+    </UL>
+    Program <CODE>wndwdesc</CODE> will report the corner column and row
+    for the sub-grid of  <CODE>GRIDNAME</CODE> to the log, after the fashion
+    <PRE>
+SW CORNER (C,R)=        22        27
+NE CORNER (C,R)=        66        58
+    </PRE>
+    and will also write a single-grid
+    <A HREF="GRIDDESC.html">GRIDDESC-format file</A> for this windowed
+    sub-grid to the file with logical name <CODE>WNDWDESC</CODE>
+    <P>
+</BLOCKQUOTE>
+
+<HR>
+
+<A HREF = "FINDWNDW.html" >
+See Also: <STRONG>program FINDWNDW</STRONG>
+</A><P> 
+
+<A HREF = "UTMTOOL.html" >
+Previous:  <STRONG>UTMTOOL</STRONG>
+</A><P> 
+
+<A HREF = "GREGDATE.html" >
+Next:  <STRONG>GREGDATE</STRONG>
+</A><P> 
+
+<A HREF = "AA.html#tools"> 
+Up: <STRONG>Related Programs</STRONG> 
+</A><P>
+
+<A HREF = "AA.html"> 
+To: <STRONG>Models-3/EDSS I/O API:   The Help Pages</STRONG> 
+</A><P>
+
+    
+</BODY>
+</HTML>

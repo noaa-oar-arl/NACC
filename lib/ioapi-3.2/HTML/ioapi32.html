@@ -1,0 +1,730 @@
+
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>
+    Models-3 I/O API 3.2 Development
+</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF"
+      TOPMARGIN="15"
+      MARGINHEIGHT="15"
+      LEFTMARGIN="15"
+      MARGINWIDTH="15">
+
+<H1>
+    Models-3 I/O API Development:<BR>
+    Thoughts Toward I/O&nbsp;API Version&nbsp;3.2 and Related Topics
+</H1>
+
+
+<H2>Abstract</H2>
+
+Here are some thoughts for a new Models-3 I/O&nbsp;API version&nbsp;3.2,
+together with relations to other modeling systems such as CMAQ.  These
+are purely <EM>added</EM> capabilities which will not break existing software.
+The big issues are the <EM>Parallel I/O</EM> and the <EM>Extra-attribute</EM>
+items.  <EM>Source Distribution</EM> and <EM>SMOKE Issues</EM> are long
+term issues perhaps beyond this scope, bit need thinking about.
+<P>
+
+
+<H2><A NAME = "contents">Contents</A></H2>
+
+    <UL>
+        <LI> <A HREF="#name" >I/O API Name</A>
+        <LI> <A HREF="#src"  >Source Distribution Mechanism</A>
+        <LI> <A HREF="#make" ><VAR>Makefile</VAR> and Compiler Issues</A>
+        <LI> <A HREF="#japy" >Java and Python APIs</A>
+        <LI> <A HREF="#pario">Parallel I/O R&amp;D</A>
+        <LI> <A HREF="#atts ">Model-Specific and CF-Convention Extra-attribute Support</A>
+        <LI> <A HREF="#char" >Gridded/Vector Character-String (etc.) I/O</A>
+        <LI> <A HREF="#struc">Non-Rectangular Structured Grids</A>
+        <LI> <A HREF="#proj ">Map-Projection and Interpolation Module</A>
+        <LI> <A HREF="#tool" ><VAR>m3tools</VAR> Development</A>
+        <LI> <A HREF="#smoke">SMOKE Issues</A>
+        <LI> <A HREF="#other">Other Issues</A>
+    </UL>
+
+<HR> <!----------------------------------------------------------------->
+
+
+
+<H2><A NAME = "name">I/O API Name</A></H2>
+
+Tom Roche has criticized the name &quot;Models-3 I/O&nbsp;API&quot; by
+saying that it is hard to type, and potentially confusing with other
+APIs.  Should we start (go back to...) calling it something like
+&quot;M3IO&quot; instead?
+<P>
+
+I can see both sides of this one.  On the one hand, it is good to make
+it clear by use of &quot;API&quot; that it is <STRONG>not a format, but
+rather a set of programming interfaces</STRONG> (something which some of
+the community don't seem to accept, or to be <EM>willing</EM> to
+accept).  On the other hand, &quot;M3IO&quot; is certainly easier to
+type, and more distinctive, than &quot;I/O&nbsp;API&quot;.   <P><EM>Ken
+Schere and I talked  about this a bit several years ago, but never came
+to a firm conclusion...<BR> Changing the library name to
+<CODE>libm3io.a</CODE> would break existing build-systems and
+<CODE>Makefile</CODE>s, so I propose to change the &quot;product
+name&quot; only, if we do this.</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> &quot;Ignore/forget about Tom Roche.&quot;
+from the rest of the group.
+<P>
+
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+
+<H2><A NAME = "src">Source Distribution Mechanism</A></H2>
+
+<STRONG>Currently: </STRONG> A number of packages, including SMOKE,
+CMAQ, and I/O&nbsp;API are distributed as whole-package
+&quot;tarballs&quot;&mdash;<VAR>gzip</VAR>ped <VAR>tar</VAR>s
+of the source directories.
+<P>
+
+<STRONG>Issue: </STRONG> It might be more friendly for the
+community&mdash;particularly as regards distributing bug-fixes
+and other minor changes&mdash;to employ a network-aware version
+control system, either replacing or augmenting the current
+tarball-based system.  Choices for such a version control
+system include:
+<UL>
+    <LI> <STRONG><VAR>Subversion</VAR></STRONG>: This one uses centralized
+         servers, is quite easy for the users and relatively simple for
+         the administrators.  It has been in use for quite some time, is
+         well-documented, and experience is easily available. It does
+         <EM>not</EM> stand up well to huge number of active developers
+         all doing simultaneous <VAR>commit</VAR>s (which should not be
+         the situation here, anyway). Good support for Linux/UNIX,
+         Windows, Apple.
+         <BR>[Caveat:  I have lots of experience with it, and for that
+         reason may be prejudiced in its favor.]
+    <LI> <STRONG><VAR>Git</VAR></STRONG>: This is perhaps the most
+         fashionable choice.  It is fully distributed and scales well in
+         the presence of huge numbers of developers.  However, it is
+         supposedly rather more complex for both users and (especially)
+         administrators.  Used by the Linux kernel, among others. Good
+         support currently  for Linux/UNIX, Widows, Apple (historically
+         Windows <VAR>Git</VAR> allegedly worked best under
+         <VAR>cygwin</VAR>.
+    <LI> <STRONG><VAR>Mercurial</VAR></STRONG>: This is an alternative
+         choice that is allegedly rather simpler to use and to
+         administer than <VAR>Git</VAR>.  Merge operations are allegedly
+         much easier than with the other two.Used by GoogleCode,
+         OpenOffice and LibreOffice, among others.  Especially easy for
+         Windows users; deals with the different UNIX / Windows / Apple
+         line-end conventions automatically. Good support for
+         Linux/UNIX, Windows, Apple.
+</UL>
+VERDI is already using <VAR>Subversion</VAR>, by the way.
+<P>
+
+<EM>This is a long-term issue, which should be evaluated carefully in
+the light of the needs of the entire community.  Googling
+&quot;svn&nbsp;vs&nbsp;git&nbsp;vs&nbsp;mercurial&quot; (in various
+different orders, actually) will lead to a lot of discussion:  see for
+example
+<BLOCKQUOTE>
+<DL>
+    <DT>
+    <A HREF="http://code.google.com/p/support/wiki/DVCSAnalysis">
+    Analysis of Git and Mercurial</A>
+    <DT>
+    <A HREF="http://biz30.timedoctor.com/git-mecurial-and-cvs-comparison-of-svn-software/">
+    SVN, Git, Mercurial, and CVS - Comparison of Version Control Software</A>
+    <DT>
+    <A HREF="https://blogs.atlassian.com/2012/02/mercurial-vs-git-why-mercurial/">
+    Mercurial vs Git: Why Mercurial?</A>
+</DL>
+</BLOCKQUOTE>
+</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> EPA using GIT internally, and therefore
+prefers it.  I/O&nbsp;API distribution the demo project?  Further
+discussion off-line.
+<P>
+
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+
+<H2><A NAME = "make"><VAR>Makefile</VAR> and Compiler Issues</A></H2>
+
+<STRONG>Currently: </STRONG> It has been brought to my attention that
+<VAR>gfortran</VAR> is neither source-compatible nor
+<VAR>Makefile</VAR>-compatible between various versions, particularly
+between 4.1.x and 4.2 and later, and between  4.7.x and 4.8.x.  There
+are a few other <VAR>Makefile</VAR> issues which should be resolved (an
+ESMF package illustrated how better to deal with the incompatibilities
+from compiler to compiler for command-line
+&quot;module-include-path&quot; directives; it would be possible to
+handle the netCDF V3.x::V4.x incompatibilities better, I think) There is
+a (small) amount of work which ought to be done to deal with these
+items.
+<P>
+
+<STRONG>I propose</STRONG> to put these fixes in for a new I/O&nbsp;3.2.
+<P>
+
+<STRONG>Further Issue: </STRONG> It is entirely possible to drive the
+compiling and linking of many I/O&nbsp;API-using programs purely with
+<STRONG><VAR>make</VAR></STRONG> and with the
+<STRONG><VAR>ioapi/Makeinclude.${BIN}</VAR></STRONG> files. In the past,
+I have done this with both CMAQ and SMOKE (and at the same  time
+implemented proper module-dependency analysis, something missing with
+the current build-systems).  In my considered opinion, it would be good
+to move incrementally in this direction.
+<P>
+
+<EM>The first of these is a very simple task, which would increase
+<CODE>Makefile</CODE> complexity only slightly, and in conjunction  with
+the second, could reduce total system-complexity down the line.
+</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> Do it.
+<P>
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+<H2><A NAME = "japy">Java and Python API's</A></H2>
+
+<STRONG>Issue: </STRONG> It is known that Alex Zubrow developed a Python
+I/O&nbsp;API interface; others have worked on Java interfaces (as found
+in <VAR>VERDI</VAR>, for example).  Should we formally document and
+publish these as part of the I/O&nbsp;API release code, to go along with
+the existing Fortran and C/C++ interfaces? Doing so, and keeping the API
+source codes together would help maintain consistency among them, and
+make sure that internal data structures are maintained.
+<P>
+
+<P><EM>How big an effort?  Alex and Donna should know... </EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> Good idea.  Needs more discussion
+of the Java part off-line.
+<P>
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+<H2><A NAME = "pario">Parallel I/O R&amp;D</A></H2>
+
+<STRONG>Issue: </STRONG> One big issue is the original Models-3 design
+requirement that modeling-code should not have to deal with
+potentially-missing data, which led to the I/O&nbsp;API architectural
+decision that, on a per-variable/per-timestep basis, a timestep-flag
+indicated when (i.e., after) all of the corresponding data had been
+written to disk.  Correspondingly, the timestep-flag is evaluated before
+the attempt at a data-read, and if the evaluation is successful, the
+rest of the API and its caller may assume that the data being read from
+disk does not have any holes or gaps.
+<P>
+
+<STRONG>Currently: </STRONG> Many parallel programming systems&mdash;
+including notably MPI&mdash;only  attempt a &quot;best effort&quot;
+and just assume nothing can or will go wrong&mdash;a dangerously
+<A HREF="#1">false assumption<SUP>1</SUP></A>.  One problem in any
+parallel I/O&nbsp;API lower layer is in ensuring whether full-timestep
+writes have been completed by all participating threads.  This would
+seem to require either a &quot;master supervisor&quot; or else a full
+data-scan during READ operations, ensuring that netCDF
+&quot;Missing&quot; are not present.  Either of these adds noticeable
+overhead and substantial complexity.
+<P>
+
+One alternative is per-thread I/O, with a &quot;gather&quot;
+post-process.  For even moderately-parallel CMAQ runs, this post-process
+itself will become a bottleneck.
+<P>
+
+<STRONG>I propose: </STRONG> One potential &quot;end-run&quot; around
+this issue is to implement a hybrid-parallel CMAQ architecture&mdash;one
+in fact better-adapted in any case to <A HREF="#2">current computer
+architectures<SUP>2</SUP></A>, for which the building blocks are themselves
+moderately-parallel shared memory systems.  In such an architecture, the
+number of MPI processes doing I/O is reduced by an order of magnitude,
+thus simplifying the problem (and at the same time greatly reducing MPI
+overheads, as well.  This will of course require
+efficiently-parallelized OpenMP building blocks out of which to build
+the hybrid-parallel model :-)
+<P>
+
+<EM> This is a major effort.  Fortunately, I've been working with
+efficiently-parallelized OpenMP air quality building blocks for more
+than a decade...</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> David Wong needs to implement the
+file-header stuff in his prototype, then will submit to Carlie
+for review and inclusion in the trunk I/O&nbsp;API distribution.
+<P>
+
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+
+<H2><A NAME = "atts">Model-Specific and CF-Convention Extra-Attribute Support</A></H2>
+
+<STRONG>Currently: </STRONG> There was a request for extra model-specific
+attributes to be available in M3IO file-headers.  This is useful for both
+CMAQ and SMOKE, and potentially for other models.
+<P>
+
+<STRONG>I propose:</STRONG>  Implement an additional <CODE>MODULE</CODE>
+which would export routines providing a clean, modeler-friendly
+interface that would define these model-specific sets of attributes,
+write them to file headers immediately after opening the files, and
+would read them from file headers. But <A HREF="#meta">see discussion
+below</A>&mdash;these should directly tie in to <CODE>OPEN3()</CODE>.
+<P>
+
+<STRONG>Currently: </STRONG> There have been various metadata
+conventions used within the netCDF commmunity.  I believe ours was the
+first systematic one, but for various political reasons, the
+&quot;CF&quot; metadata conventions put out by the global-climate
+community (see<A HREF="http://cf-pcmdi.llnl.gov/documents/">
+http://cf-pcmdi.llnl.gov/documents/</A>) are the only one that has
+gained significant traction.  A number of third-party applications have
+embraced it, to allow import and processing of CF-convention netCDF
+data.  Sadly, they did not seem to have studied the extant literature
+about metadata for self-describing files before they started their
+effort ;-(
+<P>
+
+<STRONG>I propose:</STRONG>  Implement the capability of automatically
+generating  CF-style metadata and putting it into I/O&nbsp;API files
+(the most difficult part being understanding the sloppy
+software-description language employed by the climate people).  I
+suggest that this be done as an <EM>option</EM>, since it invoves a
+substantial expansion of the headers and in fact a nontrivial amount of
+computation in order to create this metadata; moreover, the existing
+header data structures should be regarded as authoritative, the CF extras
+having only an advisory role.
+<P>
+
+<A NAME = "meta"> Because the CF implementation of metadata structures
+breaks the netCDF data model</A> (within which all metadata should have
+been represented as attributes, and none of it represented as
+variables), <STRONG>this should be implemented as a subroutine to be
+called after all other (netCDF-attribute related) metadata has been
+written, and before any data output (i.e., <CODE>WRITE3()</CODE> calls)
+is performed.</STRONG>.  If this is encapsulated as the last metadata
+operation within <CODE>OPEN3()</CODE> then this breakage of the netCDF
+data model does not affect the efficiency of the system.  However,
+subsequent extra-attribute operations such as the model specific
+extra-attribute operations  suggested above, or the existing
+I/O&nbsp;API &quot;manual&quot; <CODE>WRATT3()/WRATT3C()</CODE>
+operations may invoke substantial performance penalties (though netDF
+will &quot;do the right thing&quot; behind the scenes).  The sequence
+of code-operations might be something like the following
+<CODE><BLOCKQUOTE>
+    ...<BR>
+    LDEV = INIT3()<BR>
+    ...<BR>
+    CALL INIT_CMAQATTS( &lt;whatever is needed&gt; )<BR>
+    ...<BR>
+    CALL INIT_CFATTS()<BR>
+    ...<BR>
+    IF ( .NOT.OPEN3(  &lt;filename, etc.&gt; )...<BR>
+    ...<BR>
+    IF ( .NOT.READ_CMAQATTS(  &lt;filename, attribute-values&gt; )...<BR>
+    ...
+</BLOCKQUOTE></CODE>
+<P>
+
+<EM>For the Fortran and C interfaces to the netCDF lower layer, this is
+a relatively simple task.  For  model-specific extra attributes, the
+biggest item is nailing down the data-dictionary for the various sets of
+attributes needed. Then the implementation will mostly consist of
+sequences of existing low-level I/O&nbsp;API
+<CODE>WRATT()/WRATTC()</CODE> extra-attribue calls.  For CF-convention
+support, this will  reimplementing what I have done elsewhere... but
+that I had done as a separate routine, not code invoked by
+<CODE>OPEN3()</CODE>.</EM>
+<P>
+All of these still needs to be done for the other non-netCDF
+lower-layers, and possibly for the Python and Java interfaces.
+<P>
+<STRONG>Question:</STRONG>  Should additional separate-routine,
+manually-called interfaces to these metadata be made available?
+
+<P>
+
+<STRONG>RESOLUTION: </STRONG> Excellent idea, in the general
+opinion (Jon Pleim says &quot;just let the modelers do it
+in-line in their codes&quot;), but needs further
+discussion off-line to firm up the details.  
+<BR>
+Also need <CODE>SHUT_ATT*()</CODE> routines to allow fine-grained 
+control of these capabilities.  
+<P>
+
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+<HR> <!----------------------------------------------------------------->
+
+
+<H2><A NAME = "char">Gridded/Vector Character-String / BYTE / INT16 I/O</A></H2>
+
+<STRONG>Issue: </STRONG> There are some applications which would profit
+from being able to have arrays of character strings, especially with the
+same indexing as various <CODE>INTEGER</CODE> and <CODE>REAL</CODE>
+arrays.  These mostly have to do with &quot;site&quot; data of some kind:
+observational data and emissions source data being prime examples.
+<P>
+
+<STRONG>I propose:</STRONG>  Since the existing data types (<CODE>M3INT=4</CODE>,
+<CODE>M3REAL=5</CODE>, and <CODE>M3DBLE=6</CODE> are all positive, and since
+character-string data requires a string length that may be 1, 2, 3, ...,
+I propose that the negative data types &quot;-N&quot; represent data of
+types <CODE>CHARACTER(LEN=N)</CODE>.
+<P>
+
+Additionally, 8-bit and 16-bit integers are also not currently
+implemented.  Since  they are native netCDF types, it would be even
+easier to implement them as types <CODE>M3BYTE=1</CODE> and
+<CODE>M3SHORT=2</CODE> (these values match those used by netCDF itself).
+<P>
+
+<EM>This is a relatively simple task; actually only a couple of hundred
+lines of code would be affected for the character-string I/O for the
+netCDF lower-layer.  Adding <CODE>M3BYTE=1</CODE> and <CODE>M3SHORT=2</CODE>
+would affect maybe 100 more code-lines.  Implementing them for the
+other (buffered-virtual-file, PVM-virtual-file, and native-binary-file)
+file types would be rather more work.  Pushing support through the
+rest of the supporting tools would be straightforward but somewhat
+tedious.</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> Consensus leaned against this one,
+unless there is demonstrated need.
+<P>
+
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+<H2><A NAME = "struc">Non-Rectangular Structured Grids</A></H2>
+
+<STRONG>Issue: </STRONG> There are needs for non-rectangular and/or
+moving grid mesh data structure suppport, for models that use these
+kinds of grids.
+
+<P>
+
+<STRONG>I propose</STRONG> investigation of this.  The
+<VAR>GEo-Element File Type Prototype</VAR> (see
+<A HREF="http://www.baronams.com/products/ioapi/gefile.html">
+http://www.baronams.com/products/ioapi/gefile.html</A>) is
+certainly capable of doing this, but I suspect that it is actually more
+powerful and more complex than the problem calls for, and something
+&quot;weaker&quot; would be much more modeler-friendly.
+<P>
+
+<P><EM>This needs further thought and further discussion.
+The I/O&nbsp;API mods would be a relatively minor effort; pushing full
+support all the way through the rest of the &quot;tool-chain&quot; and
+providing tutorial support would not be difficult but would be more
+substantial and a bit tedious.</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> This is needed, but needs a lot
+more discussion off-line to define exactly how best to do it.
+Need API module for manipulating structured-grid definitions.
+Don't do time-varying grids.
+<P>
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+<H2><A NAME = "proj">Map-Projection and Interpolation Module</A></H2>
+
+<STRONG>Currently,</STRONG> high precision geo-spatial transforms
+require considerable hand coding using either the USGS
+<A HREF="http://www.baronams.com/products/ioapi/GCTP.html"><CODE>GCTP</CODE></A>
+package (included in the I/O&nbsp;API) or the
+<A HREF="http://trac.osgeo.org/proj/"><CODE>proj()</CODE></A> package, both
+of which have substantial learning curves.  Alternatively, one can use
+the <A HREF="http://www.baronams.com/products/ioapi/LAMBERT.html"><CODE>LAMBERT()</CODE></A>
+family of routines, but at reduced precision (especially problematic for
+UTM coordinates).  In either case, the existing codes work one point at
+a time, but modeler applications frequently have arrays of points
+needing to be re-projected.
+<P>
+
+Currently, geospatial interpolation of arrays of data can be done with
+the I/O&nbsp;API <CODE>UNGRIDB() / BILIN() / BMATVEC()</CODE> family of
+routines, but these are bilinear-only, limited in flexibility, and
+require non-trivial set-up with repeated calls to the transforms
+mentioned above.  Tension-spline interpolation (of which cubic spline
+interpolation is a special case) has been found extremely
+useful in various related fields; interestingly enough, NCAR Graphics
+contains the <VAR>fitpack</VAR> public domain package of (rather
+complex-to-use) tension-spline routines which can be adapted.
+<P>
+
+<STRONG>I propose</STRONG> the creation of a Fortran-90
+<CODE>MODULE</CODE> that would provide easy-to-use modeler-friendly
+grid- and array-oriented wrappers around grid-to-grid transforms, and
+the set-up and evaluation for both bilinear and tension-spline
+interpolation&mdash;adapted for both in the horizontal and  vertical
+interpolation for the cases we modelers do frequently.  This module
+should use generic <CODE>INTERFACE</CODE>s to unify, e.g,, spline
+interpolation for single-layer or multi-layer, scattered or gridded
+output data.
+<P>
+
+<EM>This is a relatively simple task, which would unify a
+two-module set of capabilities I have implemented elsewhere</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> This sounds interesting and potentially
+very useful to the group.  We should fit it in.
+<P>
+
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+<H2><A NAME = "tool"><VAR>m3tools</VAR> Development</A></H2>
+
+
+<STRONG>Currently:</STRONG> The <VAR>M3TOOLS</VAR> package of command line
+driven programs &quot;grew&quot; in the early 1990's-- partly as a
+learning/demonstration experience in how to write I/O&nbsp;API based
+programs.  There are inconsistencies from program to program in how
+the user itnerfaces work.  There are integer-overflow problems for
+a number of them, when one attempts multi-decade runs.  We now have
+Fortran-9x capabilities that weren't available in the early Nineties
+when these programs were written.
+<P>
+
+<STRONG>I propose:</STRONG> that a (possibly augmented) set of
+<VAR>M3TOOLS</VAR> programs be written, to eliminate these deficiencies
+-- so that, for example, program <VAR>m3stat1</VAR> might have the same
+capabilities as <VAR>m3stat</VAR> (possibly expanded), but none of the
+problems mentioned in the previous paragraph.  These new programs should
+also serve as demonstration-cases of good style in free-source-form
+Fortran and of how easy OpenMP parallelization is&mdash;the latter purpose
+served currently only by program <VAR>vertintegral</VAR>)  For example,
+run-periods should be implemented uniformly in terms of program-inputs
+<BLOCKQUOTE><TABLE>
+    <TR><TD> starting date </TD><TD><CODE>YYYYDDD</CODE></TD>
+    <TR><TD> starting time </TD><TD><CODE>HHMMSS</CODE></TD>
+    <TR><TD> time step     </TD><TD><CODE>HHMMSS</CODE></TD>
+    <TR><TD> ending date   </TD><TD><CODE>YYYYDDD</CODE></TD>
+    <TR><TD> ending time   </TD><TD><CODE>HHMMSS</CODE></TD>
+</TABLE></BLOCKQUOTE>
+to avoid the fact that &quot;duration <CODE>HHMMSS</CODE>&quot; suffers
+integer-overflow at about two decades and &quot;numnber of steps
+<CODE>N</CODE>&quot; is highly file- and situation-dependent.  The
+resulting programs will then take advantage of I/O&nbsp;API routines
+<CODE>CURREC()</CODE>, <CODE>NEXTIME()</CODE>, and
+<CODE>LASTTIME()</CODE>  that are carefully coded to avoid overflow.
+<P>
+
+<EM>This is a very simple task conceptually, and not terribly much work...</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> This is an excellent idea.  We should fit it in.
+<P>
+
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+<H2><A NAME = "smoke">SMOKE Issues</A></H2>
+
+<STRONG>Issue: </STRONG> SMOKE needs to sort (&gt; 2GB) large arrays.
+<P>
+
+<STRONG>RESOLUTION: </STRONG> Define versions of the sorting routines
+in the <VAR>sorti*.c</VAR> with 32-bit integer and 64-bit integer
+index-array interfaces, then use generic interfaces in <COE>MODULE
+M3UTILIO</VAR> to resolve the problem.  <BR><STRONG>Done.</STRONG><BR>
+<EM>FURTHER NOTE:  effective sorting of huge arrays on Linux will
+require that the relevant calling programs be compiled using the
+<U>medium memory model</U> for 64-bit objects and executables...</EM>
+<P>
+
+<STRONG>Issue: </STRONG> SMOKE should be brought forward into the
+I/O&nbsp;API Version&nbsp;3.1 world:
+<UL>
+    <LI>  <CODE>USE M3UTILIO</CODE> (enabling its interface-checking,
+          and clean up all the bugs revealed by doing so). This also
+          allows removal of ill-conceived things that properly  are or
+          should be in the I/O&nbsp;API, like those found in
+          <CODE>IOSTRG3.EXT</CODE>, <CODE>CHKGRID()</CODE>, and
+          <CODE>DSCM3GRID()</CODE>.
+    <LI>  SMOKE has requirements for storage and retrieval of
+          <STRONG>nonspatial data arrays</STRONG> and the past
+          author(s) haven't understood how to use the I/O&nbsp;API
+          for this, at the cost of considerable performance and code
+          complexity.
+    <LI>  SMOKE could well take advantage of <A HREF="#atts">model-specific
+          extra-attribute support</A> as described above, to do more robustly
+          the job  currently being done by character-string codings
+          in the file descriptions.
+    <LI>  SMOKE could also take advantage of the <A HREF="#proj">better
+          map-projection and interpolation functionality</A> being
+          proposed above.
+    <LI>  Eliminate renegade SMOKE-copies of I/O&nbsp;API codes such
+          as subroutine <CODE>NEXTIME()</CODE> and program <CODE>DATSHIFT</CODE>.
+    <LI>  Since I/O&nbsp;API 3.1 sets <CODE>MXVARS3=2048</CODE>,
+          that no-longer-neended <VAR>filesetapi</VAR> hack should be
+          thrown into the trash-heap.
+</UL>
+Result:  substantial simplification and somewhat greater robustness.
+<P>
+
+<STRONG>Related SMOKE Issues for another forum:</STRONG>
+<UL>
+    <LI>  SMOKE needs a general clean-up (starting with the issues
+          noted above).
+    <LI>  SMOKE should not take the user's instructions (in <CODE>GETM3EPI()</CODE>)
+          then <STRONG> decide it will do something else and still claim
+          &quot;success&quot; for it.</STRONG>
+    <LI>  Computationally intensive parts of SMOKE need to be
+          parallelized; OpenMP is the appropriate vehicle for this.
+</UL>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> Sadly, OAQPS pretty-much controls SMOKE.
+<P>
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+
+<H2><A NAME = "other">Other</A></H2>
+
+<STRONG>Principle: </STRONG> Whatever we do ought to be done in the best
+interests of the entire community&mdash;specifically, what is done for one
+family of uses/users in the community should not damage other families
+of uses/users.
+<P>
+
+<STRONG>Issue: </STRONG> The original Models-3 Coding Standards stated
+that codes should insofar as possible conform both to official language
+standards, and to &quot;industry standards&quot;.  In particular,
+there are the following issues:
+<UL>
+    <LI>  Fixed-format Fortran source fits between columns 6 and 72.
+          This is violated extensively in both SMOKE and CMAQ.
+    <LI>  Free-format Fortran source fits between columns 1 and 132
+          (I don't know of any bad examples in CMAQ or SMOKE here, but
+          be aware WRF breaks this language-standard repeatedly.  It is
+          a major issue when porting WRF to additional compilers.)
+    <LI>  Fixed-format Fortran source files are named <VAR>.f</VAR>,
+          or  <VAR>.F</VAR> if they require <VAR>cpp</VAR>-style
+          pre-processing; free-format Fortran source files are named
+          <VAR>.f90</VAR>, or  <VAR>.F90</VAR> if they require
+          <VAR>cpp</VAR>-style pre-processing.  WRF also breaks this.
+</UL>
+<P>
+
+<EM>?more?</EM>
+<P>
+
+<STRONG>RESOLUTION: </STRONG> 
+<UL>
+    <LI>  There's not much ORD can do to rein in OAQPS.
+    <LI>  New coding development should be done in (132-column)
+          free-format Fortran-90.  Jeff thinks converting old
+          code will be too much effort, and doesn't like the 
+          results of the automated tools he has seen.
+</UL>
+<P>
+
+<A HREF="#contents">Back to <EM>Contents</EM></A>
+
+
+<HR> <!----------------------------------------------------------------->
+
+<H2> NOTES</H2>
+
+<A NAME="1"><STRONG>Note 1: </STRONG></A>  It was my experience with CMAQ
+on SGI ALTIX that when the number of MPI messages per advection-step
+exceeded 64K, there was random data corruption within CMAQ.  This does
+<EM>not</EM> occur when the number of messages is less than 64K:
+evidently the SGI Altix implementation of MPI had some internal buffer
+data structures that overflowed silently at 64K messages-in-flight,
+leading to this corruption.  This shows the nature of MPI as a
+best-effort-but-not-carefully-robust communications layer (much more
+akin to UDP than TCP).
+<P>
+
+<A NAME="2"><STRONG>Note 2: </STRONG></A>  Most current clusters are
+built from either one-socket or two-socket boards (either as
+&quot;blade&quot; systems or as rack-mount, with either InfiiniBand or
+high-performance Ethernet connecting the component boards.  These boards
+will be SMPs having at least 4 processor cores per socket; current Intel
+<VAR>IvyBridge-EP</VAR> Xeon processors put 8-12 cores per socket (with 16
+expected for the next-generation <VAR>Haswell-EP</VAR>); current AMD
+server processors put 8-16 cores per socket.  Consider a 200-processor
+system built from the currently most cost-effective components&mdash;
+IvyBridge E-2680v2 Xeons:  it has 10 boards, each an SMP system with two
+sockets at 10 cores per socket.  A fully-distributed CMAQ will then have
+200 MPI threads spread across the system&mdash;with 200-way parallel I/O
+contending with itself.  A hybrid-parallel CMAQ would have 10 MPI
+threads, each a 20-way OpenMP-parallel program.  It would have 10-way
+parallel I/O, with far less contention or bottleneck issues than the
+200-way I/O would have.
+<P>
+
+<HR> <!----------------------------------------------------------------->
+
+Send comments to
+<A HREF = "mailto:cjcoats@email.unc.edu"> <ADDRESS>
+          Carlie J. Coats, Jr. <BR>
+          cjcoats@email.unc.edu </ADDRESS> </A><P>
+
+
+<HR> <!----------------------------------------------------------------->
+
+</BODY>      <!--end body  -->
+
+</HTML>      <!--end html  -->
+
