@@ -1472,6 +1472,13 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           CALL graceful_stop (pname)
         ENDIF
       ENDIF
+
+! Another LAI Check in case LAI=0 over land for processed satellite inputs
+! Set to average LAI=4 for the representative pixels.
+    WHERE ( (INT(landmask) == 1) .AND. (lai <= 0.0))  ! FV3 land = 1 and LAI = 0.0
+      lai = 4.0
+    END WHERE
+
     ENDIF
 
   IF ( ifwr ) THEN
@@ -1507,14 +1514,15 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     ELSE
       WRITE (*,f9400) TRIM(pname), 'sotyp', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
-    ENDIF
 
-!Fix for isltyp = 0 for water in FV3GFS16 (SLTYP = 0 not allowed in CMAQ)
-!Set to isltyp = 14 as in for the WRFv4 16-category soil types.
+    !Fix for isltyp = 0 for water in FV3GFS16 (SLTYP = 0 not allowed in CMAQ)
+    !Set to isltyp = 14 as in for the WRFv4 16-category soil types.
     WHERE ( isltyp == 0 )
         isltyp = 14
       ENDWHERE
-     
+
+    ENDIF
+
 !    Note the top two soil layers in FV3GFSv16 are at 0-10 cm and 10-40 cm
 !    Noah LSM
 !    Will need CMAQ adjustment to 0-1 cm and 1-10 cm.
