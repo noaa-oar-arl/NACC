@@ -1497,9 +1497,17 @@ SUBROUTINE rdfv3 (mcip_now,nn)
       WRITE (*,f9400) TRIM(pname), 'sotyp', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
     ENDIF
-!    Note the top two soil layers in FV3 are at 0-10 cm and 10-40 cm
-!    Will need adjustment to 0-1 cm and 1-10 cm.
-    CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
+
+!Fix for isltyp = 0 for water in FV3GFS16 (SLTYP = 0 not allowed in CMAQ)
+!Set to isltyp = 14 as in for the WRFv4 16-category soil types.
+    WHERE ( isltyp == 0 )
+        isltyp = 14
+      ENDWHERE
+   
+!    Note the top two soil layers in FV3GFSv16 are at 0-10 cm and 10-40 cm
+!    Noah LSM
+!    Will need CMAQ adjustment to 0-1 cm and 1-10 cm.    
+CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
       call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
       wg(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
@@ -1543,8 +1551,9 @@ SUBROUTINE rdfv3 (mcip_now,nn)
       CALL graceful_stop (pname)
     ENDIF
 
-!    Note the top two soil layers in FV3 are at 0-10 cm and 10-40 cm
-!    Will need adjustment to 0-1 cm and 1-10 cm.
+!    Note the top two soil layers in FV3GFSv16 are at 0-10 cm and 10-40 cm
+!    Noah LSM
+!    Will need CMAQ adjustment to 0-1 cm and 1-10 cm.
     CALL get_var_2d_real_cdf (cdfid2, 'soilt1', dum2d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
       call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
@@ -1739,6 +1748,12 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     WRITE (*,f9400) TRIM(pname), 'icetk', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
+
+! Where seaice thickness in FV3GFS16 > 0 set to 1.0 for grid cell
+! (CMAQ expects seaice fraction, not thickness)
+    WHERE ( seaice >  0.0 )
+        seaice = 1.0
+      ENDWHERE
 
   CALL get_var_2d_real_cdf (cdfid2, 'snod', dum2d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
