@@ -70,7 +70,7 @@ SUBROUTINE fv3mopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 
   SELECT CASE ( met_cumulus )
     CASE ( 0 )
-      txt_cupa = 'Unknown'
+      txt_cupa = 'Simplified Arakawa-Schubert'
     CASE ( 1 )
       IF ( ifcuradfdbk ) THEN  ! feedback with radiation
         txt_cupa = 'KF with radiative feedback'
@@ -206,7 +206,7 @@ SUBROUTINE fv3mopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 
   SELECT CASE ( met_lw_rad )
     CASE ( 0 )
-      txt_lwrad = 'Unknown'
+      txt_lwrad = 'RRTMg'
     CASE ( 1 )
       txt_lwrad = 'RRTM'
     CASE ( 3 )
@@ -235,7 +235,7 @@ SUBROUTINE fv3mopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 
   SELECT CASE ( met_sw_rad )
     CASE ( 0 )
-      txt_swrad = 'Unknown'
+      txt_swrad = 'RRTMg'
     CASE ( 1 )
       txt_swrad = 'Dudhia'
     CASE ( 2 )
@@ -303,7 +303,7 @@ SUBROUTINE fv3mopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 
   SELECT CASE ( met_sfc_lay )
     CASE ( 0 )
-      txt_sflay = 'Unknown'
+      txt_sflay = 'Monin-Obukhov'
     CASE ( 1 )
       IF ( met_release(1:4) >= "V3.6" ) THEN
         txt_sflay = 'Revised MM5 (Jimenez)'
@@ -378,7 +378,7 @@ SUBROUTINE fv3mopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 
   SELECT CASE ( met_shal_cu )
     CASE ( -1 )
-      txt_shcu = 'Grell 3D -- unknown'
+      txt_shcu = 'Grell 3D -- shallow'
     CASE ( 0 )
       txt_shcu = 'No shallow convection'
     CASE ( 1 )
