@@ -13,13 +13,9 @@
 #BSUB -cwd .
 
 #Module settings
-module intel
-module load PrgEnv-intel
+module load PrgEnv-intel/5.2.82
 module load cray-netcdf/4.3.2
-module load cray-hdf5/1.8.13
-module load cray-mpich/7.3.1
-
-export LD_LIBRARY_PATH=/opt/cray/hdf5/1.8.13/INTEL/140/lib:$LD_LIBRARY_PATH
+module load cray-mpich/7.2.0
 
 #Set number of nacc times  = processors, and # of nodes
 NTIMES=73
@@ -75,7 +71,7 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   mcip_start = "2019-07-12-12:00:00.0000"
-  mcip_end   = "2019-07-15-12:00:00.0000"
+  mcip_end   = "2019-07-15-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"

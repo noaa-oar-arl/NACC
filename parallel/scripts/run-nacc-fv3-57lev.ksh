@@ -13,13 +13,9 @@
 #BSUB -cwd .
 
 #Module settings
-module intel
-module load PrgEnv-intel
+module load PrgEnv-intel/5.2.82
 module load cray-netcdf/4.3.2
-module load cray-hdf5/1.8.13
-module load cray-mpich/7.3.1
-
-export LD_LIBRARY_PATH=/opt/cray/hdf5/1.8.13/INTEL/140/lib:$LD_LIBRARY_PATH
+module load cray-mpich/7.2.0
 
 #Set number of nacc times  = processors, and # of nodes
 NTIMES=73

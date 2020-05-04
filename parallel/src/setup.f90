@@ -16,7 +16,7 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-SUBROUTINE setup (ctmlays,itimestep)
+SUBROUTINE setup (ctmlays, itimestep)
 
 !-------------------------------------------------------------------------------
 ! Name:     Set Up the Input Meteorology Domain Attributes

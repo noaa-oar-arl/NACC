@@ -171,8 +171,6 @@ PROGRAM mcip
 !-------------------------------------------------------------------------------
 
   CALL vertarys (ctmlays)
-
-
 !-------------------------------------------------------------------------------
 ! MPI Ranks over time to get input, process fields, and write output.
 ! Total number of processors/ranks must  = ntimes  

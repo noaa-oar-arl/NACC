@@ -57,7 +57,7 @@ IOAPI_ROOT = /gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/CMAQ/ioapi-3.2/Linux2_x86_
 
 #MPI Settings for parallel
 #WCOSS-Cray
-MPI_ROOT = /opt/cray/mpt/7.3.1/gni/mpich-intel/140
+MPI_ROOT = /opt/cray/mpt/7.2.0/gni/mpich2-intel/140
 
 FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI_ROOT) -I$(MPI_ROOT)/include
 
@@ -66,7 +66,7 @@ FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI_ROOT) -I$(MPI_ROOT)/i
 #Parallel
 LIBS     = -L$(IOAPI_ROOT) -lioapi \
          -L$(NETCDF)/lib -lnetcdf -lnetcdff -qopenmp \
-         -L$(MPI_ROOT)/lib -lmpich
+         -L$(MPI_ROOT)/lib -lmpichf90 -lmpich 
 
 /EFS   = 
 

@@ -14,10 +14,8 @@
 #%include <head.h>
 #%include <envir-xc40.h>
 #
-module purge
 module load PrgEnv-intel/5.2.82
 module load cray-netcdf/4.3.2
-#module load cray-mpich/7.2.0
 
 export PROCS=1
 export NODES=1
