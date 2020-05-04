@@ -184,4 +184,8 @@ cd $CMAQ_HOME/PREP/mcip/scripts
 
 The default location of the NACC output files is the `$CMAQ_HOME/data/mcip/$GridName` directory, but it can be changed in the NACC script using the `$OutDir` variable. The names of the NACC output files are generic and do not have any information about the model grid that they are simulating or the time period that is covered. These attributes can be controlled by the NACC script. For example, the name of the grid can be used in the output directory path. In addition, the default naming convention for all NACC output files appends the `APPL` environment variable to the file name to identify files by the time period that is represented by the file. All of the file naming variables for the NACC outputs are set in the run script, and they can be easily tailored to fit each user's application or style.
 
+***Current Version of NACC***
+
+NACCv1.0.0
+
 **Previous Versions of NACC**
