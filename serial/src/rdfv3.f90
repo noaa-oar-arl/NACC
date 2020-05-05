@@ -1450,6 +1450,11 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           lai(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! Another LAI Check in case LAI=0 over land for processed satellite inputs
+          ! Set to average LAI=4 for the representative pixels.
+          WHERE ( (INT(landmask) == 1) .AND. (lai <= 0.0))  ! FV3 land = 1 and LAI = 0.0
+           lai = 4.0
+          END WHERE
           WRITE (*,ifmt2) 'LAI ', lai(lprt_metx,lprt_mety)
         ELSE
           WRITE (*,f9400) TRIM(pname), 'LAI', TRIM(nf90_strerror(rcode))
@@ -1461,13 +1466,6 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           CALL graceful_stop (pname)
         ENDIF
       ENDIF
-
-! Another LAI Check in case LAI=0 over land for processed satellite inputs
-! Set to average LAI=4 for the representative pixels.
-   WHERE ( (INT(landmask) == 1) .AND. (lai <= 0.0))  ! FV3 land = 1 and LAI = 0.0
-      lai = 4.0
-    END WHERE
-
     ENDIF
 
   IF ( ifwr ) THEN
@@ -1499,17 +1497,15 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     IF ( rcode == nf90_noerr ) THEN
       call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
       isltyp(1:ncols_x,1:nrows_x) = int(atmp(1:ncols_x,1:nrows_x))
+      !Fix for isltyp = 0 for water in FV3GFS16 (SLTYP = 0 not allowed in CMAQ)
+      !Set to isltyp = 14 as in for the WRFv4 16-category soil types.
+      WHERE ( isltyp == 0 )
+        isltyp = 14
+      ENDWHERE
       WRITE (*,f6100) 'sotyp   ', isltyp(lprt_metx, lprt_mety), 'category'
     ELSE
       WRITE (*,f9400) TRIM(pname), 'sotyp', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
-
-!Fix for isltyp = 0 for water in FV3GFS16 (SLTYP = 0 not allowed in CMAQ)
-!Set to isltyp = 14 as in for the WRFv4 16-category soil types.
-    WHERE ( isltyp == 0 )
-        isltyp = 14
-      ENDWHERE
-
     ENDIF
 
 !    Note the top two soil layers in FV3GFSv16 are at 0-10 cm and 10-40 cm
