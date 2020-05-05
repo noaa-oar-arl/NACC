@@ -70,7 +70,7 @@ SUBROUTINE fv3mopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 
   SELECT CASE ( met_cumulus )
     CASE ( 0 )
-      txt_cupa = 'Simplified Arakawa-Schubert'
+      txt_cupa = 'Simplified Arakawa-Schubert (SAS)'
     CASE ( 1 )
       IF ( ifcuradfdbk ) THEN  ! feedback with radiation
         txt_cupa = 'KF with radiative feedback'
@@ -378,9 +378,9 @@ SUBROUTINE fv3mopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 
   SELECT CASE ( met_shal_cu )
     CASE ( -1 )
-      txt_shcu = 'Grell 3D -- shallow'
+      txt_shcu = 'Grell 3D -- unknown'
     CASE ( 0 )
-      txt_shcu = 'No shallow convection'
+      txt_shcu = 'SAS -- shallow (Han & Pan, 2011; Han et al., 2017)'
     CASE ( 1 )
       txt_shcu = 'Grell 3D shallow'
     CASE ( 2 )
