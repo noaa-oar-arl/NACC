@@ -36,7 +36,7 @@ All model configuration options for NACC are set during execution. System compil
 
 ## Execution Configuration Variables
 
-The variables listed here are set by the user in the NACC script (run_mcip.csh), and they are used during execution of the program.
+The variables listed here are set by the user in the NACC run script, and they are used during execution of the program.
 
 -   `APPL [default: None]`  
     Application name; scenario ID for file naming
@@ -50,9 +50,9 @@ The variables listed here are set by the user in the NACC script (run_mcip.csh),
     Path of the input data directory containing the WRF‑ARW or FV3-GFS output data files
 -   `InGeoDir [default: None]`  
     Path of the input data directory containing the WRF Geogrid file, or similar pre-processed "geofile" (e.g., LAI, LANDUSEF) used for FV3-GFS
--   `OutDir [default: $CMAQ_HOME/data/mcip]`  
+-   `OutDir [default: None]`  
     Path of the NACC output data directory
--   `ProgDir [default: $CMAQ_HOME/PREP/mcip/src]`  
+-   `ProgDir [default: None]`  
     Working directory containing the NACC executable
 -   `WorkDir [default: $OutDir]`  
     Temporary working directory for Fortran links and the namelist file
@@ -134,7 +134,7 @@ The variables listed here are set by the user in the NACC script (run_mcip.csh),
 **Compile NACC**
 
 NACC is compiled with a Makefile. The configuration options in the Makefile include the compiler and compiler flags to use for building the executable. Note that this version of NACC is either serial (WRF or FV3GFS) or parallelized code (FV3GFS Only), so MPI libraries are required for ONLY the parallel version.  The parallel version is meant to be used with the global FV3GFSv16, as it significantly speeds up the total IO throughput wall clock time. 
-Note:  To read the full vertical resolution of the FV3GFSv16, NACC must be compiled with a modified version of the IOAPI library that has an adjusted maximum possible input vertical levels of MXLAYS3 =  200 in PARMS3.EXT.  An example of the modified IOAPI library to use is included in the NACC/lib/ioapi-3.2 repository. See the [CMAS IOAPI Tutorial] (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html) to find the location of where this change to MXLAYS3 takes place.  The only other library needed to run NACC on your system is the NETCDF library. 
+Note:  To read the full vertical resolution of the FV3GFSv16, NACC must be compiled with a modified version of the IOAPI library that has an adjusted maximum possible input vertical levels of MXLAYS3 =  200 in PARMS3.EXT.  An example of the modified IOAPI library to use is included in the NACC/lib/ioapi-3.2 repository. See the [CMAS IOAPI Tutorial](https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html) to find the location of where this change to MXLAYS3 takes place.  The only other library needed to run NACC on your system is the NETCDF library. 
 
 The Makefile is located in the directory with the NACC source code (e.g., `NACC/serial/src` or `NACC/parallel/src`). To compile NACC, simply invoke the Makefile at the command line:
 
@@ -149,7 +149,7 @@ To port NACC to different compilers, change the compiler names, locations, and f
 Set the run script settings according to the execution configuration variables described above. Run NACC to produce meteorology input data for the CCTM:
 
 ```
-cd $CMAQ_HOME/PREP/mcip/scripts
+cd $NACC_home/serial/scripts
 ./run-nacc-fv3.csh |& tee run_nacc.log
 ```
 
@@ -179,13 +179,11 @@ cd $CMAQ_HOME/PREP/mcip/scripts
 |MET_DOT_3D|I/O API|Time-varying 3-D dot-point meteorology file|required|
 |MOSAIC_CRO|I/O API|Time-varying 3-D output from mosaic land use|created if the Noah Mosaic land-surface model was run in WRF|
 |SOI_CRO|I/O API|Time-varying soil properties in each soil layer|created if a land-surface model was run in WRF or FV3-GFS|
-|mcip.nc|netCDF|contains both time-independent and time-varying output variables that contain 2-D layers (either only in 2-D or in 3-D, where the third dimension could be atmospheric layers, soil layers, land use categories, mosaic categories, etc.)|required, if IOFORM=2|
-|mcip_bdy.nc|netCDF|contains time-independent and time-varying output along the domain perimeter|required, if IOFORM=2| 
 
-The default location of the NACC output files is the `$CMAQ_HOME/data/mcip/$GridName` directory, but it can be changed in the NACC script using the `$OutDir` variable. The names of the NACC output files are generic and do not have any information about the model grid that they are simulating or the time period that is covered. These attributes can be controlled by the NACC script. For example, the name of the grid can be used in the output directory path. In addition, the default naming convention for all NACC output files appends the `APPL` environment variable to the file name to identify files by the time period that is represented by the file. All of the file naming variables for the NACC outputs are set in the run script, and they can be easily tailored to fit each user's application or style.
+The location of the NACC output files is set in the NACC script using the `$OutDir` variable. The names of the NACC output files are generic and do not have any information about the model grid that they are simulating or the time period that is covered. These attributes can be controlled by the NACC script. For example, the name of the grid can be used in the output directory path. In addition, the default naming convention for all NACC output files appends the `APPL` environment variable to the file name to identify files by the time period that is represented by the file. All of the file naming variables for the NACC outputs are set in the run script, and they can be easily tailored to fit each user's application or style.
 
 ***Current Version of NACC***
 
-NACCv1.0.0
+NACCv1.0.0 (Pre-release)
 
 **Previous Versions of NACC**
