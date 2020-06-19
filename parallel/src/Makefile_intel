@@ -60,8 +60,7 @@ MPI_ROOT = ${MPI}
 FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI_ROOT) -I$(MPI_ROOT)/include
 
 
-#WCOSS-Cray
-#Parallel
+#Libraries for Intel
 LIBS     = -L$(IOAPI_ROOT) -lioapi \
          -L$(NETCDF)/lib -lnetcdf -lnetcdff -qopenmp \
          -L$(MPI_ROOT)/lib -lmpifort -lmpi 
