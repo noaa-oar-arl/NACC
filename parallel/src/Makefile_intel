@@ -48,22 +48,23 @@ MODEL = mcip.exe
 #...Intel Fortran
 FC      = ifort
 
+#Library Settings Dynamic
 #NetCDF Settings
-NETCDF =  ${NETCDF}
+#NETCDF =  ${NETCDF}
 
 #IOAPI Settings
-IOAPI_ROOT = ${IOAPI}
+#IOAPI_ROOT = ${IOAPI}
 
 #MPI Settings for parallel
-MPI_ROOT = ${MPI}
+#MPI_ROOT = ${MPI}
 
-FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI_ROOT) -I$(MPI_ROOT)/include
+FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI) -I$(MPI)/include
 
 
 #Libraries for Intel
-LIBS     = -L$(IOAPI_ROOT) -lioapi \
+LIBS     = -L$(IOAPI) -lioapi \
          -L$(NETCDF)/lib -lnetcdf -lnetcdff -qopenmp \
-         -L$(MPI_ROOT)/lib -lmpifort -lmpi 
+         -L$(MPI)/lib -lmpifort -lmpi 
 
 /EFS   = 
 
