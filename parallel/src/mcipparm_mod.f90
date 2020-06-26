@@ -239,6 +239,14 @@ MODULE mcipparm
   LOGICAL            :: ifkfradextras ! KF-radiative feedbacks extra arrays?
   LOGICAL            :: iflai         ! leaf area index in input file?
   LOGICAL            :: iflaiwrfout   ! is leaf area index in WRF history?
+  LOGICAL            :: ifclayf       ! soil clay fraction in input file?
+  LOGICAL            :: ifclayfwrfout ! soil clay fraction in WRF history?
+  LOGICAL            :: ifsandf       ! soil sand fraction in input file?
+  LOGICAL            :: ifsandfwrfout ! soil sand fraction in WRF history?
+  LOGICAL            :: ifdrag        ! drag partition in input file?
+  LOGICAL            :: ifdragwrfout  ! drag partition in WRF history?
+  LOGICAL            :: ifssm         ! sediment supply map in input file?
+  LOGICAL            :: ifssmwrfout   ! sediment supply map in WRF history?
   LOGICAL            :: iflufrc       ! fractional land use available?
   LOGICAL            :: ifluwrfout    ! is fractional land use in WRF history?
   LOGICAL            :: iflu2wrfout   ! is fractional land use 2 in WRF history?

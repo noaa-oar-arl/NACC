@@ -86,6 +86,10 @@ MODULE metvars
   INTEGER,       ALLOCATABLE   :: irnold     ( : , : )
   INTEGER,       ALLOCATABLE   :: isltyp     ( : , : )
   REAL,          ALLOCATABLE   :: lai        ( : , : )
+  REAL,          ALLOCATABLE   :: clayf      ( : , : )
+  REAL,          ALLOCATABLE   :: sandf      ( : , : )
+  REAL,          ALLOCATABLE   :: drag       ( : , : )
+  REAL,          ALLOCATABLE   :: ssm        ( : , : )
   REAL,          ALLOCATABLE   :: lai_mos    ( : , : , : )
   REAL,          ALLOCATABLE   :: lai_px     ( : , : )
   REAL,          ALLOCATABLE   :: landmask   ( : , : )
@@ -170,5 +174,6 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: znt        ( : , : )
   REAL,          ALLOCATABLE   :: znt_mos    ( : , : , : )
   REAL,          ALLOCATABLE   :: zpbl       ( : , : )
-
+!! FV3 temporary
+!  REAL,          ALLOCATABLE   :: dum3d    ( : , : , : )
 END MODULE metvars

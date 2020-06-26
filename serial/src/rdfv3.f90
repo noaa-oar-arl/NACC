@@ -1423,6 +1423,198 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 
   ENDIF
 
+    IF ( ifclayf ) THEN
+      IF ( ifclayfwrfout ) THEN  ! clayf in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'CLAY_FRAC', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           clayf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+            clayf(:,:) = 0.1
+          ENDIF
+        ENDIF
+          WRITE (*,ifmt2) 'CLAYF      ',(clayf(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'CLAYF', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! clay fraction in GEOGRID file from WPS
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'CLAY_FRAC', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          clayf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! Another CLAYF check over land and water
+          ! Set to 0.0  for the representative pixels.
+          WHERE ( (INT(landmask) == 1) .AND. (clayf < 0.0))  ! FV3 land = 1 and CLAYF < 0.0
+           clayf = 0.0
+          END WHERE
+          WHERE ( (INT(landmask) == 0) )  ! FV3 water = 0 and CLAYF = 0.0
+           clayf = 0.0
+          END WHERE
+          WRITE (*,ifmt2) 'CLAYF ', clayf(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'CLAYF', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifsandf ) THEN
+      IF ( ifsandfwrfout ) THEN  ! sandf in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'SAND_FRAC', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           sandf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+        IF ( ABS(MAXVAL(sandf)) < smallnum ) THEN
+          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+            sandf(:,:) = 0.1
+          ENDIF
+        ENDIF
+          WRITE (*,ifmt2) 'SANDF      ',(sandf(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'SANDF', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! sand fraction in GEOGRID file from WPS
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'SAND_FRAC', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          sandf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! Another SANDF check over land and water
+          ! Set to 0.0  for the representative pixels.
+          WHERE ( (INT(landmask) == 1) .AND. (sandf < 0.0))  ! FV3 land = 1 and SANDF = 0.0
+           sandf = 0.0
+          END WHERE
+          WHERE ( (INT(landmask) == 0) )  ! FV3 water = 0 and SANDF = 0.0
+           sandf = 0.0
+          END WHERE
+          WRITE (*,ifmt2) 'SANDF ', sandf(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'SANDF', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifdrag ) THEN
+      IF ( ifdragwrfout ) THEN  ! drag in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'DRAG_PART', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           drag(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+        IF ( ABS(MAXVAL(drag)) < smallnum ) THEN
+          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+            drag(:,:) = 1.0e-6
+          ENDIF
+        ENDIF
+          WRITE (*,ifmt2) 'DRAG      ',(drag(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'DRAG', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! sand fraction in GEOGRID file from WPS
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'DRAG_PART', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          drag(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! Another DRAG check over land and water
+          ! Set to 0.0  for the representative pixels.
+          WHERE ( (drag < 0.0))  !  DRAG < 0.0
+           drag = 1.0e-6
+          END WHERE
+!          WHERE ( (INT(landmask) == 0) )  ! FV3 water = 0 and CLAYF = 0.0
+!           drag = 0.0
+!          END WHERE
+          WRITE (*,ifmt2) 'DRAG ', drag(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'DRAG', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifssm ) THEN
+      IF ( ifssmwrfout ) THEN  ! ssm in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'SSM', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           ssm(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+        IF ( ABS(MAXVAL(ssm)) < smallnum ) THEN
+          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+            ssm(:,:) = 1.0e-6
+          ENDIF
+        ENDIF
+          WRITE (*,ifmt2) 'SSM      ',(ssm(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'SSM', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! ssm in GEOGRID file from WPS
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'SSM', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          ssm(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! Another SSM check over land and water
+          ! Set to 0.0  for the representative pixels.
+          WHERE ( (ssm < 0.0))  !  SSM < 0.0
+           ssm = 1.0e-6
+          END WHERE
+!          WHERE ( (INT(landmask) == 0) )  ! FV3 water = 0 and CLAYF = 0.0
+!           ssm = 0.0
+!          END WHERE
+          WRITE (*,ifmt2) 'SSM ', ssm(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'SSM', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
     IF ( iflai ) THEN
       IF ( iflaiwrfout ) THEN  ! leaf area index in FV3 history file
         CALL get_var_2d_real_cdf (cdfid2, 'LAI', dum2d, it, rcode)
