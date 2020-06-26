@@ -357,12 +357,13 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 !-------------------------------------------------------------------------------
 ! If layer structure was not defined in user namelist, use WRF layers.
 !-------------------------------------------------------------------------------
-
-  nlays = met_nz
-  CALL get_var_1d_real_cdf (cdfid, 'ZNW', ctmlays(1:nlays+1), 1, rcode)
-  IF ( rcode /= nf90_noerr ) THEN
+  IF ( needlayers ) THEN
+   nlays = met_nz
+   CALL get_var_1d_real_cdf (cdfid, 'ZNW', ctmlays(1:nlays+1), 1, rcode)
+   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'ZNW', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
+   ENDIF
   ENDIF
 
 !-------------------------------------------------------------------------------
