@@ -201,6 +201,20 @@ set MCIP_END   = 2017-12-01-02:00:00.0000  # [UTC]
 
 set INTVL      = 60 # [min]
 
+
+#-----------------------------------------------------------------------
+# Set CTM layers.  Should be in descending order starting at 1 and
+# # ending with 0.  There is currently a maximum of 100 layers allowed.
+# # To use all of the layers from the input meteorology without
+# # collapsing (or explicitly specifying), set CTMLAYS = -1.0.
+# #-----------------------------------------------------------------------
+#
+set CTMLAYS = "-1.0"
+#
+# #set CTMLAYS = "1.000, 0.995, 0.990, 0.980, 0.960, 0.940, 0.910, 0.860, \
+# #               0.800, 0.740, 0.650, 0.550, 0.400, 0.200, 0.000"
+#
+
 #-----------------------------------------------------------------------
 # Choose output format.
 #   1 = Models-3 I/O API
@@ -401,6 +415,7 @@ cat >> $WorkDir/namelist.${PROG} << !
   mcip_end   = "$MCIP_END"
   intvl      =  $INTVL
   coordnam   = "$CoordName"
+  ctmlays    =  $CTMLAYS
   grdnam     = "$GridName"
   btrim      =  $BTRIM
   lprt_col   =  $LPRT_COL
