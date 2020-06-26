@@ -439,6 +439,23 @@ SUBROUTINE metvars2ctm
 
   ENDIF  ! iflai
 
+!Fengsha dust variables
+   IF ( ifclayf) THEN
+     xclayf(:,:) = clayf(sc:ec,sr:er)
+   ENDIF
+
+   IF ( ifsandf) THEN
+     xsandf(:,:) = sandf(sc:ec,sr:er)
+   ENDIF
+
+   IF ( ifdrag) THEN
+     xdrag(:,:) = drag(sc:ec,sr:er)
+   ENDIF
+
+   IF ( ifssm) THEN
+     xssm(:,:) = ssm(sc:ec,sr:er)
+   ENDIF
+
   IF ( ifveg ) THEN
     xveg   (:,:) = veg   (sc:ec,sr:er)
   ELSE

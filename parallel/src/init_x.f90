@@ -114,6 +114,8 @@ SUBROUTINE init_x
   xdenss  (:,:)   = fillreal  ;    xdluse  (:,:)   = fillreal
   xglw    (:,:)   = fillreal  ;    xgsw    (:,:)   = fillreal
   xhfx    (:,:)   = fillreal  ;    xlai    (:,:)   = fillreal
+  xclayf  (:,:)   = fillreal  ;    xsandf  (:,:)   = fillreal
+  xdrag   (:,:)   = fillreal  ;    xssm    (:,:)   = fillreal
   xlatc   (:,:)   = fillreal  ;    xlatd   (:,:)   = fillreal
   xlatu   (:,:)   = fillreal  ;    xlatv   (:,:)   = fillreal
   xlh     (:,:)   = fillreal  ;    xlonc   (:,:)   = fillreal

@@ -660,6 +660,34 @@ SUBROUTINE setgriddefs
   ENDIF
   WRITE (*,f6150) 'LAI', TRIM(yesno)
 
+  IF ( ifclayf ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'CLAY_FRAC', TRIM(yesno)
+
+  IF ( ifsandf ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'SAND_FRAC', TRIM(yesno)
+
+  IF ( ifdrag ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'DRAG_PART', TRIM(yesno)
+
+  IF ( ifssm ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'SSM', TRIM(yesno)
+
   IF ( iflufrc ) THEN
     yesno = ''
   ELSE

@@ -1440,11 +1440,11 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
            call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
            clayf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
-          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
-            clayf(:,:) = 0.1
-          ENDIF
-        ENDIF
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
           WRITE (*,ifmt2) 'CLAYF      ',(clayf(lprt_metx,lprt_mety))
         ELSE
           WRITE (*,f9400) TRIM(pname), 'CLAYF', TRIM(nf90_strerror(rcode))
@@ -1461,13 +1461,9 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           clayf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-          ! Another CLAYF check over land and water
-          ! Set to 0.0  for the representative pixels.
-          WHERE ( (INT(landmask) == 1) .AND. (clayf < 0.0))  ! FV3 land = 1 and CLAYF < 0.0
-           clayf = 0.0
-          END WHERE
-          WHERE ( (INT(landmask) == 0) )  ! FV3 water = 0 and CLAYF = 0.0
-           clayf = 0.0
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+          WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and CLAYF < 0.0
+           clayf = -1.0
           END WHERE
           WRITE (*,ifmt2) 'CLAYF ', clayf(lprt_metx,lprt_mety)
         ELSE
@@ -1488,11 +1484,11 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
            call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
            sandf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-        IF ( ABS(MAXVAL(sandf)) < smallnum ) THEN
-          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
-            sandf(:,:) = 0.1
-          ENDIF
-        ENDIF
+!        IF ( ABS(MAXVAL(sandf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            sandf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
           WRITE (*,ifmt2) 'SANDF      ',(sandf(lprt_metx,lprt_mety))
         ELSE
           WRITE (*,f9400) TRIM(pname), 'SANDF', TRIM(nf90_strerror(rcode))
@@ -1509,13 +1505,9 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           sandf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-          ! Another SANDF check over land and water
-          ! Set to 0.0  for the representative pixels.
-          WHERE ( (INT(landmask) == 1) .AND. (sandf < 0.0))  ! FV3 land = 1 and SANDF = 0.0
-           sandf = 0.0
-          END WHERE
-          WHERE ( (INT(landmask) == 0) )  ! FV3 water = 0 and SANDF = 0.0
-           sandf = 0.0
+          ! SANDF check over  water, set as negative numbers for improved error checking
+          WHERE ( (INT(landmask) == 0) ) ! FV3 land = 1 and SANDF < 0.0
+           sandf = -1.0
           END WHERE
           WRITE (*,ifmt2) 'SANDF ', sandf(lprt_metx,lprt_mety)
         ELSE
@@ -1536,11 +1528,11 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
            call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
            drag(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-        IF ( ABS(MAXVAL(drag)) < smallnum ) THEN
-          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
-            drag(:,:) = 1.0e-6
-          ENDIF
-        ENDIF
+!        IF ( ABS(MAXVAL(drag)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            drag(:,:) = 1.0e-6
+!          ENDIF
+!        ENDIF
           WRITE (*,ifmt2) 'DRAG      ',(drag(lprt_metx,lprt_mety))
         ELSE
           WRITE (*,f9400) TRIM(pname), 'DRAG', TRIM(nf90_strerror(rcode))
@@ -1557,14 +1549,10 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           drag(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-          ! Another DRAG check over land and water
-          ! Set to 0.0  for the representative pixels.
-          WHERE ( (drag < 0.0))  !  DRAG < 0.0
-           drag = 1.0e-6
+          ! DRAG check over  water, set as negative numbers for improved error checking
+          WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and DRAG < 0.0
+           drag = -1.0
           END WHERE
-!          WHERE ( (INT(landmask) == 0) )  ! FV3 water = 0 and CLAYF = 0.0
-!           drag = 0.0
-!          END WHERE
           WRITE (*,ifmt2) 'DRAG ', drag(lprt_metx,lprt_mety)
         ELSE
           WRITE (*,f9400) TRIM(pname), 'DRAG', TRIM(nf90_strerror(rcode))
@@ -1584,11 +1572,11 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
            call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
            ssm(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-        IF ( ABS(MAXVAL(ssm)) < smallnum ) THEN
-          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
-            ssm(:,:) = 1.0e-6
-          ENDIF
-        ENDIF
+!        IF ( ABS(MAXVAL(ssm)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            ssm(:,:) = 1.0e-6
+!          ENDIF
+!        ENDIF
           WRITE (*,ifmt2) 'SSM      ',(ssm(lprt_metx,lprt_mety))
         ELSE
           WRITE (*,f9400) TRIM(pname), 'SSM', TRIM(nf90_strerror(rcode))
@@ -1605,14 +1593,10 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           ssm(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-          ! Another SSM check over land and water
-          ! Set to 0.0  for the representative pixels.
-          WHERE ( (ssm < 0.0))  !  SSM < 0.0
-           ssm = 1.0e-6
+          ! SSM check over  water, set as negative numbers for improved error checking
+          WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and CLAYF < 0.0
+           ssm = -1.0
           END WHERE
-!          WHERE ( (INT(landmask) == 0) )  ! FV3 water = 0 and CLAYF = 0.0
-!           ssm = 0.0
-!          END WHERE
           WRITE (*,ifmt2) 'SSM ', ssm(lprt_metx,lprt_mety)
         ELSE
           WRITE (*,f9400) TRIM(pname), 'SSM', TRIM(nf90_strerror(rcode))

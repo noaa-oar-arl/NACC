@@ -268,6 +268,11 @@ SUBROUTINE alloc_ctm
     c_clay_px   => fld2dxyt(29+nwr+nsoil2d+6)
   ENDIF
 
+  c_clayf      => fld2dxyt(30)
+  c_sandf      => fld2dxyt(31)
+  c_drag       => fld2dxyt(32)
+  c_ssm        => fld2dxyt(33)
+
 !-------------------------------------------------------------------------------
 ! Time-varying 3d fields at cell centers.
 !-------------------------------------------------------------------------------
