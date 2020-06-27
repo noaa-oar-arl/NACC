@@ -22,9 +22,9 @@ NTIMES=73
 export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/$USER/fv3gfs_v16_test/12z_hourly
+InMetDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test
 InGeoDir=$InMetDir
-OutDir=/gpfs/hps2/ptmp/$USER/fv3gfs_v16_test/output
+OutDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test/output
 ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then
@@ -70,8 +70,8 @@ cat>namelist.mcip<<!
   lpv        =  0
   lwout      =  1
   luvbout    =  1
-  mcip_start = "2019-07-12-12:00:00.0000"
-  mcip_end   = "2019-07-15-13:00:00.0000"
+  mcip_start = "2019-07-22-12:00:00.0000"
+  mcip_end   = "2019-07-25-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"

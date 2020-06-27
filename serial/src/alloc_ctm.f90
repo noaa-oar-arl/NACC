@@ -209,7 +209,7 @@ SUBROUTINE alloc_ctm
     npxwrf41 = 0
   ENDIF
 
-  nfld2dxyt = 29 + nwr + nsoil2d + npxwrf41
+  nfld2dxyt = 33 + nwr + nsoil2d + npxwrf41
 
   ALLOCATE ( fld2dxyt ( nfld2dxyt ) )
 
@@ -246,6 +246,10 @@ SUBROUTINE alloc_ctm
   c_lai      => fld2dxyt(27)
   c_seaice   => fld2dxyt(28)
   c_snowh    => fld2dxyt(29)
+  c_clayf    => fld2dxyt(30)
+  c_sandf    => fld2dxyt(31)
+  c_drag     => fld2dxyt(32)
+  c_ssm      => fld2dxyt(33)
 
   IF ( ifwr ) THEN
     c_wr => fld2dxyt(29+nwr)
@@ -267,11 +271,6 @@ SUBROUTINE alloc_ctm
     c_fmsand_px => fld2dxyt(29+nwr+nsoil2d+5)
     c_clay_px   => fld2dxyt(29+nwr+nsoil2d+6)
   ENDIF
-
-  c_clayf      => fld2dxyt(30)
-  c_sandf      => fld2dxyt(31)
-  c_drag       => fld2dxyt(32)
-  c_ssm        => fld2dxyt(33)
 
 !-------------------------------------------------------------------------------
 ! Time-varying 3d fields at cell centers.
