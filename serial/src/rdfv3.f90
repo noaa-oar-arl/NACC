@@ -1448,10 +1448,10 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         ENDIF
         CALL get_var_2d_real_cdf (cdfidg, 'CLAY_FRAC', dum2d, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d(1:met_nx, met_ny:1:-1),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           clayf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
-          WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and CLAYF < 0.0
+          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 and CLAYF < 0.0
            clayf = -1.0
           END WHERE
           WRITE (*,ifmt2) 'CLAYF ', clayf(lprt_metx,lprt_mety)
@@ -1492,10 +1492,10 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         ENDIF
         CALL get_var_2d_real_cdf (cdfidg, 'SAND_FRAC', dum2d, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d(1:met_nx, met_ny:1:-1),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           sandf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! SANDF check over  water, set as negative numbers for improved error checking
-          WHERE ( (INT(landmask) == 0) ) ! FV3 land = 1 and SANDF < 0.0
+          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 land = 1 and SANDF < 0.0
            sandf = -1.0
           END WHERE
           WRITE (*,ifmt2) 'SANDF ', sandf(lprt_metx,lprt_mety)
@@ -1536,7 +1536,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         ENDIF
         CALL get_var_2d_real_cdf (cdfidg, 'DRAG_PART', dum2d, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d(1:met_nx, met_ny:1:-1),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           drag(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! DRAG check over  water, set as negative numbers for improved error checking
           WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and DRAG < 0.0
@@ -1580,7 +1580,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         ENDIF
         CALL get_var_2d_real_cdf (cdfidg, 'SSM', dum2d, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d(1:met_nx, met_ny:1:-1),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           ssm(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! SSM check over  water, set as negative numbers for improved error checking
           WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and CLAYF < 0.0
