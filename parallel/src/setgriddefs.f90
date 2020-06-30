@@ -688,6 +688,13 @@ SUBROUTINE setgriddefs
   ENDIF
   WRITE (*,f6150) 'SSM', TRIM(yesno)
 
+   IF ( ifuthr ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'UTHRES', TRIM(yesno)
+
   IF ( iflufrc ) THEN
     yesno = ''
   ELSE

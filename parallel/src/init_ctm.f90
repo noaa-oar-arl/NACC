@@ -685,6 +685,17 @@ SUBROUTINE init_ctm
   c_ssm%iend(1) = nx
   c_ssm%iend(2) = ny
 
+  c_uthr%fld = fillreal
+  c_uthr%fldname = 'UTHR'
+  c_uthr%long_name = 'threshold velocity'
+  c_uthr%units = 'm s-1'
+  c_uthr%dimnames(1) = 'nx'
+  c_uthr%dimnames(2) = 'ny'
+  c_uthr%istart(1) = 1
+  c_uthr%istart(2) = 1
+  c_uthr%iend(1) = nx
+  c_uthr%iend(2) = ny
+
   c_seaice%fld = fillreal
   c_seaice%fldname = 'SEAICE'
   c_seaice%long_name = 'sea ice'

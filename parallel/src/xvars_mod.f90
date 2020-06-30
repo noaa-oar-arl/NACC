@@ -197,8 +197,9 @@ MODULE xvars
   REAL, ALLOCATABLE :: xlai       ( : , : )  ! leaf area index [m2/m2]
   REAL, ALLOCATABLE :: xclayf     ( : , : )  ! soil clay fraction [decimal]
   REAL, ALLOCATABLE :: xsandf     ( : , : )  ! soil sand fraction [decimal]
-  REAL, ALLOCATABLE :: xdrag      ( : , : )  ! drag partition [decimal]
-  REAL, ALLOCATABLE :: xssm       ( : , : )  ! sediment supply map [decimal]
+  REAL, ALLOCATABLE :: xdrag      ( : , : )  ! drag partition []
+  REAL, ALLOCATABLE :: xssm       ( : , : )  ! sediment supply map []
+  REAL, ALLOCATABLE :: xuthr      ( : , : )  ! threshold velocity [m/s]
   REAL, ALLOCATABLE :: xveg       ( : , : )  ! vegetation coverage [decimal]
   REAL, ALLOCATABLE :: xsltyp     ( : , : )  ! soil texture type [category]
 

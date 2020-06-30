@@ -456,6 +456,10 @@ SUBROUTINE metvars2ctm
      xssm(:,:) = ssm(sc:ec,sr:er)
    ENDIF
 
+    IF ( ifuthr) THEN
+     xuthr(:,:) = uthr(sc:ec,sr:er)
+   ENDIF
+
   IF ( ifveg ) THEN
     xveg   (:,:) = veg   (sc:ec,sr:er)
   ELSE

@@ -24,7 +24,7 @@ export NODES=12
 APPL=aqm.t12z
 InMetDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test
 InGeoDir=$InMetDir
-OutDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test/output
+OutDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test/output_nofengsha
 ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then

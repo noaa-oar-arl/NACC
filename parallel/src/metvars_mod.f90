@@ -90,6 +90,7 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: sandf      ( : , : )
   REAL,          ALLOCATABLE   :: drag       ( : , : )
   REAL,          ALLOCATABLE   :: ssm        ( : , : )
+  REAL,          ALLOCATABLE   :: uthr       ( : , : )
   REAL,          ALLOCATABLE   :: lai_mos    ( : , : , : )
   REAL,          ALLOCATABLE   :: lai_px     ( : , : )
   REAL,          ALLOCATABLE   :: landmask   ( : , : )

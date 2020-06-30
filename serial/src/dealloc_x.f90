@@ -147,6 +147,7 @@ SUBROUTINE dealloc_x
   DEALLOCATE ( xsandf  )
   DEALLOCATE ( xdrag   )
   DEALLOCATE ( xssm    )
+  DEALLOCATE ( xuthr   )
   DEALLOCATE ( xveg    )
 
   DEALLOCATE ( xwstar   )

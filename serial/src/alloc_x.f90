@@ -168,6 +168,7 @@ SUBROUTINE alloc_x
   ALLOCATE ( xsandf  (ncols_x, nrows_x) )
   ALLOCATE ( xdrag   (ncols_x, nrows_x) )
   ALLOCATE ( xssm    (ncols_x, nrows_x) )
+  ALLOCATE ( xuthr   (ncols_x, nrows_x) )
   ALLOCATE ( xveg    (ncols_x, nrows_x) )
 
   ALLOCATE ( xwstar  (ncols_x, nrows_x) )

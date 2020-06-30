@@ -1599,6 +1599,50 @@ SUBROUTINE rdfv3 (mcip_now,nn)
       ENDIF
     ENDIF
 
+    IF ( ifuthr ) THEN
+      IF ( ifuthrwrfout ) THEN  ! uthr in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'UTHRES', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           uthr(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(ssm)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            ssm(:,:) = 1.0e-6
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'UTHR      ',(uthr(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'UTHR', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! uthr in GEOGRID file from WPS
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'UTHRES', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          uthr(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! SSM check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and CLAYF < 0.0
+!           ssm = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'UTHR ', uthr(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'UTHR', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
     IF ( iflai ) THEN
       IF ( iflaiwrfout ) THEN  ! leaf area index in FV3 history file
         CALL get_var_2d_real_cdf (cdfid2, 'LAI', dum2d, it, rcode)

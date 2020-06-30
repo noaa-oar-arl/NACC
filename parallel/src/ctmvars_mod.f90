@@ -141,6 +141,7 @@ MODULE ctmvars
   TYPE(fld2ddata), POINTER     :: c_sandf
   TYPE(fld2ddata), POINTER     :: c_drag
   TYPE(fld2ddata), POINTER     :: c_ssm
+  TYPE(fld2ddata), POINTER     :: c_uthr
   TYPE(fld2ddata), POINTER     :: c_seaice
   TYPE(fld2ddata), POINTER     :: c_snowh
   TYPE(fld2ddata), POINTER     :: c_wr

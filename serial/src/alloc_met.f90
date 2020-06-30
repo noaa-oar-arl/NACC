@@ -210,6 +210,10 @@ SUBROUTINE alloc_met
     ALLOCATE ( ssm    (met_nx, met_ny) )
   ENDIF  
 
+  IF ( ifuthr ) THEN  ! threshold velocity available
+    ALLOCATE ( uthr    (met_nx, met_ny) )
+  ENDIF
+
   IF ( ifmol ) THEN  ! Monin-Obukhov length available
     ALLOCATE ( mol    (met_nx, met_ny) )
   ENDIF

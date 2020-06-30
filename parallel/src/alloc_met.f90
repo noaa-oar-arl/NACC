@@ -206,20 +206,24 @@ SUBROUTINE alloc_met
     ALLOCATE ( lai    (ix, jy) )
   ENDIF
 
-  IF ( ifclayf ) THEN  ! leaf area index available
+  IF ( ifclayf ) THEN  ! clay fraction available
     ALLOCATE ( clayf    (met_nx, met_ny) )
   ENDIF
 
-  IF ( ifsandf ) THEN  ! leaf area index available
+  IF ( ifsandf ) THEN  ! sand fraction available
     ALLOCATE ( sandf    (met_nx, met_ny) )
   ENDIF
 
-  IF ( ifdrag ) THEN  ! leaf area index available
+  IF ( ifdrag ) THEN  ! drag paritiion available
     ALLOCATE ( drag    (met_nx, met_ny) )
   ENDIF
 
-  IF ( ifssm ) THEN  ! leaf area index available
+  IF ( ifssm ) THEN  ! sediment supply map available
     ALLOCATE ( ssm    (met_nx, met_ny) )
+  ENDIF
+
+   IF ( ifuthr ) THEN  ! threshold velocity available
+    ALLOCATE ( uthr    (met_nx, met_ny) )
   ENDIF
 
   IF ( ifmol ) THEN  ! Monin-Obukhov length available

@@ -897,9 +897,38 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
     ENDIF
   ENDIF
 
+  rcode2 = nf90_inq_varid (cdfid2, 'UTHRES', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifuthr     = .TRUE.   ! threshold velocity is in the file
+    ifuthrwrfout = .TRUE.   ! threshold velocity is not in the file
+  ELSE
+    ifuthrwrfout = .FALSE.  ! threshold velocity is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifuthr = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
 
-
-
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'UTHRES', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifuthr = .TRUE.  ! threshold velocity is in the file
+      ELSE
+        ifuthr = .FALSE. ! threshold velocity is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
 
   rcode2 = nf90_inq_varid (cdfid2, 'LAI', varid) !not in FV3GFSv16
   IF ( rcode2 == nf90_noerr ) THEN
