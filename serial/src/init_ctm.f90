@@ -641,6 +641,61 @@ SUBROUTINE init_ctm
   c_lai%iend(1) = nx
   c_lai%iend(2) = ny
 
+  c_clayf%fld = fillreal
+  c_clayf%fldname = 'CLAYF'
+  c_clayf%long_name = 'soil clay fraction'
+  c_clayf%units = '1'
+  c_clayf%dimnames(1) = 'nx'
+  c_clayf%dimnames(2) = 'ny'
+  c_clayf%istart(1) = 1
+  c_clayf%istart(2) = 1
+  c_clayf%iend(1) = nx
+  c_clayf%iend(2) = ny
+
+  c_sandf%fld = fillreal
+  c_sandf%fldname = 'SANDF'
+  c_sandf%long_name = 'soil sand fraction'
+  c_sandf%units = '1'
+  c_sandf%dimnames(1) = 'nx'
+  c_sandf%dimnames(2) = 'ny'
+  c_sandf%istart(1) = 1
+  c_sandf%istart(2) = 1
+  c_sandf%iend(1) = nx
+  c_sandf%iend(2) = ny
+
+  c_drag%fld = fillreal
+  c_drag%fldname = 'DRAG'
+  c_drag%long_name = 'drag partition'
+  c_drag%units = '1'
+  c_drag%dimnames(1) = 'nx'
+  c_drag%dimnames(2) = 'ny'
+  c_drag%istart(1) = 1
+  c_drag%istart(2) = 1
+  c_drag%iend(1) = nx
+  c_drag%iend(2) = ny
+
+  c_ssm%fld = fillreal
+  c_ssm%fldname = 'SSM'
+  c_ssm%long_name = 'sediment supply map'
+  c_ssm%units = '1'
+  c_ssm%dimnames(1) = 'nx'
+  c_ssm%dimnames(2) = 'ny'
+  c_ssm%istart(1) = 1
+  c_ssm%istart(2) = 1
+  c_ssm%iend(1) = nx
+  c_ssm%iend(2) = ny
+
+  c_uthr%fld = fillreal
+  c_uthr%fldname = 'UTHR'
+  c_uthr%long_name = 'threshold velocity'
+  c_uthr%units = 'm s-1'
+  c_uthr%dimnames(1) = 'nx'
+  c_uthr%dimnames(2) = 'ny'
+  c_uthr%istart(1) = 1
+  c_uthr%istart(2) = 1
+  c_uthr%iend(1) = nx
+  c_uthr%iend(2) = ny
+
   c_seaice%fld = fillreal
   c_seaice%fldname = 'SEAICE'
   c_seaice%long_name = 'sea ice'

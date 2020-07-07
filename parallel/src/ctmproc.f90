@@ -323,6 +323,11 @@ SUBROUTINE ctmproc
       c_snocov%fld(col,row) = xsnocov(c,r)
       c_veg%fld(col,row)    = xveg(c,r)
       c_lai%fld(col,row)    = xlai(c,r)
+      c_clayf%fld(col,row)  = xclayf(c,r)
+      c_sandf%fld(col,row)  = xsandf(c,r)
+      c_drag%fld(col,row)   = xdrag(c,r)
+      c_ssm%fld(col,row)    = xssm(c,r)
+      c_uthr%fld(col,row)   = xuthr(c,r)
       c_seaice%fld(col,row) = xseaice(c,r)
       c_snowh%fld(col,row)  = xsnowh(c,r)
 

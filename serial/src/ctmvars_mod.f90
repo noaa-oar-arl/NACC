@@ -137,6 +137,11 @@ MODULE ctmvars
   TYPE(fld2ddata), POINTER     :: c_snocov
   TYPE(fld2ddata), POINTER     :: c_veg
   TYPE(fld2ddata), POINTER     :: c_lai
+  TYPE(fld2ddata), POINTER     :: c_clayf
+  TYPE(fld2ddata), POINTER     :: c_sandf
+  TYPE(fld2ddata), POINTER     :: c_drag
+  TYPE(fld2ddata), POINTER     :: c_ssm
+  TYPE(fld2ddata), POINTER     :: c_uthr
   TYPE(fld2ddata), POINTER     :: c_seaice
   TYPE(fld2ddata), POINTER     :: c_snowh
   TYPE(fld2ddata), POINTER     :: c_wr

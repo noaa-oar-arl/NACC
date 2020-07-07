@@ -194,6 +194,26 @@ SUBROUTINE alloc_met
     ALLOCATE ( lai    (met_nx, met_ny) )
   ENDIF
 
+  IF ( ifclayf ) THEN  ! leaf area index available
+    ALLOCATE ( clayf    (met_nx, met_ny) )
+  ENDIF
+  
+  IF ( ifsandf ) THEN  ! leaf area index available
+    ALLOCATE ( sandf    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( ifdrag ) THEN  ! leaf area index available
+    ALLOCATE ( drag    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( ifssm ) THEN  ! leaf area index available
+    ALLOCATE ( ssm    (met_nx, met_ny) )
+  ENDIF  
+
+  IF ( ifuthr ) THEN  ! threshold velocity available
+    ALLOCATE ( uthr    (met_nx, met_ny) )
+  ENDIF
+
   IF ( ifmol ) THEN  ! Monin-Obukhov length available
     ALLOCATE ( mol    (met_nx, met_ny) )
   ENDIF

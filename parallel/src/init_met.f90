@@ -139,6 +139,11 @@ SUBROUTINE init_met
   IF ( ALLOCATED ( coriolis  ) )  coriolis (:,:) = 0.0
   IF ( ALLOCATED ( isltyp    ) )  isltyp   (:,:) = 0
   IF ( ALLOCATED ( lai       ) )  lai      (:,:) = 0.0
+  IF ( ALLOCATED ( clayf     ) )  clayf    (:,:) = 0.0
+  IF ( ALLOCATED ( sandf     ) )  sandf    (:,:) = 0.0
+  IF ( ALLOCATED ( drag      ) )  drag     (:,:) = 0.0
+  IF ( ALLOCATED ( ssm       ) )  ssm      (:,:) = 0.0
+  IF ( ALLOCATED ( uthr      ) )  uthr     (:,:) = 0.0
   IF ( ALLOCATED ( mol       ) )  mol      (:,:) = 0.0
   IF ( ALLOCATED ( qfx       ) )  qfx      (:,:) = 0.0
   IF ( ALLOCATED ( ra        ) )  ra       (:,:) = 0.0

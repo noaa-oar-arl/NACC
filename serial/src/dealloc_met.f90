@@ -151,6 +151,11 @@ SUBROUTINE dealloc_met
 
   IF ( ALLOCATED ( isltyp    ) )  DEALLOCATE ( isltyp    )
   IF ( ALLOCATED ( lai       ) )  DEALLOCATE ( lai       )
+  IF ( ALLOCATED ( clayf     ) )  DEALLOCATE ( clayf     )
+  IF ( ALLOCATED ( sandf     ) )  DEALLOCATE ( sandf     )
+  IF ( ALLOCATED ( drag      ) )  DEALLOCATE ( drag      )
+  IF ( ALLOCATED ( ssm       ) )  DEALLOCATE ( ssm       )
+  IF ( ALLOCATED ( uthr      ) )  DEALLOCATE ( uthr      )
   IF ( ALLOCATED ( mol       ) )  DEALLOCATE ( mol       )
   IF ( ALLOCATED ( ra        ) )  DEALLOCATE ( ra        )
   IF ( ALLOCATED ( rstom     ) )  DEALLOCATE ( rstom     )

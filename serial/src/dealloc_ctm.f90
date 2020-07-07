@@ -173,6 +173,12 @@ SUBROUTINE dealloc_ctm
   NULLIFY    ( c_lai    )
   NULLIFY    ( c_seaice )
   NULLIFY    ( c_snowh  )
+  NULLIFY    ( c_clayf  )
+  NULLIFY    ( c_sandf  )
+  NULLIFY    ( c_drag   )
+  NULLIFY    ( c_ssm    )
+  NULLIFY    ( c_uthr   )
+
   IF ( ASSOCIATED ( c_wr        ) ) NULLIFY ( c_wr        )
   IF ( ASSOCIATED ( c_soim1     ) ) NULLIFY ( c_soim1     )
   IF ( ASSOCIATED ( c_soim2     ) ) NULLIFY ( c_soim2     )

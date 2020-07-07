@@ -765,6 +765,171 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
 ! the flags appropriately.
 !-------------------------------------------------------------------------------
 
+  rcode2 = nf90_inq_varid (cdfid2, 'CLAY_FRAC', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifclayf     = .TRUE.   ! clay fraction is in the file
+    ifclayfwrfout = .TRUE.   ! clay fraction is not in the file
+  ELSE
+    ifclayfwrfout = .FALSE.  ! clay fraction is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifclayf = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'CLAY_FRAC', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifclayf = .TRUE.  ! clay fraction is in the file
+      ELSE
+        ifclayf = .FALSE. ! clay fraction is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'SAND_FRAC', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifsandf     = .TRUE.   ! sand fraction is in the file
+    ifsandfwrfout = .TRUE.   ! sand fraction is not in the file
+  ELSE
+    ifsandfwrfout = .FALSE.  ! sand fraction is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifsandf = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'SAND_FRAC', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifsandf = .TRUE.  ! sand fraction is in the file
+      ELSE
+        ifsandf = .FALSE. ! sand fraction is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+  
+  rcode2 = nf90_inq_varid (cdfid2, 'DRAG_PART', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifdrag     = .TRUE.   ! drag partition is in the file
+    ifdragwrfout = .TRUE.   ! drag partition is not in the file
+  ELSE
+    ifdragwrfout = .FALSE.  ! drag partition is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifdrag = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'DRAG_PART', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifdrag = .TRUE.  ! drag partition is in the file
+      ELSE
+        ifdrag = .FALSE. ! drag partition is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'SSM', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifssm     = .TRUE.   ! sediment supply map is in the file
+    ifssmwrfout = .TRUE.   ! sediment supply map is not in the file
+  ELSE
+    ifssmwrfout = .FALSE.  ! sediment supply map is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifssm = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'SSM', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifssm = .TRUE.  ! sediment supply map is in the file
+      ELSE
+        ifssm = .FALSE. ! sediment supply map is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'UTHRES', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifuthr     = .TRUE.   ! threshold velocity is in the file
+    ifuthrwrfout = .TRUE.   ! threshold velocity is not in the file
+  ELSE
+    ifuthrwrfout = .FALSE.  ! threshold velocity is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifuthr = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'UTHRES', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifuthr = .TRUE.  ! threshold velocity is in the file
+      ELSE
+        ifuthr = .FALSE. ! threshold velocity is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
   rcode2 = nf90_inq_varid (cdfid2, 'LAI', varid) !not in FV3GFSv16
   IF ( rcode2 == nf90_noerr ) THEN
     iflai    = .TRUE.   ! leaf area index is in the file
@@ -788,7 +953,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
       IF ( rcode == nf90_noerr ) THEN
         iflai = .TRUE.  ! leaf area index is in the file
       ELSE
-        iflai = .FALSE. ! fractional land use is not in the file
+        iflai = .FALSE. ! leaf area index is not in the file
       ENDIF
       rcode = nf90_close (cdfidg)
       IF ( rcode /= nf90_noerr ) THEN
