@@ -272,7 +272,7 @@ SUBROUTINE pblsup
         ! Need to specify PBL height for schemes in WRF when it is input
         ! as lower than the height of the lowest mid-layer.
 
-        IF ( xpbl(c,r) <= x3htm(c,r,1) ) THEN
+        IF (( xpbl(c,r) <= x3htm(c,r,1)).or.ifdiag_pbl ) THEN
           CALL getpblht (c, r, ul)
         ENDIF
 

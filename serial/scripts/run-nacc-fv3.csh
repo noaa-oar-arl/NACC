@@ -49,6 +49,7 @@ cat>namelist.mcip<<!
   lpv        =  0
   lwout      =  1
   luvbout    =  1
+  ifdiag_pbl = .FALSE.
   mcip_start = "2019-07-12-12:00:00.0000"
   mcip_end   = "2019-07-15-13:00:00.0000"
   intvl      =  60

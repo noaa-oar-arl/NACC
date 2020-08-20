@@ -268,6 +268,7 @@ MODULE mcipparm
   LOGICAL            :: ifwr          ! canopy wetness in input file?
   LOGICAL            :: ifznt         ! roughness length in input file?
   LOGICAL            :: needseaice    ! sea ice in input file?
+  logical            :: ifdiag_pbl    ! use diagnostic PBL
 
 !-------------------------------------------------------------------------------
 ! Run Options.
