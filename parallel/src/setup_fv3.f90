@@ -176,6 +176,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
 
   INTEGER     ,       INTENT(IN)    :: cdfid, cdfid2
   INTEGER                           :: cdfidg
+  INTEGER                           :: cdfid_vgvf
   REAL,               INTENT(OUT)   :: ctmlays     ( maxlays )
   REAL                              :: phalf_lays  ( maxlays )
   REAL                              :: pfull_lays  ( maxlays+1 )
@@ -192,6 +193,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   CHARACTER(LEN=256)                :: fl2
   CHARACTER(LEN=256)                :: flg
   CHARACTER(LEN=256)                :: geofile
+  CHARACTER(LEN=256)                :: viirsgvf
   INTEGER                           :: icloud_cu
   INTEGER                           :: id_data
   INTEGER                           :: idtsec
@@ -993,11 +995,33 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
     ifresist = .FALSE.
   ENDIF
 
-  rcode = nf90_inq_varid (cdfid2, 'veg', varid) 
-  IF ( rcode == nf90_noerr ) THEN
-    ifveg = .TRUE.  ! vegetation fraction is in the file
-  ELSE
-    ifveg = .FALSE. ! vegetation fraction is not in the file
+  IF ( ( ifviirs_gvf ) ) THEN  !Using VIIRS GVF for vegetation fraction instead of model
+   viirsgvf = TRIM( file_viirs_gvf )
+   flg = viirsgvf
+   rcode = nf90_open (flg, nf90_nowrite, cdfid_vgvf)
+   IF ( rcode == nf90_noerr ) THEN
+      rcode = nf90_inq_varid (cdfid_vgvf, 'VEG_surface', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifveg_viirs = .TRUE.  ! vegetation fraction is in the file
+      ELSE !Can't find/open variable in VIIRS GVF file
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+   ELSE !Can't find/open VIIRS GVF file
+      WRITE (*,f9600) TRIM(pname), TRIM(flg)
+      CALL graceful_stop (pname)
+   ENDIF
+   rcode = nf90_close (cdfid_vgvf)
+
+  ELSE !Not using VIIRS-->check if vegetation fraction is in FV3
+   ifveg_viirs = .FALSE.
+   rcode = nf90_inq_varid (cdfid2, 'veg', varid) 
+   IF ( rcode == nf90_noerr ) THEN
+     ifveg = .TRUE.  ! vegetation fraction is in the file
+   ELSE
+     ifveg = .FALSE. ! vegetation fraction is not in the file
+   ENDIF
+
   ENDIF
 
   rcode = nf90_inq_varid (cdfid2, 'cnwat', varid) 

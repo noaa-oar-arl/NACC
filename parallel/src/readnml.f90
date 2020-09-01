@@ -107,10 +107,10 @@ SUBROUTINE readnml (ctmlays)
   INTEGER                           :: nrowsin
   CHARACTER(LEN=16),  PARAMETER     :: pname      = 'READNML'
 
-  NAMELIST /filenames/   file_gd, file_mm, file_sfc, file_geo, ioform
+  NAMELIST /filenames/   file_gd, file_mm, file_sfc, file_geo, file_viirs_gvf, ioform
 
   NAMELIST /userdefs/    inmetmodel, dx_in, dy_in, met_cen_lat_in, met_cen_lon_in, &
-                         lpv, lwout, luvbout, ifdiag_pbl,    &
+                         lpv, lwout, luvbout, ifdiag_pbl, ifviirs_gvf,    &
                          eradm, mcip_start, mcip_end, ntimes, intvl,  &
                          coordnam, grdnam, ctmlays,           &
                          btrim, lprt_col, lprt_row,           &
@@ -213,10 +213,11 @@ SUBROUTINE readnml (ctmlays)
 ! Initialize input file names.
 !-------------------------------------------------------------------------------
 
-  file_gd     = "GRIDDESC"
-  file_mm(:)  = " "
-  file_geo    = " "
-  file_sfc(:)  = " "
+  file_gd        = "GRIDDESC"
+  file_mm(:)     = " "
+  file_geo       = " "
+  file_sfc(:)    = " "
+  file_viirs_gvf = " "
 !-------------------------------------------------------------------------------
 ! Set default value for user-selected model (2 = WRF, 3 = FV3).
   inmetmodel = 2
@@ -250,7 +251,9 @@ SUBROUTINE readnml (ctmlays)
   luvbout    = 0
   ioform     = 1
 
-  ifdiag_pbl = .false.
+  ifdiag_pbl  = .false.
+  ifviirs_gvf = .false.
+
 !-------------------------------------------------------------------------------
 ! Set default value for earth radius in meters (ERADM).  The default value is
 ! consistent with the value used for a spherical earth in MM5 and in WRF-ARW.
@@ -360,6 +363,9 @@ SUBROUTINE readnml (ctmlays)
 
   file_geo = TRIM( ADJUSTL(file_geo) )
   IF ( file_geo(1:7) == "no_file" ) file_geo = " "
+
+  file_viirs_gvf = TRIM( ADJUSTL(file_viirs_gvf) )
+  IF ( file_viirs_gvf(1:7) == "no_file" ) file_viirs_gvf = " "
 
 !-------------------------------------------------------------------------------
 ! Verify values of user-defined options.

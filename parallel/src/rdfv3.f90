@@ -196,6 +196,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 
   INTEGER, SAVE                     :: cdfid, cdfid2
   INTEGER                           :: cdfidg
+  INTEGER                           :: cdfid_vgvf
   INTEGER                           :: dimid
   INTEGER                           :: dimids     ( nf90_max_var_dims )
   REAL,    SAVE,      ALLOCATABLE   :: dum1d      ( : )
@@ -1711,7 +1712,20 @@ SUBROUTINE rdfv3 (mcip_now,nn)
       CALL graceful_stop (pname)
     ENDIF
   ENDIF
-  IF ( ifveg ) THEN
+
+  IF ( ifveg_viirs ) THEN !Using VIIRS GVF for vegetation fraction
+    CALL get_var_2d_real_cdf (cdfid_vgvf, 'VEG_surface', dum2d, it, rcode)
+      IF ( rcode == nf90_noerr ) THEN
+        call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+        veg(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)*0.01
+        WRITE (*,f6000) 'veg   ', veg(lprt_metx, lprt_mety), 'fraction (from VIIRS GVF)'
+      ELSE
+        WRITE (*,f9400) TRIM(pname), 'veg', TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+  ENDIF
+
+  IF ( ifveg ) THEN  !Using FV3 vegetation fraction
       CALL get_var_2d_real_cdf (cdfid2, 'veg', dum2d, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
         call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
