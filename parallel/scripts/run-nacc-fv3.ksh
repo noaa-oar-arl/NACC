@@ -22,9 +22,10 @@ NTIMES=73
 export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test
-InGeoDir=$InMetDir
-OutDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test/output_nofengsha
+InMetDir=/gpfs/dell3/ptmp/emc.glopara/ROTDIRS/v16rt2c/gfs/para
+InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/nwdev/NAQFC-WCOSS/fix
+InVIIRSDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
+OutDir=/gpfs/hps2/ptmp/$USER/NACC-VIIRS-Test/output
 ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then
@@ -57,7 +58,8 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/gfs.t12z.atmf','.nc'
   file_sfc   = '$InMetDir/gfs.t12z.sfcf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.07.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.08.nc'
+  file_viirs_gvf = '$InVIIRSDir/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2'
   ioform     =  1
  &END
 
@@ -71,6 +73,7 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   ifdiag_pbl = .FALSE.
+  ifviirs_gvf = .TRUE. 
   mcip_start = "2019-07-22-12:00:00.0000"
   mcip_end   = "2019-07-25-13:00:00.0000"
   intvl      =  60
