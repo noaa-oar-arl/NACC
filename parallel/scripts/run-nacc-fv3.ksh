@@ -2,12 +2,12 @@
 #BSUB -J viirs-gvf-test
 #BSUB -o jnacc_par.out1
 #BSUB -e jnacc_par.err1
-#BSUB -q debug
-##BSUB -q dev
+##BSUB -q debug
+#BSUB -q dev
 ##BSUB -extsched "CRAYLINUX[]" -R "1*{select[craylinux && !vnode]} + 576*{select[craylinux && vnode] span [ptile=24]}"
 #BSUB -M 3000
 ##BSUB -W 01:00
-#BSUB -W 00:30
+#BSUB -W 00:10
 #BSUB -P CMAQ-T2O
 #BSUB -extsched 'CRAYLINUX[]'
 #BSUB -cwd .

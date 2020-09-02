@@ -59,7 +59,8 @@ def get_exec_path(exec_name, verbose=False):
     return exec_path
 
 def chdir(fname):
-    dir_path = os.path.dirname(os.path.realpath(fname))
+#    dir_path = os.path.dirname(os.path.realpath(fname))
+    dir_path = os.path.dirname(fname)
     os.chdir(dir_path)
     return os.path.basename(fname)
 
@@ -67,7 +68,6 @@ def chdir(fname):
 def change_file(finput,verbose=False):
     # first change directory and get file name
     fname = chdir(finput)
-
     # this will create 3 files and append to them
     wgrib2 = get_exec_path('wgrib2', verbose=verbose)
 
@@ -98,8 +98,8 @@ if __name__ == '__main__':
 
     files = sorted(glob(finput))
     for i,j in enumerate(files):
-        files[i] = os.path.realpath(j)
-
+#        files[i] = os.path.realpath(j)
+        files[i] = j
     if len(files) == 1:
         finput = files[0]
         change_file(finput,verbose=verbose)
