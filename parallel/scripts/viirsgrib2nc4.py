@@ -13,8 +13,8 @@ __email__   = 'barry.baker@noaa.gov'
 __license__ = 'GPL'
 
 '''
-Modified utility to convert NESDIS weekly VIIRS GVF file into a netCDF4 file
-Utilizes wgrib2 utility from NWPROD --P. Campbell
+Simple utility to convert NCEP grib2 aerosol file into a netCDF4 file
+Utilizes wgrib2 utility from NWPROD
 '''
 
 import os
@@ -67,7 +67,8 @@ def chdir(fname):
 
 def change_file(finput,verbose=False):
     # first change directory and get file name
-    fname = chdir(finput)
+#    fname = chdir(finput)
+    fname = finput
     # this will create 3 files and append to them
     wgrib2 = get_exec_path('wgrib2', verbose=verbose)
 
