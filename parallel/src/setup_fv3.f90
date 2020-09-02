@@ -443,11 +443,13 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   allocate(fv3lat(met_ny),fv3lon(met_nx))
   
   CALL get_var_1d_double_cdf (cdfid, 'grid_yt', fv3lat, 1, rcode)
+   print*, 'fv3lat = ', fv3lat
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'grid_yt', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
   CALL get_var_1d_double_cdf (cdfid, 'grid_xt', fv3lon, 1, rcode)
+   print*, 'fv3lon = ', fv3lon
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'grid_xt', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
@@ -1026,7 +1028,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
         CALL get_var_1d_double_cdf (cdfid_vgvf, 'latitude', viirslat, 1, rcode)
         !conform to fv3 latitude orientation, which is north-->south
         print*, 'viirslat original = ', viirslat
-        viirslat=viirslat(::-1)
+        viirslat=viirslat(met_ny_viirs:1:-1)
         print*, 'viirslat flipped = ', viirslat
        ELSE !latitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))

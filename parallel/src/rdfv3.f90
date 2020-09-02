@@ -1742,7 +1742,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     CALL get_var_2d_real_cdf (cdfid_vgvf, 'VEG_surface', dum2d_viirs, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
         !conform to fv3 latitude orientation, which is north-->south
-        call myinterp(dum2d_viirs(:,::-1),met_nx_viirs,met_ny_viirs,atmp,xindex_viirs,yindex_viirs,ncols_x,nrows_x,1)
+        call myinterp(dum2d_viirs(:,met_ny_viirs:1:-1),met_nx_viirs,met_ny_viirs,atmp,xindex_viirs,yindex_viirs,ncols_x,nrows_x,1)
         veg(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)*0.01
         WRITE (*,f6000) 'veg   ', veg(lprt_metx, lprt_mety), 'fraction (from VIIRS GVF)'
       ELSE
