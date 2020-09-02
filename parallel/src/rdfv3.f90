@@ -404,6 +404,13 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     & /, 1x, '***   NCF: ', a, &
     & /, 1x, 70('*'))"
 
+  CHARACTER(LEN=256), PARAMETER :: f9440 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR RETRIEVING VARIABLE FROM VIIRS FILE', &
+    & /, 1x, '***   VARIABLE = ', a, &
+    & /, 1x, '***   RCODE = ', a, &
+    & /, 1x, 70('*'))"
+
   CHARACTER(LEN=256), PARAMETER :: f9500 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   UNKNOWN LAND USE CLASSIFICATION SYSTEM', &
@@ -430,9 +437,19 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     & /, 1x, '***   ERROR OPENING FV3 NETCDF FILE', &
     & /, 1x, 70('*'))"
 
+  CHARACTER(LEN=256), PARAMETER :: f9910 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR OPENING VIIRS NETCDF FILE', &
+    & /, 1x, 70('*'))"
+
   CHARACTER(LEN=256), PARAMETER :: f9950 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   ERROR CLOSING FV3 NETCDF FILE', &
+    & /, 1x, 70('*'))"
+
+   CHARACTER(LEN=256), PARAMETER :: f9960 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR CLOSING VIIRS NETCDF FILE', &
     & /, 1x, 70('*'))"
 
   CHARACTER(LEN=256), PARAMETER :: f9975 = "(/, 1x, 70('*'), &
@@ -668,7 +685,10 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     yuindex(ncols_x+1,nrows_x+1),xvindex(ncols_x+1,nrows_x+1),yvindex(ncols_x+1,nrows_x+1), &
     xdindex(ncols_x+1,nrows_x+1),ydindex(ncols_x+1,nrows_x+1))
 
-
+   IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
+    allocate(xindex_viirs(ncols_x,nrows_x), yindex_viirs(ncols_x,nrows_x))
+   ENDIF
+ 
     ! Compute distance from origin (at reflat, standlon) to domain center, and
     ! store in MET_XXCTR and MET_YYCTR.  Then calculate latitude, longitude,
     ! and map-scale factors using offset distance of given grid point from
@@ -721,7 +741,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           ENDDO
         ENDDO
 
-        IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction-->Needs VIIRS xindex/yindex for interpolation
+        IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
          xoff=-1.5
          yoff=-1.5
          DO j = 1, nrows_x
@@ -1739,6 +1759,13 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   ENDIF
 
   IF ( ifveg_viirs ) THEN !Using VIIRS GVF for vegetation fraction
+    !Open VIIRS GVF File
+    flg = file_viirs_gvf
+    rcode = nf90_open (flg, nf90_nowrite, cdfid_vgvf)
+    IF ( rcode /= nf90_noerr ) THEN
+       WRITE (*,f9910) TRIM(pname)
+       CALL graceful_stop (pname)
+    ENDIF
     CALL get_var_2d_real_cdf (cdfid_vgvf, 'VEG_surface', dum2d_viirs, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
         !conform to fv3 latitude orientation, which is north-->south
@@ -1746,9 +1773,14 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         veg(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)*0.01
         WRITE (*,f6000) 'veg   ', veg(lprt_metx, lprt_mety), 'fraction (from VIIRS GVF)'
       ELSE
-        WRITE (*,f9400) TRIM(pname), 'veg', TRIM(nf90_strerror(rcode))
+        WRITE (*,f9440) TRIM(pname), 'veg', TRIM(nf90_strerror(rcode))
         CALL graceful_stop (pname)
       ENDIF
+    rcode = nf90_close (cdfid_vgvf)
+    IF ( rcode /= nf90_noerr ) THEN
+       WRITE (*,f9960) TRIM(pname)
+       CALL graceful_stop (pname)
+    ENDIF
   ENDIF
 
   IF ( ifveg ) THEN  !Using FV3 vegetation fraction

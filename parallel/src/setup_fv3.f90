@@ -205,7 +205,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   LOGICAL                           :: iftslb
   LOGICAL                           :: ifu10m
   LOGICAL                           :: ifv10m
-  INTEGER                           :: it
+  INTEGER                           :: it,iv
   INTEGER                           :: ival
   INTEGER                           :: lent
   INTEGER                           :: n_times
@@ -443,13 +443,11 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   allocate(fv3lat(met_ny),fv3lon(met_nx))
   
   CALL get_var_1d_double_cdf (cdfid, 'grid_yt', fv3lat, 1, rcode)
-   print*, 'fv3lat = ', fv3lat
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'grid_yt', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
   CALL get_var_1d_double_cdf (cdfid, 'grid_xt', fv3lon, 1, rcode)
-   print*, 'fv3lon = ', fv3lon
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'grid_xt', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
@@ -1027,9 +1025,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
         allocate(viirslat(met_ny_viirs))
         CALL get_var_1d_double_cdf (cdfid_vgvf, 'latitude', viirslat, 1, rcode)
         !conform to fv3 latitude orientation, which is north-->south
-        print*, 'viirslat original = ', viirslat
         viirslat=viirslat(met_ny_viirs:1:-1)
-        print*, 'viirslat flipped = ', viirslat
        ELSE !latitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.
@@ -1049,9 +1045,9 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
         allocate(viirslon(met_nx_viirs))
         CALL get_var_1d_double_cdf (cdfid_vgvf, 'longitude', viirslon, 1, rcode)
         !conform to fv3 longitude values, which is 0-->360
-        print*, 'viirslon original = ', viirslon
-        viirslon=viirslon + 180.0
-        print*, 'viirslat convert  = ', viirslon
+        do iv=1,met_nx_viirs
+         if(viirslon(iv).lt.0) viirslon(iv)=viirslon(iv)+360
+        enddo
        ELSE !longitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.
