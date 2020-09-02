@@ -1024,6 +1024,10 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
         met_ny_viirs = ival
         allocate(viirslat(met_ny_viirs))
         CALL get_var_1d_double_cdf (cdfid_vgvf, 'latitude', viirslat, 1, rcode)
+        !conform to fv3 latitude orientation, which is north-->south
+        print*, 'viirslat original = ', viirslat
+        viirslat=viirslat(::-1)
+        print*, 'viirslat flipped = ', viirslat
        ELSE !latitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.
@@ -1042,6 +1046,10 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
         met_nx_viirs = ival
         allocate(viirslon(met_nx_viirs))
         CALL get_var_1d_double_cdf (cdfid_vgvf, 'longitude', viirslon, 1, rcode)
+        !conform to fv3 longitude values, which is 0-->360
+        print*, 'viirslon original = ', viirslon
+        viirslon=viirslon + 180.0
+        print*, 'viirslat convert  = ', viirslon
        ELSE !longitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.
