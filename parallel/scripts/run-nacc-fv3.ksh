@@ -2,8 +2,8 @@
 #BSUB -J viirs-gvf-test
 #BSUB -o jnacc_par.out1
 #BSUB -e jnacc_par.err1
-##BSUB -q debug
-#BSUB -q dev
+#BSUB -q debug
+##BSUB -q dev
 ##BSUB -extsched "CRAYLINUX[]" -R "1*{select[craylinux && !vnode]} + 576*{select[craylinux && vnode] span [ptile=24]}"
 #BSUB -M 3000
 ##BSUB -W 01:00
@@ -25,7 +25,7 @@ APPL=aqm.t12z
 InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/gfsv16/v16rt2/2020083112/gfs.20200831/12/atmos/
 InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/nwdev/NAQFC-WCOSS/fix
 InVIIRSDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
-OutDir=/gpfs/hps2/ptmp/$USER/NACC-VIIRS-Test/output_fv3_gvf
+OutDir=/gpfs/hps2/ptmp/$USER/NACC-VIIRS-Test/output_viirs_gvf
 ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then
@@ -73,7 +73,7 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   ifdiag_pbl = .FALSE.
-  ifviirs_gvf = .FALSE. 
+  ifviirs_gvf = .TRUE. 
   mcip_start = "2020-08-31-12:00:00.0000"
   mcip_end   = "2020-09-02-13:00:00.0000"
   intvl      =  60

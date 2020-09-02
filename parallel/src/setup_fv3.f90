@@ -307,6 +307,13 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
     & /, 1x, '***   FILE = ', a, &
     & /, 1x, 70('*'))"
 
+  CHARACTER(LEN=256), PARAMETER :: f9610 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR OPENING VIIRS NETCDF FILE', &
+    & /, 1x, '***   WILL NOT USE VIIRS GVF' &
+    & /, 1x, '***   FILE = ', a, &
+    & /, 1x, 70('*'))"
+
   CHARACTER(LEN=256), PARAMETER :: f9700 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   ERROR CLOSING FV3 NETCDF FILE', &
@@ -327,6 +334,13 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
     & /, 1x, '***   -- WILL NOT USE LEAF AREA INDEX DATA' &
     & /, 1x, 70('*'))"
 
+  CHARACTER(LEN=256), PARAMETER :: f9910 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR RETRIEVING VARIABLE FROM VIIRS FILE', &
+    & /, 1x, '***   WILL NOT USE VIIRS GVF' &
+    & /, 1x, '***   VARIABLE = ', a, &
+    & /, 1x, '***   NCF: ', a, &
+    & /, 1x, 70('*'))"
 
 !-------------------------------------------------------------------------------
 ! Extract NX, NY, and NZ.
@@ -1005,34 +1019,34 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
         ifveg_viirs = .TRUE.  ! vegetation fraction is in the VIIRS file
      
        !---Next Check Latitude dimension and if present read VIIRS Lat
-       rcode = nf90_inq_dimid (cdfid, 'latitude', dimid)
+       rcode = nf90_inq_dimid (cdfid_vgvf, 'latitude', dimid)
        IF ( rcode == nf90_noerr ) THEN !latitude dimension is there
         rcode = nf90_inquire_dimension (cdfid_vgvf, dimid, len=ival)
         met_ny_viirs = ival
         allocate(viirslat(met_ny_viirs))
         CALL get_var_1d_double_cdf (cdfid_vgvf, 'latitude', viirslat, 1, rcode)
        ELSE !latitude dimension is not there
-         WRITE (*,f9400) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
+         WRITE (*,f9910) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.
 !         CALL graceful_stop (pname)
        ENDIF
       
        !---Next Check Longitude dimension and if present read VIIRS Lon
-       rcode = nf90_inq_dimid (cdfid, 'longitude', dimid)
+       rcode = nf90_inq_dimid (cdfid_vgvf, 'longitude', dimid)
        IF ( rcode == nf90_noerr ) THEN !longitude dimension is there
         rcode = nf90_inquire_dimension (cdfid_vgvf, dimid, len=ival)
         met_nx_viirs = ival
         allocate(viirslon(met_nx_viirs))
-        CALL get_var_1d_double_cdf (cdfid, 'longitude', viirslon, 1, rcode)
+        CALL get_var_1d_double_cdf (cdfid_vgvf, 'longitude', viirslon, 1, rcode)
        ELSE !longitude dimension is not there
-         WRITE (*,f9400) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
+         WRITE (*,f9910) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.
 !         CALL graceful_stop (pname)
        ENDIF
 
       ELSE !Can't find/open VEG_surface variable in VIIRS GVF file, default to check FV3 veg if available
         ifveg_viirs = .FALSE.
-        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        WRITE (*,f9610) TRIM(pname), TRIM(flg)
         rcode = nf90_inq_varid (cdfid2, 'veg', varid)
         IF ( rcode == nf90_noerr ) THEN
          ifveg = .TRUE.  ! vegetation fraction is in the file
@@ -1043,7 +1057,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
       ENDIF
    ELSE !Can't find/open VIIRS GVF file, default to check FV3 veg if available
       ifveg_viirs = .FALSE.
-      WRITE (*,f9600) TRIM(pname), TRIM(flg)
+      WRITE (*,f9610) TRIM(pname), TRIM(flg)
       rcode = nf90_inq_varid (cdfid2, 'veg', varid)
       IF ( rcode == nf90_noerr ) THEN
        ifveg = .TRUE.  ! vegetation fraction is in the file
