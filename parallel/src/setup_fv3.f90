@@ -995,25 +995,66 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
     ifresist = .FALSE.
   ENDIF
 
-  IF ( ( ifviirs_gvf ) ) THEN  !Using VIIRS GVF for vegetation fraction instead of model
+  IF ( ( ifviirs_gvf ) ) THEN  !User is using VIIRS GVF for vegetation fraction instead of FV3
    viirsgvf = TRIM( file_viirs_gvf )
    flg = viirsgvf
    rcode = nf90_open (flg, nf90_nowrite, cdfid_vgvf)
-   IF ( rcode == nf90_noerr ) THEN
+   IF ( rcode == nf90_noerr ) THEN !file is present
       rcode = nf90_inq_varid (cdfid_vgvf, 'VEG_surface', varid)
       IF ( rcode == nf90_noerr ) THEN
-        ifveg_viirs = .TRUE.  ! vegetation fraction is in the file
-      ELSE !Can't find/open variable in VIIRS GVF file
+        ifveg_viirs = .TRUE.  ! vegetation fraction is in the VIIRS file
+     
+       !---Next Check Latitude dimension and if present read VIIRS Lat
+       rcode = nf90_inq_dimid (cdfid, 'latitude', dimid)
+       IF ( rcode == nf90_noerr ) THEN !latitude dimension is there
+        rcode = nf90_inquire_dimension (cdfid_vgvf, dimid, len=ival)
+        met_ny_viirs = ival
+        allocate(viirslat(met_ny_viirs))
+        CALL get_var_1d_double_cdf (cdfid_vgvf, 'latitude', viirslat, 1, rcode)
+       ELSE !latitude dimension is not there
+         WRITE (*,f9400) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
+         ifveg_viirs = .FALSE.
+!         CALL graceful_stop (pname)
+       ENDIF
+      
+       !---Next Check Longitude dimension and if present read VIIRS Lon
+       rcode = nf90_inq_dimid (cdfid, 'longitude', dimid)
+       IF ( rcode == nf90_noerr ) THEN !longitude dimension is there
+        rcode = nf90_inquire_dimension (cdfid_vgvf, dimid, len=ival)
+        met_nx_viirs = ival
+        allocate(viirslon(met_nx_viirs))
+        CALL get_var_1d_double_cdf (cdfid, 'longitude', viirslon, 1, rcode)
+       ELSE !longitude dimension is not there
+         WRITE (*,f9400) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
+         ifveg_viirs = .FALSE.
+!         CALL graceful_stop (pname)
+       ENDIF
+
+      ELSE !Can't find/open VEG_surface variable in VIIRS GVF file, default to check FV3 veg if available
+        ifveg_viirs = .FALSE.
         WRITE (*,f9600) TRIM(pname), TRIM(flg)
-        CALL graceful_stop (pname)
+        rcode = nf90_inq_varid (cdfid2, 'veg', varid)
+        IF ( rcode == nf90_noerr ) THEN
+         ifveg = .TRUE.  ! vegetation fraction is in the file
+        ELSE
+         ifveg = .FALSE. ! vegetation fraction is not in the file
+        ENDIF
+!        CALL graceful_stop (pname)   !doesnt stop NACC
       ENDIF
-   ELSE !Can't find/open VIIRS GVF file
+   ELSE !Can't find/open VIIRS GVF file, default to check FV3 veg if available
+      ifveg_viirs = .FALSE.
       WRITE (*,f9600) TRIM(pname), TRIM(flg)
-      CALL graceful_stop (pname)
+      rcode = nf90_inq_varid (cdfid2, 'veg', varid)
+      IF ( rcode == nf90_noerr ) THEN
+       ifveg = .TRUE.  ! vegetation fraction is in the file
+      ELSE
+       ifveg = .FALSE. ! vegetation fraction is not in the file
+      ENDIF
+!      CALL graceful_stop (pname)  !doesnt stop NACC
    ENDIF
    rcode = nf90_close (cdfid_vgvf)
 
-  ELSE !Not using VIIRS-->check if vegetation fraction is in FV3
+  ELSE !User is not using VIIRS-->check if vegetation fraction is in FV3
    ifveg_viirs = .FALSE.
    rcode = nf90_inq_varid (cdfid2, 'veg', varid) 
    IF ( rcode == nf90_noerr ) THEN

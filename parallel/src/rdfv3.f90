@@ -715,6 +715,25 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           ENDDO
         ENDDO
 
+        IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction-->Needs VIIRS xindex/yindex for interpolation
+         xoff=-1.5
+         yoff=-1.5
+         DO j = 1, nrows_x
+           DO i = 1, ncols_x
+
+             xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+             yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+             CALL xy2ll_lam (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                             met_ref_lat, latcrs(i,j), loncrs(i,j))
+
+             mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
+
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs(i,j),yindex_viirs(i,j),viirslat,viirslon,met_nx_viirs,met_ny_viirs)
+
+           ENDDO
+         ENDDO
+        ENDIF
 
         IF ( .NOT. gotfaces ) THEN  ! get lat, lon, map-scale factor on faces
 
@@ -1716,7 +1735,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   IF ( ifveg_viirs ) THEN !Using VIIRS GVF for vegetation fraction
     CALL get_var_2d_real_cdf (cdfid_vgvf, 'VEG_surface', dum2d, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
-        call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+        call myinterp(dum2d,met_nx_viirs,met_ny_viirs,atmp,xindex_viirs,yindex_viirs,ncols_x,nrows_x,1)
         veg(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)*0.01
         WRITE (*,f6000) 'veg   ', veg(lprt_metx, lprt_mety), 'fraction (from VIIRS GVF)'
       ELSE
