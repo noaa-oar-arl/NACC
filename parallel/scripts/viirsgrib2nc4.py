@@ -13,8 +13,8 @@ __email__   = 'barry.baker@noaa.gov'
 __license__ = 'GPL'
 
 '''
-Simple utility to convert NCEP grib2 aerosol file into a netCDF4 file
-Utilizes wgrib2 utility from NWPROD
+Modified utility to convert NESDIS weekly VIIRS GVF file into a netCDF4 file
+Utilizes wgrib2 utility from NWPROD --P. Campbell
 '''
 
 import os
