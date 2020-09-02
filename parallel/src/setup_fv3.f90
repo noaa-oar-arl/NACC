@@ -1015,9 +1015,8 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
    rcode = nf90_open (flg, nf90_nowrite, cdfid_vgvf)
    IF ( rcode == nf90_noerr ) THEN !file is present
       rcode = nf90_inq_varid (cdfid_vgvf, 'VEG_surface', varid)
-      IF ( rcode == nf90_noerr ) THEN
-        ifveg_viirs = .TRUE.  ! vegetation fraction is in the VIIRS file
-     
+      IF ( rcode == nf90_noerr ) THEN ! vegetation fraction is in the VIIRS file
+        ifveg_viirs = .TRUE.  
        !---Next Check Latitude dimension and if present read VIIRS Lat
        rcode = nf90_inq_dimid (cdfid_vgvf, 'latitude', dimid)
        IF ( rcode == nf90_noerr ) THEN !latitude dimension is there
@@ -1028,9 +1027,14 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
        ELSE !latitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.
+         rcode = nf90_inq_varid (cdfid2, 'veg', varid)
+         IF ( rcode == nf90_noerr ) THEN
+          ifveg = .TRUE.  ! vegetation fraction is in the file
+         ELSE
+          ifveg = .FALSE. ! vegetation fraction is not in the file
+         ENDIF
 !         CALL graceful_stop (pname)
        ENDIF
-      
        !---Next Check Longitude dimension and if present read VIIRS Lon
        rcode = nf90_inq_dimid (cdfid_vgvf, 'longitude', dimid)
        IF ( rcode == nf90_noerr ) THEN !longitude dimension is there
@@ -1041,10 +1045,16 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
        ELSE !longitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.
+         rcode = nf90_inq_varid (cdfid2, 'veg', varid)
+         IF ( rcode == nf90_noerr ) THEN
+          ifveg = .TRUE.  ! vegetation fraction is in the file
+         ELSE
+          ifveg = .FALSE. ! vegetation fraction is not in the file
+         ENDIF
 !         CALL graceful_stop (pname)
        ENDIF
 
-      ELSE !Can't find/open VEG_surface variable in VIIRS GVF file, default to check FV3 veg if available
+      ELSE !! vegetation fraction is not in the VIIRS file-->default to check FV3 veg if available
         ifveg_viirs = .FALSE.
         WRITE (*,f9610) TRIM(pname), TRIM(flg)
         rcode = nf90_inq_varid (cdfid2, 'veg', varid)
