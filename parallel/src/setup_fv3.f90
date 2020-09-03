@@ -1024,8 +1024,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
         met_ny_viirs = ival
         allocate(viirslat(met_ny_viirs))
         CALL get_var_1d_double_cdf (cdfid_vgvf, 'latitude', viirslat, 1, rcode)
-        !conform to fv3 latitude orientation, which is north-->south
-        viirslat=viirslat(met_ny_viirs:1:-1)
+!        viirslat=viirslat(met_ny_viirs:1:-1)
        ELSE !latitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
          ifveg_viirs = .FALSE.

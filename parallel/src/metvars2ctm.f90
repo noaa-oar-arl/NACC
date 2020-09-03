@@ -460,9 +460,10 @@ SUBROUTINE metvars2ctm
      xuthr(:,:) = uthr(sc:ec,sr:er)
    ENDIF
 
-  IF ( ifveg ) THEN
+  IF ( ifveg .OR. ifveg_viirs ) THEN
     xveg   (:,:) = veg   (sc:ec,sr:er)
   ELSE
+
     DO c = 1, ncols_x
       ii = x0 + c - 1
       DO r = 1, nrows_x
