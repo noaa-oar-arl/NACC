@@ -186,9 +186,11 @@ MODULE coord
 !-------------------------------------------------------------------------------
 
   REAL,          ALLOCATABLE   :: x3face_gd  ( : )
-  real, save, allocatable :: fv3lat(:),fv3lon(:), xindex(:,:), yindex(:,:), xuindex(:,:), yuindex(:,:), &
+!FV3GFS
+  REAL, SAVE,    ALLOCATABLE   :: fv3lat(:),fv3lon(:), xindex(:,:), yindex(:,:), xuindex(:,:), yuindex(:,:), &
     xvindex(:,:),yvindex(:,:),xdindex(:,:),ydindex(:,:)
-
+!VIIRS (Optional for GVF--> veg frac currently)
+  REAL, SAVE,    ALLOCATABLE   :: viirslat(:),viirslon(:),xindex_viirs(:,:),yindex_viirs(:,:)
 !-------------------------------------------------------------------------------
 ! COORDNAM_GD:
 ! The coordinate system name used for I/O-API description and GRIDDESC.

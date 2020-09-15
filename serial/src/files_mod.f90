@@ -68,6 +68,7 @@ MODULE files
   CHARACTER(LEN=256)                :: file_mm ( max_mm ), file_sfc ( max_mm )
   CHARACTER(LEN=256), PARAMETER     :: file_nml   = 'namelist.mcip'
   CHARACTER(LEN=256)                :: file_geo
+  CHARACTER(LEN=256)                :: file_viirs_gvf
 
   CHARACTER(LEN=16),  PARAMETER     :: gridbdy2d  = 'GRID_BDY_2D     '
   CHARACTER(LEN=16),  PARAMETER     :: gridcro2d  = 'GRID_CRO_2D     '
