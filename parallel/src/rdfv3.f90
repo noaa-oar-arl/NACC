@@ -196,10 +196,12 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 
   INTEGER, SAVE                     :: cdfid, cdfid2
   INTEGER                           :: cdfidg
+  INTEGER                           :: cdfid_vgvf
   INTEGER                           :: dimid
   INTEGER                           :: dimids     ( nf90_max_var_dims )
   REAL,    SAVE,      ALLOCATABLE   :: dum1d      ( : )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d      ( : , : )
+  REAL,    SAVE,      ALLOCATABLE   :: dum2d_viirs ( : , : )
   INTEGER, SAVE,      ALLOCATABLE   :: dum2d_i    ( : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d_u    ( : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d_v    ( : , : )
@@ -402,6 +404,13 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     & /, 1x, '***   NCF: ', a, &
     & /, 1x, 70('*'))"
 
+  CHARACTER(LEN=256), PARAMETER :: f9440 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR RETRIEVING VARIABLE FROM VIIRS FILE', &
+    & /, 1x, '***   VARIABLE = ', a, &
+    & /, 1x, '***   RCODE = ', a, &
+    & /, 1x, 70('*'))"
+
   CHARACTER(LEN=256), PARAMETER :: f9500 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   UNKNOWN LAND USE CLASSIFICATION SYSTEM', &
@@ -428,9 +437,19 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     & /, 1x, '***   ERROR OPENING FV3 NETCDF FILE', &
     & /, 1x, 70('*'))"
 
+  CHARACTER(LEN=256), PARAMETER :: f9910 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR OPENING VIIRS NETCDF FILE', &
+    & /, 1x, 70('*'))"
+
   CHARACTER(LEN=256), PARAMETER :: f9950 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   ERROR CLOSING FV3 NETCDF FILE', &
+    & /, 1x, 70('*'))"
+
+   CHARACTER(LEN=256), PARAMETER :: f9960 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR CLOSING VIIRS NETCDF FILE', &
     & /, 1x, 70('*'))"
 
   CHARACTER(LEN=256), PARAMETER :: f9975 = "(/, 1x, 70('*'), &
@@ -642,7 +661,12 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   if(.not.allocated(atmp)) allocate(atmp(ncols_x,nrows_x))
   if(.not.allocated(utmp)) allocate(utmp(ncols_x+1,nrows_x+1))
 
+   IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction-->Need to allocate array for VIIRS
+    IF ( .NOT. ALLOCATED ( dum2d_viirs   ) )  &
+    ALLOCATE ( dum2d_viirs   (met_nx_viirs, met_ny_viirs)      )        ! 2D
 
+   ENDIF
+  
 !-------------------------------------------------------------------------------
 ! If not processing the first output time of the WRF run (and if not using the
 ! incremental precipitation option available in WRFv3.2+), retrieve accumulated
@@ -661,7 +685,10 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     yuindex(ncols_x+1,nrows_x+1),xvindex(ncols_x+1,nrows_x+1),yvindex(ncols_x+1,nrows_x+1), &
     xdindex(ncols_x+1,nrows_x+1),ydindex(ncols_x+1,nrows_x+1))
 
-
+   IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
+    allocate(xindex_viirs(ncols_x,nrows_x), yindex_viirs(ncols_x,nrows_x))
+   ENDIF
+ 
     ! Compute distance from origin (at reflat, standlon) to domain center, and
     ! store in MET_XXCTR and MET_YYCTR.  Then calculate latitude, longitude,
     ! and map-scale factors using offset distance of given grid point from
@@ -714,6 +741,25 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           ENDDO
         ENDDO
 
+        IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
+         xoff=-1.5
+         yoff=-1.5
+         DO j = 1, nrows_x
+           DO i = 1, ncols_x
+
+             xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+             yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+             CALL xy2ll_lam (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                             met_ref_lat, latcrs(i,j), loncrs(i,j))
+
+             mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
+
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs(i,j),yindex_viirs(i,j),viirslat,viirslon,met_nx_viirs,met_ny_viirs)
+
+           ENDDO
+         ENDDO
+        ENDIF
 
         IF ( .NOT. gotfaces ) THEN  ! get lat, lon, map-scale factor on faces
 
@@ -1711,7 +1757,33 @@ SUBROUTINE rdfv3 (mcip_now,nn)
       CALL graceful_stop (pname)
     ENDIF
   ENDIF
-  IF ( ifveg ) THEN
+
+  IF ( ifveg_viirs ) THEN !Using VIIRS GVF for vegetation fraction
+    !Open VIIRS GVF File
+    flg = file_viirs_gvf
+    rcode = nf90_open (flg, nf90_nowrite, cdfid_vgvf)
+    IF ( rcode /= nf90_noerr ) THEN
+       WRITE (*,f9910) TRIM(pname)
+       CALL graceful_stop (pname)
+    ENDIF
+    CALL get_var_2d_real_cdf (cdfid_vgvf, 'VEG_surface', dum2d_viirs, it, rcode)
+      IF ( rcode == nf90_noerr ) THEN
+         call myinterp(dum2d_viirs,met_nx_viirs,met_ny_viirs,atmp,xindex_viirs,yindex_viirs,ncols_x,nrows_x,1)
+        veg(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)*0.01
+        where(veg.gt.100 .OR. veg.lt.0) veg=0.
+        WRITE (*,f6000) 'veg   ', veg(lprt_metx, lprt_mety), 'fraction (from VIIRS GVF)'
+      ELSE
+        WRITE (*,f9440) TRIM(pname), 'veg', TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+    rcode = nf90_close (cdfid_vgvf)
+    IF ( rcode /= nf90_noerr ) THEN
+       WRITE (*,f9960) TRIM(pname)
+       CALL graceful_stop (pname)
+    ENDIF
+  ENDIF
+
+  IF ( ifveg ) THEN  !Using FV3 vegetation fraction
       CALL get_var_2d_real_cdf (cdfid2, 'veg', dum2d, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
         call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)

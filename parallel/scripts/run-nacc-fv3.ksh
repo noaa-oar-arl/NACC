@@ -1,5 +1,5 @@
 #!/bin/ksh -l
-#BSUB -J par-tsplit
+#BSUB -J viirs-gvf-test
 #BSUB -o jnacc_par.out1
 #BSUB -e jnacc_par.err1
 #BSUB -q debug
@@ -7,7 +7,7 @@
 ##BSUB -extsched "CRAYLINUX[]" -R "1*{select[craylinux && !vnode]} + 576*{select[craylinux && vnode] span [ptile=24]}"
 #BSUB -M 3000
 ##BSUB -W 01:00
-#BSUB -W 00:30
+#BSUB -W 00:10
 #BSUB -P CMAQ-T2O
 #BSUB -extsched 'CRAYLINUX[]'
 #BSUB -cwd .
@@ -22,9 +22,10 @@ NTIMES=73
 export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test
-InGeoDir=$InMetDir
-OutDir=/gpfs/hps2/ptmp/$USER/NACC-Fengsha-Test/output_nofengsha
+InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/gfsv16/v16rt2/2020083112/gfs.20200831/12/atmos/
+InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/nwdev/NAQFC-WCOSS/fix
+InVIIRSDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
+OutDir=/gpfs/hps2/ptmp/$USER/NACC-VIIRS-Test/output_viirs_gvf
 ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then
@@ -57,7 +58,8 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/gfs.t12z.atmf','.nc'
   file_sfc   = '$InMetDir/gfs.t12z.sfcf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.07.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.08.nc'
+  file_viirs_gvf = '$InVIIRSDir/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2.nc'
   ioform     =  1
  &END
 
@@ -71,8 +73,9 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   ifdiag_pbl = .FALSE.
-  mcip_start = "2019-07-22-12:00:00.0000"
-  mcip_end   = "2019-07-25-13:00:00.0000"
+  ifviirs_gvf = .TRUE. 
+  mcip_start = "2020-08-31-12:00:00.0000"
+  mcip_end   = "2020-09-02-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"

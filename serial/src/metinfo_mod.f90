@@ -109,6 +109,10 @@ MODULE metinfo
   REAL              :: met_y_centd     ! reference center latitude
   REAL              :: met_yyctr       ! distance [m] from origin to center in Y
 
+ ! Optional VIIRS Grid Information
+  INTEGER           :: met_nx_viirs    ! VIIRS domain X (E-W) dimension
+  INTEGER           :: met_ny_viirs    ! VIIRS domain X (E-W) dimension
+
   ! Non-hydrostatic base state variables.
 
   REAL              :: met_p00         ! non-hyd ref pressure [Pa]

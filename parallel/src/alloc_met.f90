@@ -239,6 +239,10 @@ SUBROUTINE alloc_met
     ALLOCATE ( veg    (ix, jy) )
   ENDIF
 
+   IF ( ifveg_viirs ) THEN  ! VIIRS GVF, i.e.,vegetation fraction available
+    ALLOCATE ( veg    (ix, jy) )
+   ENDIF
+
   IF ( ifwr ) THEN  ! canopy wetness available
     ALLOCATE ( wr     (ix, jy) )
   ENDIF
