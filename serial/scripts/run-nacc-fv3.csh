@@ -2,6 +2,7 @@
 set APPL=aqm.t12z
 set InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/12z_hourly
 set InGeoDir=$InMetDir
+set InVIIRSDir=$InMetDir
 set OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/output
 set ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/serial/src
 
@@ -37,6 +38,7 @@ cat>namelist.mcip<<!
   file_mm    = '$InMetDir/gfs.t12z.atmf','.nc'
   file_sfc   = '$InMetDir/gfs.t12z.sfcf','.nc'
   file_geo   = '$InGeoDir/gfs.t12z.geo.07.nc'
+  file_viirs_gvf = '$InVIIRSDir/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2.nc'
   ioform     =  1
  &END
 
@@ -50,6 +52,7 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   ifdiag_pbl = .FALSE.
+  ifviirs_gvf = .TRUE. 
   mcip_start = "2019-07-12-12:00:00.0000"
   mcip_end   = "2019-07-15-13:00:00.0000"
   intvl      =  60
