@@ -50,6 +50,8 @@ The variables listed here are set by the user in the NACC run script, and they a
     Path of the input data directory containing the WRF‑ARW or FV3-GFS output data files
 -   `InGeoDir [default: None]`  
     Path of the input data directory containing the WRF Geogrid file, or similar pre-processed "geofile" (e.g., LAI, LANDUSEF) used for FV3-GFS
+-   `InVIIRSDir [default: None]`  
+    Path of the input data directory containing VIIRS input file   
 -   `OutDir [default: None]`  
     Path of the NACC output data directory
 -   `ProgDir [default: None]`  
@@ -68,6 +70,10 @@ The variables listed here are set by the user in the NACC run script, and they a
     Name and location of input WRF Geogrid file
 -   `file_geo [FV3;  default: None]`  
     Input geographic file for WRF or FV3, including the directory path for each file; without modifying NACC, up to 300 meteorological model output files are allowed as input to a single NACC execution
+-   `InVIIRSFile [FV3; default: None]`  
+    Name and location of input VIIRS File
+-   `file_viirs_gvf [FV3;  default: None]`  
+    Input VIIRS File
 -   `InMetModel [default: 2]`
  Choose input meteorological model.
     -   `2`: WRF-ARW
@@ -84,6 +90,14 @@ The variables listed here are set by the user in the NACC run script, and they a
     Output u- and v-component winds on B staggered grid.
     -   `0`: Do not output u- and v-component winds on B-grid
     -   `1`: Output u- and v-component winds on B-grid (in addition to the C-grid)
+-   `IFDIAG_PBL [default: False]`  
+    Logical to choose if PBLH is taken from FV3 or rediagnosed by NACC.
+    -   `False`: Use FV3 PBLH
+    -   `True`: Recalculate PBLH in NACC
+-   `IFVIIRS_GVF [default: False]`  
+    Logical to choose if the vegetation fraction is taken from FV3 or VIIRS GVF.
+    -   `False`: Use FV3 vegetation fraction
+    -   `True`: Use VIIRS GVF   
 -   `MCIP_START [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
     Beginning date and time (UTC) of data to output from NACC. The start date and time must be contained within the input data from WRF or FV3-GFS.
 -   `MCIP_END [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
