@@ -1,4 +1,4 @@
-# The NOAA-ARL Atmosphere-Chemistry Coupler (NACC)
+# The NOAA-EPA Atmosphere-Chemistry Coupler (NACC)
 
 The NOAA-ARL Atmosphere-Chemistry Coupler (NACC) is adapted from the Meteorology-Chemistry Interface Processor (MCIP), and can ingest output from the [Finite Volume Cubed Sphere (FV3)](https://www.gfdl.noaa.gov/fv3/) version of the [Global Forecast System (GFS)](https://www.ncdc.noaa.gov/data-access/model-data/model-datasets/global-forcast-system-gfs) and the [Weather Research and Forecasting (WRF) Model](http://www.wrf-model.org) to prepare the meteorology files that are used within the CMAQ Modeling System. Where possible, MCIP uses data directly from the meteorological model to maximize consistency with the CMAQ Modeling System. When specific atmospheric fields are not explicitly output by WRF, MCIP uses scientific algorithms to create those fields for CMAQ.  MCIP output is used by the emissions model (for example, to provide time-varying temperatures for mobile emissions) and by the CCTM to define the atmospheric conditions. A scientific overview of MCIP is in [Otte and Pleim (2010)](https://www.geosci-model-dev.net/3/243/2010/).  
 
