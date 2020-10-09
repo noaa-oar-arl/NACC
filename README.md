@@ -198,6 +198,6 @@ The location of the NACC output files is set in the NACC script using the `$OutD
 
 ***Current Version of NACC***
 
-NACCv1.0.0 (Pre-release)
+NACCv1.2.0 (Pre-release)
 
 **Previous Versions of NACC**
