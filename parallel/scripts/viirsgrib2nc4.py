@@ -13,8 +13,8 @@ __email__   = 'barry.baker@noaa.gov'
 __license__ = 'GPL'
 
 '''
-Simple utility to convert NCEP grib2 aerosol file into a netCDF4 file
-Utilizes wgrib2 utility from NWPROD
+Adapted utility to convert VIIRS GVF file into a netCDF4 file
+Utilizes wgrib2 from input environmental variable path -- P. Campbell
 '''
 
 import os
@@ -47,7 +47,8 @@ def get_exec_path(exec_name, verbose=False):
     :param type: str
     '''
 
-    exec_path_def = '/nwprod2/grib_util.v1.0.0/exec/%s' % exec_name
+    ## exec_path_def = '/nwprod2/grib_util.v1.0.0/exec/%s' % exec_name
+    exec_path_def = '/gpfs/hps/nco/ops/nwprod/grib_util.v1.0.5/exec/%s' % exec_name
 
     exec_path = find_executable(exec_name)
     if exec_path is None:
@@ -65,13 +66,19 @@ def chdir(fname):
     return os.path.basename(fname)
 
 
-def change_file(finput,verbose=False):
+def change_file(finput,foutput=None,execpath=None,verbose=False):
     # first change directory and get file name
 #    fname = chdir(finput)
     fname = finput
-    # this will create 3 files and append to them
-    wgrib2 = get_exec_path('wgrib2', verbose=verbose)
+    fout  = foutput
+    xpath = execpath
 
+    # this will create 3 files and append to them
+    if xpath == None:
+    	wgrib2 = get_exec_path('wgrib2', verbose=verbose)
+    else:
+    	wgrib2 = xpath
+    
     # ENTIRE ATMOSPHERE GRIB LAYER
     #cmd = '%s %s -match "entire atmosphere:" -nc_nlev 1 -append -set_ext_name 1 -netcdf %s.entire_atm.nc' % (wgrib2, fname, fname)
     #execute_subprocess(cmd, verbose=verbose)
@@ -83,7 +90,10 @@ def change_file(finput,verbose=False):
     #execute_subprocess(cmd, verbose=verbose)
 
     # VIIRS SURFACE GREENESS FRACTION
-    cmd = '%s %s -match "surface:" -nc_nlev 1 -append -set_ext_name 1 -netcdf %s.nc' % (wgrib2, fname, fname)
+    if fout == None:
+    	cmd = '%s %s -match "surface:" -nc_nlev 1 -append -set_ext_name 1 -netcdf %s.nc' % (wgrib2, fname, fname)
+    else:
+    	cmd = '%s %s -match "surface:" -nc_nlev 1 -append -set_ext_name 1 -netcdf %s.nc' % (wgrib2, fname, fout)
     execute_subprocess(cmd, verbose=verbose)
 
 
@@ -92,10 +102,15 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='convert grib2 file to netCDF4 file', formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-f', '--files', help='input grib2 file name', type=str, required=True)
     parser.add_argument('-v', '--verbose', help='print debugging information', action='store_true', required=False)
+    parser.add_argument('-o', '--outputf', help='output nc4 file name prefix', type=str, required=False)
+    parser.add_argument('-x', '--execpath', help='executable path definition', type=str, required=False)
+
     args = parser.parse_args()
 
     finput = args.files
     verbose = args.verbose
+    foutput = args.outputf
+    execpath = args.execpath
 
     files = sorted(glob(finput))
     for i,j in enumerate(files):
@@ -103,11 +118,11 @@ if __name__ == '__main__':
         files[i] = j
     if len(files) == 1:
         finput = files[0]
-        change_file(finput,verbose=verbose)
+        change_file(finput,foutput,execpath,verbose=verbose)
     else:
         for i in files:
             finput = i
             print('FINPUT -> ',finput)
-            change_file(finput,verbose=verbose)
+            change_file(finput,foutput,execpath,verbose=verbose)
 
     sys.exit(0)
