@@ -98,7 +98,7 @@ The variables listed here are set by the user in the NACC run script, and they a
     Logical to choose if the vegetation fraction is taken from FV3 or VIIRS GVF.
     -   `False`: Use FV3 vegetation fraction
     -   `True`: Use VIIRS GVF  
--   `IFENGSHA_DUST [default: False]`
+-   `IFFENGSHA_DUST [default: False]`
     Logical to choose if the NOAA-ARL Fengsha Windblown dust is used in CMAQ:  based on input soil parameters in "GeoFile" and output in METCRO2D file.
     -   `False`: Do not input/output Fengsha WB Dust soil parameters
     -   `True`: Input/output of Fengsha WB Dust soil parameters
