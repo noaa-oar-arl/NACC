@@ -114,9 +114,6 @@ SUBROUTINE init_x
   xdenss  (:,:)   = fillreal  ;    xdluse  (:,:)   = fillreal
   xglw    (:,:)   = fillreal  ;    xgsw    (:,:)   = fillreal
   xhfx    (:,:)   = fillreal  ;    xlai    (:,:)   = fillreal
-  xclayf  (:,:)   = fillreal  ;    xsandf  (:,:)   = fillreal
-  xdrag   (:,:)   = fillreal  ;    xssm    (:,:)   = fillreal
-  xuthr   (:,:)   = fillreal      
   xlatc   (:,:)   = fillreal  ;    xlatd   (:,:)   = fillreal
   xlatu   (:,:)   = fillreal  ;    xlatv   (:,:)   = fillreal
   xlh     (:,:)   = fillreal  ;    xlonc   (:,:)   = fillreal
@@ -137,6 +134,12 @@ SUBROUTINE init_x
   xwdir10 (:,:)   = fillreal  ;    xwr     (:,:)   = fillreal
   xwspd10 (:,:)   = fillreal  ;    xwstar  (:,:)   = fillreal
   xzruf   (:,:)   = fillreal
+
+  IF ( ( iffengsha_dust ) ) THEN
+   xclayf  (:,:)   = fillreal  ;    xsandf  (:,:)   = fillreal
+   xdrag   (:,:)   = fillreal  ;    xssm    (:,:)   = fillreal
+   xuthr   (:,:)   = fillreal
+  ENDIF
 
   IF ( met_hybrid >= 0 ) THEN
     xmuhyb(:,:)   = fillreal

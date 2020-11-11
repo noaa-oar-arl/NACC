@@ -1467,7 +1467,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     ENDIF
 
   ENDIF
-
+   IF ( ( iffengsha_dust ) ) THEN  !User is trying to use Fengsha Windblown Dust in CMAQ
     IF ( ifclayf ) THEN
       IF ( ifclayfwrfout ) THEN  ! clayf in FV3 history file
         CALL get_var_2d_real_cdf (cdfid2, 'CLAY_FRAC', dum2d, it, rcode)
@@ -1687,6 +1687,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         ENDIF
       ENDIF
     ENDIF
+   ENDIF !Fengsha WB dust variables
 
     IF ( iflai ) THEN
       IF ( iflaiwrfout ) THEN  ! leaf area index in FV3 history file

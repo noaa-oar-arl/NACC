@@ -22,10 +22,10 @@ NTIMES=73
 export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/gfsv16/v16rt2/2020083112/gfs.20200831/12/atmos/
+InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/NACC_FV3GFS16_runs/sens5_nacc_cmaq531_nofire_fengsha/com/aqm/prod/aqm.20190826
 InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/nwdev/NAQFC-WCOSS/fix
 InVIIRSDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
-OutDir=/gpfs/hps2/ptmp/$USER/NACC-VIIRS-Test/output_viirs_gvf
+OutDir=/gpfs/hps2/ptmp/$USER/NACC-VIIRS-Test/output_fengsha_test
 ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then
@@ -73,9 +73,10 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   ifdiag_pbl = .FALSE.
-  ifviirs_gvf = .TRUE. 
-  mcip_start = "2020-08-31-12:00:00.0000"
-  mcip_end   = "2020-09-02-13:00:00.0000"
+  ifviirs_gvf = .FALSE. 
+  iffengsha_dust = .FALSE.
+  mcip_start = "2019-08-26-12:00:00.0000"
+  mcip_end   = "2019-08-29-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"

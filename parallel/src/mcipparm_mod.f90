@@ -234,43 +234,44 @@ MODULE mcipparm
 ! Flags to indicate whether or not fields are available in input meteorology.
 !-------------------------------------------------------------------------------
 
-  LOGICAL            :: ifcld3d       ! 3D resolved clouds in input file?
-  LOGICAL            :: ifcuradfdbk   ! cumulus-radiative feedbacks used?
-  LOGICAL            :: ifkfradextras ! KF-radiative feedbacks extra arrays?
-  LOGICAL            :: iflai         ! leaf area index in input file?
-  LOGICAL            :: iflaiwrfout   ! is leaf area index in WRF history?
-  LOGICAL            :: ifclayf       ! soil clay fraction in input file?
-  LOGICAL            :: ifclayfwrfout ! soil clay fraction in WRF history?
-  LOGICAL            :: ifsandf       ! soil sand fraction in input file?
-  LOGICAL            :: ifsandfwrfout ! soil sand fraction in WRF history?
-  LOGICAL            :: ifdrag        ! drag partition in input file?
-  LOGICAL            :: ifdragwrfout  ! drag partition in WRF history?
-  LOGICAL            :: ifssm         ! sediment supply map in input file?
-  LOGICAL            :: ifssmwrfout   ! sediment supply map in WRF history?
-  LOGICAL            :: ifuthr        ! threshold velocity in input file?
-  LOGICAL            :: ifuthrwrfout  ! threshold velocity in WRF history?
-  LOGICAL            :: iflufrc       ! fractional land use available?
-  LOGICAL            :: ifluwrfout    ! is fractional land use in WRF history?
-  LOGICAL            :: iflu2wrfout   ! is fractional land use 2 in WRF history?
-  LOGICAL            :: ifmol         ! Monin-Obukhov length in input file?
-  LOGICAL            :: ifmolpx       ! MOL to be updated from WRF/PX?
-  LOGICAL            :: ifmosaic      ! NOAH Mosaic LSM used in WRF?
-  LOGICAL            :: ifpxwrf41     ! WRFv4.1 + PX additional sfc vars?
-  LOGICAL            :: ifq2m         ! 2-m mixing ratio in input file?
-  LOGICAL            :: ifrcurb       ! get PURB from urban canopy model?
-  LOGICAL            :: ifresist      ! aero and stom resistances in input file?
-  LOGICAL            :: ifsoil        ! soil mois, temp, and type in input file?
-  LOGICAL            :: ift2m         ! 2-m temperature in input file?
-  LOGICAL            :: iftke         ! turbulent kinetic energy in input file?
-  LOGICAL            :: iftkef        ! TKE (if exists) on full levels?
-  LOGICAL            :: ifveg         ! vegetation fraction in input file?
-  LOGICAL            :: ifveg_viirs   ! using vegetation fraction in VIIRS?
-  LOGICAL            :: ifw10m        ! 10-m wind components in input file?
-  LOGICAL            :: ifwr          ! canopy wetness in input file?
-  LOGICAL            :: ifznt         ! roughness length in input file?
-  LOGICAL            :: needseaice    ! sea ice in input file?
-  LOGICAL            :: ifdiag_pbl    ! use diagnostic PBL?
-  LOGICAL            :: ifviirs_gvf   ! use VIIRS GVF?
+  LOGICAL            :: ifcld3d         ! 3D resolved clouds in input file?
+  LOGICAL            :: ifcuradfdbk     ! cumulus-radiative feedbacks used?
+  LOGICAL            :: ifkfradextras   ! KF-radiative feedbacks extra arrays?
+  LOGICAL            :: iflai           ! leaf area index in input file?
+  LOGICAL            :: iflaiwrfout     ! is leaf area index in WRF history?
+  LOGICAL            :: ifclayf         ! soil clay fraction in input file?
+  LOGICAL            :: ifclayfwrfout   ! soil clay fraction in WRF history?
+  LOGICAL            :: ifsandf         ! soil sand fraction in input file?
+  LOGICAL            :: ifsandfwrfout   ! soil sand fraction in WRF history?
+  LOGICAL            :: ifdrag          ! drag partition in input file?
+  LOGICAL            :: ifdragwrfout    ! drag partition in WRF history?
+  LOGICAL            :: ifssm           ! sediment supply map in input file?
+  LOGICAL            :: ifssmwrfout     ! sediment supply map in WRF history?
+  LOGICAL            :: ifuthr          ! threshold velocity in input file?
+  LOGICAL            :: ifuthrwrfout    ! threshold velocity in WRF history?
+  LOGICAL            :: iflufrc         ! fractional land use available?
+  LOGICAL            :: ifluwrfout      ! is fractional land use in WRF history?
+  LOGICAL            :: iflu2wrfout     ! is fractional land use 2 in WRF history?
+  LOGICAL            :: ifmol           ! Monin-Obukhov length in input file?
+  LOGICAL            :: ifmolpx         ! MOL to be updated from WRF/PX?
+  LOGICAL            :: ifmosaic        ! NOAH Mosaic LSM used in WRF?
+  LOGICAL            :: ifpxwrf41       ! WRFv4.1 + PX additional sfc vars?
+  LOGICAL            :: ifq2m           ! 2-m mixing ratio in input file?
+  LOGICAL            :: ifrcurb         ! get PURB from urban canopy model?
+  LOGICAL            :: ifresist        ! aero and stom resistances in input file?
+  LOGICAL            :: ifsoil          ! soil mois, temp, and type in input file?
+  LOGICAL            :: ift2m           ! 2-m temperature in input file?
+  LOGICAL            :: iftke           ! turbulent kinetic energy in input file?
+  LOGICAL            :: iftkef          ! TKE (if exists) on full levels?
+  LOGICAL            :: ifveg           ! vegetation fraction in input file?
+  LOGICAL            :: ifveg_viirs     ! using vegetation fraction in VIIRS?
+  LOGICAL            :: ifw10m          ! 10-m wind components in input file?
+  LOGICAL            :: ifwr            ! canopy wetness in input file?
+  LOGICAL            :: ifznt           ! roughness length in input file?
+  LOGICAL            :: needseaice      ! sea ice in input file?
+  LOGICAL            :: ifdiag_pbl      ! use diagnostic PBL?
+  LOGICAL            :: ifviirs_gvf     ! use NAQFC VIIRS GVF?
+  LOGICAL            :: iffengsha_dust  ! use NAQFC Fengsha Windblown Dust?
 
 !-------------------------------------------------------------------------------
 ! Run Options.
