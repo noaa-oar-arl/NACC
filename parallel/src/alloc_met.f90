@@ -206,6 +206,7 @@ SUBROUTINE alloc_met
     ALLOCATE ( lai    (ix, jy) )
   ENDIF
 
+ IF ( ( iffengsha_dust ) ) THEN
   IF ( ifclayf ) THEN  ! clay fraction available
     ALLOCATE ( clayf    (met_nx, met_ny) )
   ENDIF
@@ -225,6 +226,7 @@ SUBROUTINE alloc_met
    IF ( ifuthr ) THEN  ! threshold velocity available
     ALLOCATE ( uthr    (met_nx, met_ny) )
   ENDIF
+ ENDIF
 
   IF ( ifmol ) THEN  ! Monin-Obukhov length available
     ALLOCATE ( mol    (ix, jy) )

@@ -780,6 +780,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
 ! Determine whether or not some surface variables are in the output, and set
 ! the flags appropriately.
 !-------------------------------------------------------------------------------
+ IF ( ( iffengsha_dust ) ) THEN  !User is trying to use Fengsha Windblown Dust in CMAQ
 
   rcode2 = nf90_inq_varid (cdfid2, 'CLAY_FRAC', varid) !not in FV3GFSv16
   IF ( rcode2 == nf90_noerr ) THEN
@@ -945,6 +946,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
       ENDIF
     ENDIF
   ENDIF
+ ENDIF !Fengsha WB dust variables
 
   rcode2 = nf90_inq_varid (cdfid2, 'LAI', varid) !not in FV3GFSv16
   IF ( rcode2 == nf90_noerr ) THEN

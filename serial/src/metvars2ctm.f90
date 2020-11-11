@@ -440,6 +440,7 @@ SUBROUTINE metvars2ctm
   ENDIF  ! iflai
 
 !Fengsha dust variables
+  IF ( ( iffengsha_dust ) ) THEN
    IF ( ifclayf) THEN
      xclayf(:,:) = clayf(sc:ec,sr:er)
    ENDIF
@@ -459,6 +460,7 @@ SUBROUTINE metvars2ctm
     IF ( ifuthr) THEN
      xuthr(:,:) = uthr(sc:ec,sr:er)
    ENDIF
+  ENDIF
 
   IF ( ifveg .OR. ifveg_viirs ) THEN
     xveg   (:,:) = veg   (sc:ec,sr:er)

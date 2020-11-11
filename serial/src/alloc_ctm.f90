@@ -92,7 +92,7 @@ SUBROUTINE alloc_ctm
   INTEGER                      :: nwr
   INTEGER                      :: nsoil2d
   INTEGER                      :: npxwrf41
-
+  INTEGER                      :: nfengsha
   INTEGER                      :: ntke
   INTEGER                      :: npv
   INTEGER                      :: nwout
@@ -209,7 +209,14 @@ SUBROUTINE alloc_ctm
     npxwrf41 = 0
   ENDIF
 
-  nfld2dxyt = 34 + nwr + nsoil2d + npxwrf41
+  IF ( iffengsha_dust ) THEN
+    nfengsha = 5  ! CLAYF, SANDF, DRAG, SSM, UTHR
+  ELSE
+    nfengsha = 0
+  ENDIF
+
+
+  nfld2dxyt = 29 + nwr + nsoil2d + npxwrf41 + nfengsha
 
   ALLOCATE ( fld2dxyt ( nfld2dxyt ) )
 
@@ -246,31 +253,34 @@ SUBROUTINE alloc_ctm
   c_lai      => fld2dxyt(27)
   c_seaice   => fld2dxyt(28)
   c_snowh    => fld2dxyt(29)
-  c_clayf    => fld2dxyt(30)
-  c_sandf    => fld2dxyt(31)
-  c_drag     => fld2dxyt(32)
-  c_ssm      => fld2dxyt(33)
-  c_uthr     => fld2dxyt(34)
 
   IF ( ifwr ) THEN
-    c_wr => fld2dxyt(34+nwr)
+    c_wr => fld2dxyt(29+nwr)
   ENDIF
 
   IF ( ifsoil ) THEN
-    c_soim1 => fld2dxyt(34+nwr+1)
-    c_soim2 => fld2dxyt(34+nwr+2)
-    c_soit1 => fld2dxyt(34+nwr+3)
-    c_soit2 => fld2dxyt(34+nwr+4)
-    c_sltyp => fld2dxyt(34+nwr+5)
+    c_soim1 => fld2dxyt(29+nwr+1)
+    c_soim2 => fld2dxyt(29+nwr+2)
+    c_soit1 => fld2dxyt(29+nwr+3)
+    c_soit2 => fld2dxyt(29+nwr+4)
+    c_sltyp => fld2dxyt(29+nwr+5)
   ENDIF
 
   IF ( ifpxwrf41 ) THEN
-    c_wsat_px   => fld2dxyt(34+nwr+nsoil2d+1)
-    c_wfc_px    => fld2dxyt(34+nwr+nsoil2d+2)
-    c_wwlt_px   => fld2dxyt(34+nwr+nsoil2d+3)
-    c_csand_px  => fld2dxyt(34+nwr+nsoil2d+4)
-    c_fmsand_px => fld2dxyt(34+nwr+nsoil2d+5)
-    c_clay_px   => fld2dxyt(34+nwr+nsoil2d+6)
+    c_wsat_px   => fld2dxyt(29+nwr+nsoil2d+1)
+    c_wfc_px    => fld2dxyt(29+nwr+nsoil2d+2)
+    c_wwlt_px   => fld2dxyt(29+nwr+nsoil2d+3)
+    c_csand_px  => fld2dxyt(29+nwr+nsoil2d+4)
+    c_fmsand_px => fld2dxyt(29+nwr+nsoil2d+5)
+    c_clay_px   => fld2dxyt(29+nwr+nsoil2d+6)
+  ENDIF
+
+  IF ( ( iffengsha_dust ) ) THEN
+   c_clayf    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+1)
+   c_sandf    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+2)
+   c_drag     => fld2dxyt(29+nwr+nsoil2d+npxwrf41+3)
+   c_ssm      => fld2dxyt(29+nwr+nsoil2d+npxwrf41+4)
+   c_uthr     => fld2dxyt(29+nwr+nsoil2d+npxwrf41+5)
   ENDIF
 
 !-------------------------------------------------------------------------------

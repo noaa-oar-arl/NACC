@@ -660,6 +660,7 @@ SUBROUTINE setgriddefs
   ENDIF
   WRITE (*,f6150) 'LAI', TRIM(yesno)
 
+ IF ( ( iffengsha_dust ) ) THEN
   IF ( ifclayf ) THEN
     yesno = ''
   ELSE
@@ -694,6 +695,7 @@ SUBROUTINE setgriddefs
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) 'UTHRES', TRIM(yesno)
+ ENDIF
 
   IF ( iflufrc ) THEN
     yesno = ''
