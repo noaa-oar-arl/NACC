@@ -74,7 +74,7 @@ cat>namelist.mcip<<!
   luvbout    =  1
   ifdiag_pbl = .FALSE.
   ifviirs_gvf = .FALSE. 
-  iffengsha_dust = .TRUE.
+  iffengsha_dust = .FALSE.
   mcip_start = "2019-08-26-12:00:00.0000"
   mcip_end   = "2019-08-29-13:00:00.0000"
   intvl      =  60
