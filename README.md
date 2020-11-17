@@ -179,7 +179,7 @@ cd $NACC_home/serial/scripts
 |InMetFiles|netCDF (WRF or FV3-GFS)|List of WRF or FV3-GFS output files for input to NACC|required|
 |InSfcFiles|netCDF (FV3-GFS)|List of FV3-GFS output files for input to NACC|required (only FV3-GFS)|
 |InGeoFile|netCDF (WRFor FV3-GFS)|Output from WRF Geogrid processor|optional; only required if fractional land use, LAI, etc are not part of the WRF or FV3-GFS output.  Offline Pre-processed NOAA-ARL "geofiles" with LAI and LANDUSEF (based on 12-month climatological IGBP-MODIS) for the global GFSv16 Gaussian NetCDF Grid are available via FTP by request (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
-|InVIIRSFile|netCDF (FV3-GFS)|Input from VIIRS GVF data |optional; only if global NetCDF VIIRS Input file is provided (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
+|InVIIRSFile|netCDF (FV3-GFS)|Input from VIIRS GVF data |optional; only if global NetCDF VIIRS Input file is provided.  Global ~ 4km VIIRS NetCDF Grid are available via FTP by request (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
 
 **Table 2. NACC output files**
 
