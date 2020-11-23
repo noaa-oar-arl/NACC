@@ -97,7 +97,11 @@ The variables listed here are set by the user in the NACC run script, and they a
 -   `IFVIIRS_GVF [default: False]`  
     Logical to choose if the vegetation fraction is taken from FV3 or VIIRS GVF.
     -   `False`: Use FV3 vegetation fraction
-    -   `True`: Use VIIRS GVF  
+    -   `True`: Use VIIRS GVF 
+-   `IFVIIRS_LAI [default: False]`
+    Logical to choose if the LAI is taken from FV3 or VIIRS.
+    -   `False`: Use FV3 LAI
+    -   `True`: Use VIIRS LAI
 -   `IFFENGSHA_DUST [default: False]`
     Logical to choose if the NOAA-ARL Fengsha Windblown dust is used in CMAQ:  based on input soil parameters in "GeoFile" and output in METCRO2D file.
     -   `False`: Do not input/output Fengsha WB Dust soil parameters
@@ -179,7 +183,7 @@ cd $NACC_home/serial/scripts
 |InMetFiles|netCDF (WRF or FV3-GFS)|List of WRF or FV3-GFS output files for input to NACC|required|
 |InSfcFiles|netCDF (FV3-GFS)|List of FV3-GFS output files for input to NACC|required (only FV3-GFS)|
 |InGeoFile|netCDF (WRFor FV3-GFS)|Output from WRF Geogrid processor|optional; only required if fractional land use, LAI, etc are not part of the WRF or FV3-GFS output.  Offline Pre-processed NOAA-ARL "geofiles" with LAI and LANDUSEF (based on 12-month climatological IGBP-MODIS) for the global GFSv16 Gaussian NetCDF Grid are available via FTP by request (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
-|InVIIRSFile|netCDF (FV3-GFS)|Input from VIIRS GVF data |optional; only if global NetCDF VIIRS Input file is provided. Global ~ 4km VIIRS NetCDF Grid are available via FTP by request. (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
+|InVIIRSFile|netCDF (FV3-GFS)|Input from VIIRS data |optional; only if global NetCDF VIIRS Input COARDS file is provided. Global ~ 4km VIIRS NetCDF Grid are available via FTP by request. (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
 
 **Table 2. NACC output files**
 

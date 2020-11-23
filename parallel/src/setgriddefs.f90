@@ -762,6 +762,13 @@ SUBROUTINE setgriddefs
   ENDIF
   WRITE (*,f6150) 'VIIRS GVF-VEGETATION FRACTION', TRIM(yesno)
 
+  IF ( iflai_viirs ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'VIIRS LAI', TRIM(yesno)
+
   IF ( ifw10m ) THEN
     yesno = ''
   ELSE

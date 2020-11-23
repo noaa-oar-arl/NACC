@@ -202,7 +202,7 @@ SUBROUTINE alloc_met
     !test
   ENDIF
 
-  IF ( iflai ) THEN  ! leaf area index available
+  IF ( iflai ) THEN  ! leaf area index available (Either from model or VIIRS)
     ALLOCATE ( lai    (ix, jy) )
   ENDIF
 
@@ -241,9 +241,9 @@ SUBROUTINE alloc_met
     ALLOCATE ( veg    (ix, jy) )
   ENDIF
 
-   IF ( ifveg_viirs ) THEN  ! VIIRS GVF, i.e.,vegetation fraction available
+  IF ( ifveg_viirs ) THEN  ! VIIRS GVF, i.e.,vegetation fraction available
     ALLOCATE ( veg    (ix, jy) )
-   ENDIF
+  ENDIF
 
   IF ( ifwr ) THEN  ! canopy wetness available
     ALLOCATE ( wr     (ix, jy) )
