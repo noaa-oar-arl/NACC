@@ -3,7 +3,8 @@
 APPL=aqm.t12z
 InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/12z_hourly
 InGeoDir=$InMetDir
-InVIIRSDir=$InMetDir
+InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
+InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
 OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/output_ser
 ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/serial/src
 
@@ -37,8 +38,9 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/gfs.t12z.atmf','.nc'
   file_sfc   = '$InMetDir/gfs.t12z.sfcf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.07.nc'
-  file_viirs_gvf = '$InVIIRSDir/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.08.nc'
+  file_viirs_gvf = '$InVIIRSDir_GVF/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2.nc'
+  file_viirs_lai = '$InVIIRSDir_LAI/VIIRS_VNP15A2H.001_20190829.nc'
   ioform     =  1
  &END
 
@@ -53,9 +55,10 @@ cat>namelist.mcip<<!
   luvbout    =  1
   ifdiag_pbl = .FALSE.
   ifviirs_gvf = .FALSE.
+  ifviirs_lai = .FALSE.
   iffengsha_dust = .FALSE.
-  mcip_start = "2019-07-12-12:00:00.0000"
-  mcip_end   = "2019-07-15-13:00:00.0000"
+  mcip_start = "2019-08-12-12:00:00.0000"
+  mcip_end   = "2019-08-15-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"

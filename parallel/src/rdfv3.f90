@@ -197,6 +197,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   INTEGER, SAVE                     :: cdfid, cdfid2
   INTEGER                           :: cdfidg
   INTEGER                           :: cdfid_vgvf
+  INTEGER                           :: cdfid_vlai
   INTEGER                           :: dimid
   INTEGER                           :: dimids     ( nf90_max_var_dims )
   REAL,    SAVE,      ALLOCATABLE   :: dum1d      ( : )
@@ -661,7 +662,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   if(.not.allocated(atmp)) allocate(atmp(ncols_x,nrows_x))
   if(.not.allocated(utmp)) allocate(utmp(ncols_x+1,nrows_x+1))
 
-   IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction-->Need to allocate array for VIIRS
+   IF ( ifveg_viirs .OR. iflai_viirs ) THEN !If using VIIRS GVF or LAI ->Need to allocate array for VIIRS
     IF ( .NOT. ALLOCATED ( dum2d_viirs   ) )  &
     ALLOCATE ( dum2d_viirs   (met_nx_viirs, met_ny_viirs)      )        ! 2D
 
@@ -685,9 +686,14 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     yuindex(ncols_x+1,nrows_x+1),xvindex(ncols_x+1,nrows_x+1),yvindex(ncols_x+1,nrows_x+1), &
     xdindex(ncols_x+1,nrows_x+1),ydindex(ncols_x+1,nrows_x+1))
 
-   IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
-    allocate(xindex_viirs(ncols_x,nrows_x), yindex_viirs(ncols_x,nrows_x))
+   IF ( ifveg_viirs ) THEN !If using VIIRS GVF 
+    allocate(xindex_viirs_gvf(ncols_x,nrows_x), yindex_viirs_gvf(ncols_x,nrows_x))
    ENDIF
+
+    IF ( iflai_viirs) THEN !If using VIIRS LAI
+    allocate(xindex_viirs_lai(ncols_x,nrows_x), yindex_viirs_lai(ncols_x,nrows_x))
+   ENDIF
+
  
     ! Compute distance from origin (at reflat, standlon) to domain center, and
     ! store in MET_XXCTR and MET_YYCTR.  Then calculate latitude, longitude,
@@ -755,11 +761,33 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 
              mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
 
-             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs(i,j),yindex_viirs(i,j),viirslat,viirslon,met_nx_viirs,met_ny_viirs)
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_gvf(i,j),yindex_viirs_gvf(i,j),viirslat_gvf,viirslon_gvf,met_nx_viirs,met_ny_viirs)
 
            ENDDO
          ENDDO
         ENDIF
+
+
+        IF ( iflai_viirs ) THEN !If using VIIRS LAI for vegetation fraction
+         xoff=-1.5
+         yoff=-1.5
+         DO j = 1, nrows_x
+           DO i = 1, ncols_x
+
+             xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+             yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+             CALL xy2ll_lam (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                             met_ref_lat, latcrs(i,j), loncrs(i,j))
+
+             mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
+
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_lai(i,j),yindex_viirs_lai(i,j),viirslat_lai,viirslon_lai,met_nx_viirs,met_ny_viirs)
+
+           ENDDO
+         ENDDO
+        ENDIF
+
 
         IF ( .NOT. gotfaces ) THEN  ! get lat, lon, map-scale factor on faces
 
@@ -1701,8 +1729,8 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     ENDIF
    ENDIF !Fengsha WB dust variables
 
-    IF ( iflai ) THEN
-      IF ( iflaiwrfout ) THEN  ! leaf area index in FV3 history file
+  IF ( iflai ) THEN
+   IF ( iflaiwrfout ) THEN  ! leaf area index in FV3 history file
         CALL get_var_2d_real_cdf (cdfid2, 'LAI', dum2d, it, rcode)
         IF ( rcode == nf90_noerr ) THEN
            call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
@@ -1717,7 +1745,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           WRITE (*,f9400) TRIM(pname), 'LAI', TRIM(nf90_strerror(rcode))
           CALL graceful_stop (pname)
         ENDIF
-      ELSE  ! leaf area index in GEOGRID file from WPS
+   ELSE  ! leaf area index in GEOGRID file from WPS
        flg = file_geo
         rcode = nf90_open (flg, nf90_nowrite, cdfidg)
         IF ( rcode /= nf90_noerr ) THEN
@@ -1743,8 +1771,33 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           WRITE (*,f9950) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-      ENDIF
+   ENDIF
+   IF ( iflai_viirs ) THEN !Instead Using VIIRS LAI
+    !Open VIIRS LAI File
+    flg = file_viirs_lai
+    rcode = nf90_open (flg, nf90_nowrite, cdfid_vlai)
+    IF ( rcode /= nf90_noerr ) THEN
+       WRITE (*,f9910) TRIM(pname)
+       CALL graceful_stop (pname)
     ENDIF
+    CALL get_var_2d_real_cdf (cdfid_vlai, 'lai', dum2d_viirs, it, rcode)
+      IF ( rcode == nf90_noerr ) THEN
+         call myinterp(dum2d_viirs,met_nx_viirs,met_ny_viirs,atmp,xindex_viirs_lai,yindex_viirs_lai,ncols_x,nrows_x,1)
+        lai(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+        where(lai.lt.0) lai=0.
+        WRITE (*,f6000) 'lai   ', lai(lprt_metx, lprt_mety), ' from VIIRS LAI'
+      ELSE
+        WRITE (*,f9440) TRIM(pname), 'lai', TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+    rcode = nf90_close (cdfid_vlai)
+    IF ( rcode /= nf90_noerr ) THEN
+       WRITE (*,f9960) TRIM(pname)
+       CALL graceful_stop (pname)
+    ENDIF
+   ENDIF
+
+  ENDIF
 
   IF ( ifwr ) THEN
     CALL get_var_2d_real_cdf (cdfid2, 'cnwat', dum2d, it, rcode)
@@ -1768,7 +1821,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     ENDIF
     CALL get_var_2d_real_cdf (cdfid_vgvf, 'VEG_surface', dum2d_viirs, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
-         call myinterp(dum2d_viirs,met_nx_viirs,met_ny_viirs,atmp,xindex_viirs,yindex_viirs,ncols_x,nrows_x,1)
+         call myinterp(dum2d_viirs,met_nx_viirs,met_ny_viirs,atmp,xindex_viirs_gvf,yindex_viirs_gvf,ncols_x,nrows_x,1)
         veg(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)*0.01
         where(veg.gt.100 .OR. veg.lt.0) veg=0.
         WRITE (*,f6000) 'veg   ', veg(lprt_metx, lprt_mety), 'fraction (from VIIRS GVF)'

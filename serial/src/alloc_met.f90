@@ -190,7 +190,7 @@ SUBROUTINE alloc_met
     !test
   ENDIF
 
-  IF ( iflai ) THEN  ! leaf area index available
+  IF ( iflai ) THEN  ! leaf area index available (Either from model or VIIRS)
     ALLOCATE ( lai    (met_nx, met_ny) )
   ENDIF
 
