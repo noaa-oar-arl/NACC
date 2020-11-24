@@ -177,6 +177,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   INTEGER     ,       INTENT(IN)    :: cdfid, cdfid2
   INTEGER                           :: cdfidg
   INTEGER                           :: cdfid_vgvf
+  INTEGER                           :: cdfid_vlai
   REAL,               INTENT(OUT)   :: ctmlays     ( maxlays )
   REAL                              :: phalf_lays  ( maxlays )
   REAL                              :: pfull_lays  ( maxlays+1 )
@@ -194,6 +195,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   CHARACTER(LEN=256)                :: flg
   CHARACTER(LEN=256)                :: geofile
   CHARACTER(LEN=256)                :: viirsgvf
+  CHARACTER(LEN=256)                :: viirslai
   INTEGER                           :: icloud_cu
   INTEGER                           :: id_data
   INTEGER                           :: idtsec
@@ -948,10 +950,94 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   ENDIF
  ENDIF !Fengsha WB dust variables
 
-  rcode2 = nf90_inq_varid (cdfid2, 'LAI', varid) !not in FV3GFSv16
+
+ IF ( ( ifviirs_lai ) ) THEN  !Check if user is using VIIRS LAI instead of FV3
+   viirslai = TRIM( file_viirs_lai )
+   flg = viirslai
+   rcode = nf90_open (flg, nf90_nowrite, cdfid_vlai)
+   IF ( rcode == nf90_noerr ) THEN !file is present
+      rcode = nf90_inq_varid (cdfid_vlai, 'lai', varid)
+      IF ( rcode == nf90_noerr ) THEN ! LAI is found in the VIIRS file
+        iflai = .TRUE.
+        iflai_viirs = .TRUE.
+       !---Next Check Latitude dimension and if present read VIIRS Lat
+       rcode = nf90_inq_dimid (cdfid_vlai, 'latitude', dimid)
+       IF ( rcode == nf90_noerr ) THEN !latitude dimension is there
+        rcode = nf90_inquire_dimension (cdfid_vlai, dimid, len=ival)
+        met_ny_viirs = ival
+        if(.not.allocated(viirslat_lai)) allocate(viirslat_lai(met_ny_viirs))
+        CALL get_var_1d_double_cdf (cdfid_vlai, 'latitude', viirslat_lai, 1, rcode)
+!        viirslat=viirslat(met_ny_viirs:1:-1)
+       ELSE !latitude dimension is not there
+         WRITE (*,f9910) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
+         iflai = .FALSE.
+         iflai_viirs = .FALSE.
+         rcode = nf90_inq_varid (cdfid2, 'lai', varid)
+         IF ( rcode == nf90_noerr ) THEN
+          iflai = .TRUE.  ! LAI is in the file
+          iflaiwrfout = .TRUE.   ! leaf area index is in the file
+         ELSE
+          iflaiwrfout = .FALSE. ! LAI is not in the file
+         ENDIF
+!         CALL graceful_stop (pname) !NACC will not stop --> default to LAI/LU table calculation.
+       ENDIF
+       !---Next Check Longitude dimension and if present read VIIRS Lon
+       rcode = nf90_inq_dimid (cdfid_vlai, 'longitude', dimid)
+       IF ( rcode == nf90_noerr ) THEN !longitude dimension is there
+        rcode = nf90_inquire_dimension (cdfid_vlai, dimid, len=ival)
+        met_nx_viirs = ival
+        if(.not.allocated(viirslon_lai)) allocate(viirslon_lai(met_nx_viirs))
+        CALL get_var_1d_double_cdf (cdfid_vlai, 'longitude', viirslon_lai, 1, rcode)
+        !conform to fv3 longitude values, which is 0-->360
+        do iv=1,met_nx_viirs
+         if(viirslon_lai(iv).lt.0) viirslon_lai(iv)=viirslon_lai(iv)+360
+        enddo
+       ELSE !longitude dimension is not there
+         WRITE (*,f9910) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
+         iflai = .FALSE.
+         iflai_viirs = .FALSE.
+         rcode = nf90_inq_varid (cdfid2, 'lai', varid)
+         IF ( rcode == nf90_noerr ) THEN
+          iflai = .TRUE.  ! LAI is in the file
+          iflaiwrfout = .TRUE.   ! leaf area index is in the file
+         ELSE
+          iflaiwrfout = .FALSE. ! LAI is not in the file
+         ENDIF
+!         CALL graceful_stop (pname)  !NACC will not stop --> default to LAI/LU table calculation.
+       ENDIF
+
+      ELSE !! LAI is not in the VIIRS file-->default to check FV3 LAI if available
+        iflai_viirs = .FALSE.
+        WRITE (*,f9610) TRIM(pname), TRIM(flg)
+        rcode = nf90_inq_varid (cdfid2, 'lai', varid)
+        IF ( rcode == nf90_noerr ) THEN
+         iflai = .TRUE.  ! LAI is in the file
+         iflaiwrfout = .TRUE.   ! leaf area index is in the file
+        ELSE
+         iflaiwrfout= .FALSE. ! LAI is not in the file
+        ENDIF
+!        CALL graceful_stop (pname)   !NACC will not stop --> default to LAI/LU table calculation.
+      ENDIF
+   ELSE !Can't find/open VIIRS LAI file, default to check FV3 LAI if available
+      iflai_viirs = .FALSE.
+      WRITE (*,f9610) TRIM(pname), TRIM(flg)
+      rcode = nf90_inq_varid (cdfid2, 'lai', varid)
+      IF ( rcode == nf90_noerr ) THEN
+       iflai = .TRUE.  ! LAI is in the file
+       iflaiwrfout = .TRUE.   ! leaf area index is in the file
+      ELSE
+       iflaiwrfout = .FALSE. ! LAI is not in the file
+      ENDIF
+!      CALL graceful_stop (pname)  !NACC will not stop --> default to LAI/LU table calculation.
+   ENDIF
+   rcode = nf90_close (cdfid_vlai)
+
+ ELSE !User is not using VIIRS LAI (Default)-->Check LAI is in either FV3 or Geofile
+   iflai_viirs = .FALSE.
+   rcode2 = nf90_inq_varid (cdfid2, 'LAI', varid) !not in FV3GFSv16
   IF ( rcode2 == nf90_noerr ) THEN
     iflai    = .TRUE.   ! leaf area index is in the file
-    iflaiwrfout = .TRUE.   ! leaf area index is not in the file
+    iflaiwrfout = .TRUE.   ! leaf area index is in the file
   ELSE
     iflaiwrfout = .FALSE.  ! leaf area index is not available in FV3 history
     geofile = TRIM( file_geo )
@@ -976,10 +1062,12 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
       rcode = nf90_close (cdfidg)
       IF ( rcode /= nf90_noerr ) THEN
         WRITE (*,f9700)  TRIM(pname),TRIM(flg)
-        CALL graceful_stop (pname)
+!        CALL graceful_stop (pname)  !NACC will not stop --> default to LAI/LU table calculation.
       ENDIF
     ENDIF
   ENDIF
+
+ ENDIF !End VIIRS/FV3/Geofile LAI Checks
 
   rcode = nf90_inq_varid (cdfid2, 'RMOL', varid) !not in FV3GFSv16
   IF ( rcode == nf90_noerr ) THEN
@@ -1024,8 +1112,8 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
        IF ( rcode == nf90_noerr ) THEN !latitude dimension is there
         rcode = nf90_inquire_dimension (cdfid_vgvf, dimid, len=ival)
         met_ny_viirs = ival
-        allocate(viirslat(met_ny_viirs))
-        CALL get_var_1d_double_cdf (cdfid_vgvf, 'latitude', viirslat, 1, rcode)
+        if(.not.allocated(viirslat_gvf)) allocate(viirslat_gvf(met_ny_viirs))
+        CALL get_var_1d_double_cdf (cdfid_vgvf, 'latitude', viirslat_gvf, 1, rcode)
 !        viirslat=viirslat(met_ny_viirs:1:-1)
        ELSE !latitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
@@ -1043,11 +1131,11 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
        IF ( rcode == nf90_noerr ) THEN !longitude dimension is there
         rcode = nf90_inquire_dimension (cdfid_vgvf, dimid, len=ival)
         met_nx_viirs = ival
-        allocate(viirslon(met_nx_viirs))
-        CALL get_var_1d_double_cdf (cdfid_vgvf, 'longitude', viirslon, 1, rcode)
+        if(.not.allocated(viirslon_gvf)) allocate(viirslon_gvf(met_nx_viirs))
+        CALL get_var_1d_double_cdf (cdfid_vgvf, 'longitude', viirslon_gvf, 1, rcode)
         !conform to fv3 longitude values, which is 0-->360
         do iv=1,met_nx_viirs
-         if(viirslon(iv).lt.0) viirslon(iv)=viirslon(iv)+360
+         if(viirslon_gvf(iv).lt.0) viirslon_gvf(iv)=viirslon_gvf(iv)+360
         enddo
        ELSE !longitude dimension is not there
          WRITE (*,f9910) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
@@ -1085,7 +1173,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
    ENDIF
    rcode = nf90_close (cdfid_vgvf)
 
-  ELSE !User is not using VIIRS-->check if vegetation fraction is in FV3
+  ELSE !User is not using VIIRS (Default)-->check to make sure vegetation fraction is in FV3
    ifveg_viirs = .FALSE.
    rcode = nf90_inq_varid (cdfid2, 'veg', varid) 
    IF ( rcode == nf90_noerr ) THEN

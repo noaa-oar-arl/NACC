@@ -265,12 +265,14 @@ MODULE mcipparm
   LOGICAL            :: iftkef          ! TKE (if exists) on full levels?
   LOGICAL            :: ifveg           ! vegetation fraction in input file?
   LOGICAL            :: ifveg_viirs     ! using vegetation fraction in VIIRS?
+  LOGICAL            :: iflai_viirs     ! using LAI in VIIRS?
   LOGICAL            :: ifw10m          ! 10-m wind components in input file?
   LOGICAL            :: ifwr            ! canopy wetness in input file?
   LOGICAL            :: ifznt           ! roughness length in input file?
   LOGICAL            :: needseaice      ! sea ice in input file?
   LOGICAL            :: ifdiag_pbl      ! use diagnostic PBL?
   LOGICAL            :: ifviirs_gvf     ! use NAQFC VIIRS GVF?
+  LOGICAL            :: ifviirs_lai     ! use NAQFC VIIRS LAI?
   LOGICAL            :: iffengsha_dust  ! use NAQFC Fengsha Windblown Dust?
 
 !-------------------------------------------------------------------------------
