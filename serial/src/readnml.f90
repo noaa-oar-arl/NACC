@@ -107,11 +107,11 @@ SUBROUTINE readnml (ctmlays)
   INTEGER                           :: nrowsin
   CHARACTER(LEN=16),  PARAMETER     :: pname      = 'READNML'
 
-  NAMELIST /filenames/   file_gd, file_mm, file_sfc, file_geo, file_viirs_gvf, ioform
+  NAMELIST /filenames/   file_gd, file_mm, file_sfc, file_geo, file_viirs_gvf, file_viirs_lai, ioform
 
   NAMELIST /userdefs/    inmetmodel, dx_in, dy_in, met_cen_lat_in, met_cen_lon_in, &
                          lpv, lwout, luvbout, ifdiag_pbl, ifviirs_gvf, &
-                         iffengsha_dust,    &
+                         ifviirs_lai, iffengsha_dust,    &
                          eradm, mcip_start, mcip_end, ntimes, intvl,  &
                          coordnam, grdnam, ctmlays,           &
                          btrim, lprt_col, lprt_row,           &
@@ -219,6 +219,7 @@ SUBROUTINE readnml (ctmlays)
   file_geo       = " "
   file_sfc(:)    = " "
   file_viirs_gvf = " "
+  file_viirs_lai = " "
 !-------------------------------------------------------------------------------
 ! Set default value for user-selected model (2 = WRF, 3 = FV3).
   inmetmodel = 2
@@ -254,6 +255,7 @@ SUBROUTINE readnml (ctmlays)
 
   ifdiag_pbl  = .false.  ! To re-diagnose the PBLH
   ifviirs_gvf = .false.  ! To use NAQFC VIIRS GVF input
+  ifviirs_lai = .false.  ! To use NAQFC VIIRS LAI input
   iffengsha_dust = .false.  ! To use NAQFC Fengsha Windblown Dust
 !-------------------------------------------------------------------------------
 ! Set default value for earth radius in meters (ERADM).  The default value is
@@ -368,6 +370,8 @@ SUBROUTINE readnml (ctmlays)
   file_viirs_gvf = TRIM( ADJUSTL(file_viirs_gvf) )
   IF ( file_viirs_gvf(1:7) == "no_file" ) file_viirs_gvf = " "
 
+  file_viirs_lai = TRIM( ADJUSTL(file_viirs_lai) )
+  IF ( file_viirs_lai(1:7) == "no_file" ) file_viirs_lai = " "
 !-------------------------------------------------------------------------------
 ! Verify values of user-defined options.
 !-------------------------------------------------------------------------------
