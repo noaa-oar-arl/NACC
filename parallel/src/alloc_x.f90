@@ -164,6 +164,7 @@ SUBROUTINE alloc_x
   ALLOCATE ( xrgrnd  (ncols_x, nrows_x) )
   ALLOCATE ( xwr     (ncols_x, nrows_x) )
   ALLOCATE ( xlai    (ncols_x, nrows_x) )
+
   IF ( ( iffengsha_dust ) ) THEN
    ALLOCATE ( xclayf  (ncols_x, nrows_x) )
    ALLOCATE ( xsandf  (ncols_x, nrows_x) )
@@ -171,6 +172,11 @@ SUBROUTINE alloc_x
    ALLOCATE ( xssm    (ncols_x, nrows_x) )
    ALLOCATE ( xuthr   (ncols_x, nrows_x) )
   ENDIF
+
+  IF ( ( ifbioseason ) ) THEN
+   ALLOCATE ( xseason  (ncols_x, nrows_x) )
+  ENDIF
+
   ALLOCATE ( xveg    (ncols_x, nrows_x) )
 
   ALLOCATE ( xwstar  (ncols_x, nrows_x) )
