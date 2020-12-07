@@ -111,7 +111,7 @@ SUBROUTINE readnml (ctmlays)
 
   NAMELIST /userdefs/    inmetmodel, dx_in, dy_in, met_cen_lat_in, met_cen_lon_in, &
                          lpv, lwout, luvbout, ifdiag_pbl, ifviirs_gvf, &
-                         ifviirs_lai, iffengsha_dust,    &
+                         ifviirs_lai, iffengsha_dust, ifbioseason,    &
                          eradm, mcip_start, mcip_end, ntimes, intvl,  &
                          coordnam, grdnam, ctmlays,           &
                          btrim, lprt_col, lprt_row,           &
@@ -257,6 +257,7 @@ SUBROUTINE readnml (ctmlays)
   ifviirs_gvf = .false.  ! To use NAQFC VIIRS GVF input
   ifviirs_lai = .false.  ! To use NAQFC VIIRS LAI input
   iffengsha_dust = .false.  ! To use NAQFC Fengsha Windblown Dust
+  ifbioseason = .false.  ! To use bioseason switch
 !-------------------------------------------------------------------------------
 ! Set default value for earth radius in meters (ERADM).  The default value is
 ! consistent with the value used for a spherical earth in MM5 and in WRF-ARW.

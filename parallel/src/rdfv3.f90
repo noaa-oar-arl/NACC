@@ -2368,7 +2368,6 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 !-------------------------------------------------------------------------------
 ! If this is the first time in this routine, then determine season.
 !-------------------------------------------------------------------------------
-! But if global 
   IF ( first ) THEN
 
     ! These seasons are used in MM5 and WRF for land-use lookup tables.
@@ -2392,10 +2391,11 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         met_season = 2   ! winter
       ENDIF
     ENDIF
+
 !-------------------------------------------------------------------------------
 ! If roughness length was not available in output, fill it from lookup tables.
 ! If the urban model was used in WRF, replace roughness length with urban-
-! specific arrays.
+! specific arrays. 
 !-------------------------------------------------------------------------------
 
     IF ( .NOT. gotznt ) THEN

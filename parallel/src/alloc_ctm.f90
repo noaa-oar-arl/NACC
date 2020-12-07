@@ -93,6 +93,7 @@ SUBROUTINE alloc_ctm
   INTEGER                      :: nsoil2d
   INTEGER                      :: npxwrf41
   INTEGER                      :: nfengsha
+  INTEGER                      :: nbioseason
   INTEGER                      :: ntke
   INTEGER                      :: npv
   INTEGER                      :: nwout
@@ -215,8 +216,13 @@ SUBROUTINE alloc_ctm
     nfengsha = 0
   ENDIF
 
+  IF ( ifbioseason ) THEN
+    nbioseason = 1  ! SEASON
+  ELSE
+    nbioseason = 0
+  ENDIF
 
-  nfld2dxyt = 29 + nwr + nsoil2d + npxwrf41 + nfengsha
+  nfld2dxyt = 29 + nwr + nsoil2d + npxwrf41 + nfengsha + nbioseason
 
   ALLOCATE ( fld2dxyt ( nfld2dxyt ) )
 
@@ -281,6 +287,10 @@ SUBROUTINE alloc_ctm
    c_drag     => fld2dxyt(29+nwr+nsoil2d+npxwrf41+3)
    c_ssm      => fld2dxyt(29+nwr+nsoil2d+npxwrf41+4)
    c_uthr     => fld2dxyt(29+nwr+nsoil2d+npxwrf41+5)
+  ENDIF
+
+  IF ( ( ifbioseason ) ) THEN
+   c_season    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+1)
   ENDIF
 
 !-------------------------------------------------------------------------------

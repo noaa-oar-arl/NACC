@@ -203,6 +203,8 @@ MODULE xvars
   REAL, ALLOCATABLE :: xveg       ( : , : )  ! vegetation coverage [decimal]
   REAL, ALLOCATABLE :: xsltyp     ( : , : )  ! soil texture type [category]
 
+  REAL, ALLOCATABLE :: xseason    ( : , : )  ! bioseason flag [1=summer, 0=winter]
+
   REAL, ALLOCATABLE :: xwsat_px   ( : , : )  ! soil saturation (PX) [m3/m3]
   REAL, ALLOCATABLE :: xwwlt_px   ( : , : )  ! soil wilt pt (PX) [m3/m3]
   REAL, ALLOCATABLE :: xwfc_px    ( : , : )  ! soil fld capacity (PX) [m3/m3]
