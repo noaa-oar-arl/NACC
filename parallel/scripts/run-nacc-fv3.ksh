@@ -1,5 +1,5 @@
 #!/bin/ksh -l
-#BSUB -J viirs-gvf-test
+#BSUB -J nacc-test
 #BSUB -o jnacc_par.out1
 #BSUB -e jnacc_par.err1
 #BSUB -q debug
@@ -22,12 +22,12 @@ NTIMES=73
 export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/NACC_FV3GFS16_runs/sens5_nacc_cmaq531_nofire_fengsha/com/aqm/prod/aqm.20190826
+InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/NACC_FV3GFS16_runs/sens8_nacc_cmaq531_nofire_viirs_lai/com/aqm/prod/aqm.20201017
 InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/nwdev/NAQFC-WCOSS/fix
 InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
 InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
-OutDir=/gpfs/hps2/ptmp/$USER/NACC_test_lai/
-ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC_viirs_lai/parallel/src
+OutDir=/gpfs/hps2/ptmp/$USER/NACC_test_bioseason/
+ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC_bioseason/parallel/src
 
 if [ ! -s $InMetDir ]; then
   echo "No such input directory $InMetDir"
@@ -75,11 +75,12 @@ cat>namelist.mcip<<!
   lwout      =  1
   luvbout    =  1
   ifdiag_pbl = .FALSE.
-  ifviirs_gvf = .TRUE. 
-  ifviirs_lai = .TRUE.
+  ifviirs_gvf = .FALSE. 
+  ifviirs_lai = .FALSE.
   iffengsha_dust = .FALSE.
-  mcip_start = "2019-08-26-12:00:00.0000"
-  mcip_end   = "2019-08-29-13:00:00.0000"
+  ifbioseason = .TRUE.
+  mcip_start = "2020-10-17-12:00:00.0000"
+  mcip_end   = "2020-10-20-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"

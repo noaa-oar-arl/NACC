@@ -57,6 +57,7 @@ cat>namelist.mcip<<!
   ifviirs_gvf = .FALSE.
   ifviirs_lai = .FALSE.
   iffengsha_dust = .FALSE.
+  ifbioseason = .FALSE.
   mcip_start = "2019-08-12-12:00:00.0000"
   mcip_end   = "2019-08-15-13:00:00.0000"
   intvl      =  60

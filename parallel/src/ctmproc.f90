@@ -330,6 +330,9 @@ SUBROUTINE ctmproc
        c_ssm%fld(col,row)    = xssm(c,r)
        c_uthr%fld(col,row)   = xuthr(c,r)
       ENDIF
+      IF ( ( ifbioseason ) ) THEN
+       c_season%fld(col,row)  = xseason(c,r)
+      ENDIF
       c_seaice%fld(col,row) = xseaice(c,r)
       c_snowh%fld(col,row)  = xsnowh(c,r)
 

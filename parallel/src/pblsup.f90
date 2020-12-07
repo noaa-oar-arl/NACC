@@ -94,7 +94,7 @@ SUBROUTINE pblsup
 !           26 Jun 2018  Now use netCDF tokens for missing data.  (T. Spero)
 !           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
 !-------------------------------------------------------------------------------
-
+  USE metinfo
   USE mcipparm
   USE xvars
   USE const
@@ -307,6 +307,27 @@ SUBROUTINE pblsup
                         ( vkar * ABS( xmol(c,r) ) ) )**0.333333
         ELSE
           xwstar(c,r) = 0.0
+        ENDIF
+
+        ! User-defined calculation of the BEIS bioseason/freeze flag based on 2-m temperature
+        ! Needs updating with more robust T2/Q2 parameterization
+        IF ( ifbioseason ) THEN 
+         IF ( met_season == 1 ) THEN ! N. Hemisphere "summer" months 
+           IF ( xtemp2(c,r) < 269.15 ) THEN !check if temperature < -4C, 28F.
+            xseason(c,r)=0. ! winter
+           ELSE  
+            xseason(c,r)=1. ! summer
+           END IF
+         END IF
+        
+         IF ( met_season == 2 ) THEN ! N. Hemisphere "winter" months
+           IF ( xtemp2(c,r) > 273.15 ) THEN !check if temperature > 0C, 32F.
+            xseason(c,r)=1. ! summer
+           ELSE 
+            xseason(c,r)=0. ! winter
+           END IF
+         END IF
+
         ENDIF
 
       ENDDO

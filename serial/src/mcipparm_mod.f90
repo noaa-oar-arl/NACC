@@ -274,6 +274,7 @@ MODULE mcipparm
   LOGICAL            :: ifviirs_gvf     ! use NAQFC VIIRS GVF?
   LOGICAL            :: ifviirs_lai     ! use NAQFC VIIRS LAI?
   LOGICAL            :: iffengsha_dust  ! use NAQFC Fengsha Windblown Dust?
+  LOGICAL            :: ifbioseason     ! use bioseason switch?
 
 !-------------------------------------------------------------------------------
 ! Run Options.

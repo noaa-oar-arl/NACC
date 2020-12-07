@@ -148,6 +148,9 @@ SUBROUTINE dealloc_x
   IF ( ALLOCATED ( xdrag  ) )  DEALLOCATE ( xdrag )
   IF ( ALLOCATED ( xssm   ) )  DEALLOCATE ( xssm )
   IF ( ALLOCATED ( xuthr  ) )  DEALLOCATE ( xuthr )
+
+  IF ( ALLOCATED ( xseason  ) )  DEALLOCATE ( xseason )
+
   DEALLOCATE ( xveg    )
 
   DEALLOCATE ( xwstar   )

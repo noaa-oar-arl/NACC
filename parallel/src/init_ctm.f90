@@ -698,6 +698,19 @@ SUBROUTINE init_ctm
    c_uthr%iend(2) = ny
   ENDIF
 
+  IF ( ifbioseason ) THEN
+    c_season%fld = fillreal
+    c_season%fldname = 'SEASON'
+    c_season%long_name = 'bioseason flag'
+    c_season%units = '1'
+    c_season%dimnames(1) = 'nx'
+    c_season%dimnames(2) = 'ny'
+    c_season%istart(1) = 1
+    c_season%istart(2) = 1
+    c_season%iend(1) = nx
+    c_season%iend(2) = ny
+  ENDIF
+
   c_seaice%fld = fillreal
   c_seaice%fldname = 'SEAICE'
   c_seaice%long_name = 'sea ice'
