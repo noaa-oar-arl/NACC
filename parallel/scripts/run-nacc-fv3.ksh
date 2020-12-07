@@ -22,7 +22,7 @@ NTIMES=73
 export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/NACC_FV3GFS16_runs/sens8_nacc_cmaq531_nofire_viirs_lai/com/aqm/prod/aqm.20201013
+InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/NACC_FV3GFS16_runs/sens8_nacc_cmaq531_nofire_viirs_lai/com/aqm/prod/aqm.20201017
 InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/nwdev/NAQFC-WCOSS/fix
 InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
 InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
@@ -79,8 +79,8 @@ cat>namelist.mcip<<!
   ifviirs_lai = .FALSE.
   iffengsha_dust = .FALSE.
   ifbioseason = .TRUE.
-  mcip_start = "2020-10-13-12:00:00.0000"
-  mcip_end   = "2020-10-16-13:00:00.0000"
+  mcip_start = "2020-10-17-12:00:00.0000"
+  mcip_end   = "2020-10-20-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"

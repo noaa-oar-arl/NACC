@@ -2355,7 +2355,6 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
 !-------------------------------------------------------------------------------
 ! If this is the first time in this routine, then determine season.
 !-------------------------------------------------------------------------------
-! But if global 
   IF ( first ) THEN
 
     ! These seasons are used in MM5 and WRF for land-use lookup tables.
