@@ -1756,10 +1756,14 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         IF ( rcode == nf90_noerr ) THEN
           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
           lai(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-          ! Another LAI Check in case LAI=0 over land for processed satellite inputs
+          ! Another LAI Check in case LAI<=0 over land for processed satellite inputs
           ! Set to average LAI=4 for the representative pixels.
-          WHERE ( (INT(landmask) == 1) .AND. (lai <= 0.0))  ! FV3 land = 1 and LAI = 0.0
-           lai = 4.0
+!          WHERE ( (INT(landmask) == 1) .AND. (lai <= 0.0))  ! FV3 land = 1 and LAI <= 0.0
+!           lai = 4.0
+          ! Another LAI Check in case LAI<=0 over land for processed satellite inputs
+          ! Set to average LAI=smallnum for the representative pixels.
+          WHERE ( (INT(landmask) == 1) .AND. (lai <= 0.0))  ! FV3 land = 1 and LAI <= 0.0
+           lai = smallnum
           END WHERE
           WRITE (*,ifmt2) 'LAI ', lai(lprt_metx,lprt_mety)
         ELSE
@@ -1784,7 +1788,8 @@ SUBROUTINE rdfv3 (mcip_now,nn)
       IF ( rcode == nf90_noerr ) THEN
          call myinterp(dum2d_viirs,met_nx_viirs,met_ny_viirs,atmp,xindex_viirs_lai,yindex_viirs_lai,ncols_x,nrows_x,1)
         lai(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-        where(lai.lt.0) lai=0.
+!        where(lai.lt.0) lai=0.
+         where(lai.le.0) lai=smallnum
         WRITE (*,f6000) 'lai   ', lai(lprt_metx, lprt_mety), ' from VIIRS LAI'
       ELSE
         WRITE (*,f9440) TRIM(pname), 'lai', TRIM(nf90_strerror(rcode))
