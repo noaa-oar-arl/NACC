@@ -297,6 +297,8 @@ MODULE mcipparm
                              !             1 = Output UWIND and VWIND
                              !                 in addition to UWINDC and VWINDC
 
+  INTEGER :: cutlay_collapx  ! user input: number of top layers to cut-off before collapsing
+
 !-------------------------------------------------------------------------------
 ! Grid/Domain Related Parameters
 !-------------------------------------------------------------------------------
