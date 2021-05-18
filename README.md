@@ -110,6 +110,10 @@ The variables listed here are set by the user in the NACC run script, and they a
     Logical to choose if the NOAA-ARL time-dependend bioseasons withc is used in CMAQ:  based on summer/winter seasonal information and T2,  and is output in METCRO2D file.
     -   `False`: Do not calculate and output SEASON variable in METCRO2D
     -   `True`:  Calculate and output SEASON variable in METCRO2D
+-   `IFCANOPY [default: False]`
+    Logical to choose if the ECCC in-canopy shading effects are used in CMAQ:  based on input canopy parameters in "GeoFile" and output in METCRO2D file.
+    -   `False`: Do not input/output ECCC canopy parameters
+    -   `True`: Input/output of ECCC canopy parameters
 -   `MCIP_START [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
     Beginning date and time (UTC) of data to output from NACC. The start date and time must be contained within the input data from WRF or FV3-GFS.
 -   `MCIP_END [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  

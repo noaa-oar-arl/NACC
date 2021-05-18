@@ -697,6 +697,43 @@ SUBROUTINE setgriddefs
   WRITE (*,f6150) 'UTHRES', TRIM(yesno)
  ENDIF
 
+ IF ( ( ifcanopy ) ) THEN
+  IF ( iffch ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'FCH', TRIM(yesno)
+
+  IF ( iffrt ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'FRT', TRIM(yesno)
+
+  IF ( ifclu ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'CLU', TRIM(yesno)
+
+  IF ( ifpopu ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'POPU', TRIM(yesno)
+
+  IF ( iflaie ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'LAIE', TRIM(yesno)
+ ENDIF
+
   IF ( iflufrc ) THEN
     yesno = ''
   ELSE

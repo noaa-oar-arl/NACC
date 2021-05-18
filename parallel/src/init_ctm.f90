@@ -711,6 +711,64 @@ SUBROUTINE init_ctm
     c_season%iend(2) = ny
   ENDIF
 
+  IF ( ( ifcanopy ) ) THEN
+   c_fch%fld = fillreal
+   c_fch%fldname = 'FCH'
+   c_fch%long_name = 'forest canopy height'
+   c_fch%units = 'm'
+   c_fch%dimnames(1) = 'nx'
+   c_fch%dimnames(2) = 'ny'
+   c_fch%istart(1) = 1
+   c_fch%istart(2) = 1
+   c_fch%iend(1) = nx
+   c_fch%iend(2) = ny
+
+   c_frt%fld = fillreal
+   c_frt%fldname = 'FRT'
+   c_frt%long_name = 'forest fraction'
+   c_frt%units = '1'
+   c_frt%dimnames(1) = 'nx'
+   c_frt%dimnames(2) = 'ny'
+   c_frt%istart(1) = 1
+   c_frt%istart(2) = 1
+   c_frt%iend(1) = nx
+   c_frt%iend(2) = ny
+
+   c_clu%fld = fillreal
+   c_clu%fldname = 'CLU'
+   c_clu%long_name = 'clumping index'
+   c_clu%units = '1'
+   c_clu%dimnames(1) = 'nx'
+   c_clu%dimnames(2) = 'ny'
+   c_clu%istart(1) = 1
+   c_clu%istart(2) = 1
+   c_clu%iend(1) = nx
+   c_clu%iend(2) = ny
+
+   c_popu%fld = fillreal
+   c_popu%fldname = 'POPU'
+   c_popu%long_name = 'population density'
+   c_popu%units = 'people/10km2'
+   c_popu%dimnames(1) = 'nx'
+   c_popu%dimnames(2) = 'ny'
+   c_popu%istart(1) = 1
+   c_popu%istart(2) = 1
+   c_popu%iend(1) = nx
+   c_popu%iend(2) = ny
+
+   c_laie%fld = fillreal
+   c_laie%fldname = 'LAIE'
+   c_laie%long_name = 'Leaf Area Index (ECCC)'
+   c_laie%units = 'm2 m-2'
+   c_laie%dimnames(1) = 'nx'
+   c_laie%dimnames(2) = 'ny'
+   c_laie%istart(1) = 1
+   c_laie%istart(2) = 1
+   c_laie%iend(1) = nx
+   c_laie%iend(2) = ny
+
+  ENDIF
+
   c_seaice%fld = fillreal
   c_seaice%fldname = 'SEAICE'
   c_seaice%long_name = 'sea ice'

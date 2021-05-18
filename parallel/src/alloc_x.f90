@@ -177,6 +177,15 @@ SUBROUTINE alloc_x
    ALLOCATE ( xseason  (ncols_x, nrows_x) )
   ENDIF
 
+  IF ( ( ifcanopy ) ) THEN
+   ALLOCATE ( xfch  (ncols_x, nrows_x) )
+   ALLOCATE ( xfrt  (ncols_x, nrows_x) )
+   ALLOCATE ( xclu  (ncols_x, nrows_x) )
+   ALLOCATE ( xpopu (ncols_x, nrows_x) )
+   ALLOCATE ( xlaie (ncols_x, nrows_x) )
+  ENDIF
+
+
   ALLOCATE ( xveg    (ncols_x, nrows_x) )
 
   ALLOCATE ( xwstar  (ncols_x, nrows_x) )

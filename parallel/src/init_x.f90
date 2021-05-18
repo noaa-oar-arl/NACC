@@ -145,6 +145,12 @@ SUBROUTINE init_x
    xseason  (:,:)   = fillreal
   ENDIF
 
+  IF ( ( ifcanopy ) ) THEN
+   xfch  (:,:)   = fillreal  ;    xclu     (:,:)   = fillreal
+   xfrt  (:,:)   = fillreal  ;    xpopu    (:,:)   = fillreal
+   xlaie (:,:)   = fillreal
+  ENDIF
+
   IF ( met_hybrid >= 0 ) THEN
     xmuhyb(:,:)   = fillreal
   ENDIF

@@ -462,6 +462,29 @@ SUBROUTINE metvars2ctm
    ENDIF
   ENDIF
 
+  IF ( ( ifcanopy ) ) THEN
+   IF ( iffch) THEN
+     xfch(:,:) = fch(sc:ec,sr:er)
+   ENDIF
+
+   IF ( iffrt) THEN
+     xfrt(:,:) = frt(sc:ec,sr:er)
+   ENDIF
+
+   IF ( ifclu) THEN
+     xclu(:,:) = clu(sc:ec,sr:er)
+   ENDIF
+
+   IF ( ifpopu) THEN
+     xpopu(:,:) = popu(sc:ec,sr:er)
+   ENDIF
+
+   IF ( iflaie) THEN
+     xlaie(:,:) = laie(sc:ec,sr:er)
+   ENDIF
+  ENDIF
+  
+
   IF ( ifveg .OR. ifveg_viirs ) THEN
     xveg   (:,:) = veg   (sc:ec,sr:er)
   ELSE

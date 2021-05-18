@@ -950,6 +950,173 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   ENDIF
  ENDIF !Fengsha WB dust variables
 
+ IF ( ( ifcanopy ) ) THEN  !User is trying to use canopy variables in CMAQ
+
+  rcode2 = nf90_inq_varid (cdfid2, 'FCH', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    iffch     = .TRUE.   ! forest canopy height is in the file
+    iffchwrfout = .TRUE.   ! forest canopy height is not in the file
+  ELSE
+    iffchwrfout = .FALSE.  ! forest canopy height is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      iffch = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'FCH', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        iffch = .TRUE.  ! forest canopy height is in the file
+      ELSE
+        iffch = .FALSE. ! forest canopy height is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'FRT', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    iffrt     = .TRUE.   ! forest fraction is in the file
+    iffrtwrfout = .TRUE.   ! forest fraction is not in the file
+  ELSE
+    iffrtwrfout = .FALSE.  ! forest fraction is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      iffrt = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'FRT', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        iffrt = .TRUE.  ! forest fraction is in the file
+      ELSE
+        iffrt = .FALSE. ! forest fraction is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'CLU', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifclu     = .TRUE.   ! forest clumping index is in the file
+    ifcluwrfout = .TRUE.   ! forest clumping index is not in the file
+  ELSE
+    ifcluwrfout = .FALSE.  ! forest clumping index is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifclu = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'CLU', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifclu = .TRUE.  ! forest clumping index is in the file
+      ELSE
+        ifclu = .FALSE. ! forest clumping index is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'POPU', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifpopu     = .TRUE.   ! population density is in the file
+    ifpopuwrfout = .TRUE.   ! population density is not in the file
+  ELSE
+    ifpopuwrfout = .FALSE.  ! population density is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifpopu = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'POPU', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifpopu = .TRUE.  ! population density is in the file
+      ELSE
+        ifpopu = .FALSE. ! population density is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'LAIE', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    iflaie     = .TRUE.   ! leaf area index (ECCC) is in the file
+    iflaiewrfout = .TRUE.   ! leaf area index (ECCC) is not in the file
+  ELSE
+    iflaiewrfout = .FALSE.  ! leaf area index (ECCC) is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      iflaie = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'LAIE', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        iflaie = .TRUE.  ! leaf area index (ECCC) is in the file
+      ELSE
+        iflaie = .FALSE. ! leaf area index (ECCC) is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+ ENDIF !Canopy variables 
 
  IF ( ( ifviirs_lai ) ) THEN  !Check if user is using VIIRS LAI instead of FV3
    viirslai = TRIM( file_viirs_lai )
