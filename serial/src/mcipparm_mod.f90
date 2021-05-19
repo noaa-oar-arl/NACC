@@ -248,7 +248,17 @@ MODULE mcipparm
   LOGICAL            :: ifssm           ! sediment supply map in input file?
   LOGICAL            :: ifssmwrfout     ! sediment supply map in WRF history?
   LOGICAL            :: ifuthr          ! threshold velocity in input file?
-  LOGICAL            :: ifuthrwrfout    ! threshold velocity in WRF history?
+  LOGICAL            :: ifuthrwrfout    ! threshold velocity in WRF history
+  LOGICAL            :: iffch           ! forest canopy height in input file?
+  LOGICAL            :: iffchwrfout     ! forest canopy height in WRF history?
+  LOGICAL            :: iffrt           ! forest fraction in input file?
+  LOGICAL            :: iffrtwrfout     ! forest fraction in WRF history?
+  LOGICAL            :: ifclu           ! forest clumping index in input file?
+  LOGICAL            :: ifcluwrfout     ! forest clumping index in WRF history?
+  LOGICAL            :: ifpopu          ! population density in input file?
+  LOGICAL            :: ifpopuwrfout    ! population density in WRF history?
+  LOGICAL            :: iflaie          ! leaf area index (ECCC) in input file?
+  LOGICAL            :: iflaiewrfout    ! leaf area index (ECCC) in WRF history?
   LOGICAL            :: iflufrc         ! fractional land use available?
   LOGICAL            :: ifluwrfout      ! is fractional land use in WRF history?
   LOGICAL            :: iflu2wrfout     ! is fractional land use 2 in WRF history?
@@ -275,6 +285,7 @@ MODULE mcipparm
   LOGICAL            :: ifviirs_lai     ! use NAQFC VIIRS LAI?
   LOGICAL            :: iffengsha_dust  ! use NAQFC Fengsha Windblown Dust?
   LOGICAL            :: ifbioseason     ! use bioseason switch?
+  LOGICAL            :: ifcanopy        ! use canopy parameters?
 
 !-------------------------------------------------------------------------------
 ! Run Options.

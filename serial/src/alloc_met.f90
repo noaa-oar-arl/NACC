@@ -216,6 +216,28 @@ SUBROUTINE alloc_met
   ENDIF
  ENDIF
 
+ IF ( ( ifcanopy ) ) THEN
+  IF ( iffch ) THEN  ! forest canopy height available
+    ALLOCATE ( fch    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( iffrt ) THEN  ! forest fraction field available
+    ALLOCATE ( frt    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( ifclu ) THEN  ! forest clumping indext available
+    ALLOCATE ( clu    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( ifpopu ) THEN  ! population density available
+    ALLOCATE ( popu    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( iflaie ) THEN  ! ECCC lai (MODIS) available
+    ALLOCATE ( laie    (met_nx, met_ny) )
+  ENDIF
+ ENDIF
+
   IF ( ifmol ) THEN  ! Monin-Obukhov length available
     ALLOCATE ( mol    (met_nx, met_ny) )
   ENDIF

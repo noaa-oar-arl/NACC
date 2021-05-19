@@ -94,6 +94,7 @@ SUBROUTINE alloc_ctm
   INTEGER                      :: npxwrf41
   INTEGER                      :: nfengsha
   INTEGER                      :: nbioseason
+  INTEGER                      :: ncanopy
   INTEGER                      :: ntke
   INTEGER                      :: npv
   INTEGER                      :: nwout
@@ -216,13 +217,20 @@ SUBROUTINE alloc_ctm
     nfengsha = 0
   ENDIF
 
+  IF ( ifcanopy ) THEN
+    ncanopy = 5  ! FCH, FRT, CLU, POPU, LAIE
+  ELSE
+    ncanopy = 0
+  ENDIF
+
   IF ( ifbioseason ) THEN
     nbioseason = 1  ! SEASON
   ELSE
     nbioseason = 0
   ENDIF
 
-  nfld2dxyt = 29 + nwr + nsoil2d + npxwrf41 + nfengsha + nbioseason
+
+  nfld2dxyt = 29 + nwr + nsoil2d + npxwrf41 + nfengsha + nbioseason + ncanopy
 
   ALLOCATE ( fld2dxyt ( nfld2dxyt ) )
 
@@ -292,6 +300,15 @@ SUBROUTINE alloc_ctm
   IF ( ( ifbioseason ) ) THEN
    c_season    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+1)
   ENDIF
+
+  IF ( ( ifcanopy ) ) THEN
+   c_fch    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+1)
+   c_frt    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+2)
+   c_clu    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+3)
+   c_popu   => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+4)
+   c_laie   => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+5)
+  ENDIF
+
 
 !-------------------------------------------------------------------------------
 ! Time-varying 3d fields at cell centers.
