@@ -113,7 +113,7 @@ SUBROUTINE readnml (ctmlays)
                          lpv, lwout, luvbout, ifdiag_pbl, ifviirs_gvf, &
                          ifviirs_lai, iffengsha_dust, ifbioseason,    &
                          eradm, mcip_start, mcip_end, ntimes, intvl,  &
-                         coordnam, grdnam, ctmlays,           &
+                         coordnam, grdnam, ctmlays, cutlay_collapx,    &
                          btrim, lprt_col, lprt_row,           &
                          wrf_lc_ref_lat, projparm, domains
 
@@ -294,6 +294,13 @@ SUBROUTINE readnml (ctmlays)
 
    ctmlays(:) = -1.0
 
+
+!-------------------------------------------------------------------------------
+! Set number of additional top layers to remove from before collapsing.
+!-------------------------------------------------------------------------------
+  
+   cutlay_collapx = 0   
+  
 !-------------------------------------------------------------------------------
 ! Set default meteorology "boundary" point removal to 5.
 !-------------------------------------------------------------------------------

@@ -119,6 +119,8 @@ The variables listed here are set by the user in the NACC run script, and they a
 -   `CTMLAYS [default: -1.0]`  
     Set CTM layers.  Should be in descending order starting at 1 and ending with 0.  There is currently a maximum of 200 layers allowed.
     To use all of the layers from the input meteorology without collapsing (or explicitly specifying), set CTMLAYS = -1.0.
+-   `CUTLAY_COLLAPX [default: 0]`
+    Set number of layers to cut off model top before collapsing. This should be used with caution, and could be used when model top is extremely high leading to unrealistic mass-weighted linear interpolation of topmost collapsed layers.
 -   `MKGRID [default: T]`  
     Determines whether to output static (GRID) meteorology files
 -   `IOFORM [default: 1]`  

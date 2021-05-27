@@ -192,6 +192,7 @@ SUBROUTINE ctmproc
   REAL,    SAVE,      ALLOCATABLE   :: dumaray0    ( : , : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dumaray1    ( : , : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dumaray11    ( : , : , : , : )
+  INTEGER                           :: metlay_sub
 
   INTERFACE
 
@@ -204,6 +205,12 @@ SUBROUTINE ctmproc
 
   END INTERFACE
 
+!-------------------------------------------------------------------------------
+! User-defined reduction for number of top model layers to collapse
+!-------------------------------------------------------------------------------
+  IF ( metlay /= nlays ) THEN  !collapse
+   metlay_sub = metlay-cutlay_collapx  ! (default=0, i.e., collapse all layers)
+  ENDIF
 !-------------------------------------------------------------------------------
 ! Allocate necessary variables.
 !-------------------------------------------------------------------------------
@@ -554,50 +561,72 @@ SUBROUTINE ctmproc
       dumaray0(:,:,0:,5+iwout) = xtke (:,:,0:)
     ENDIF
     
-    CALL collapx (xrhojm,       xx3midl, x3midl)
-    CALL collapx (xdensam,      xx3midl, x3midl)
-    CALL collapx (xpresm,       xx3midl, x3midl)
-    CALL collapx (xtempm,       xx3midl, x3midl)
-    CALL collapx (xwvapor,      xx3midl, x3midl)
-    CALL collapx (x3htm,        xx3midl, x3midl)
+!    CALL collapx (xrhojm,       xx3midl, x3midl)
+!    CALL collapx (xdensam,      xx3midl, x3midl)
+!    CALL collapx (xpresm,       xx3midl, x3midl)
+!    CALL collapx (xtempm,       xx3midl, x3midl)
+!    CALL collapx (xwvapor,      xx3midl, x3midl)
+!    CALL collapx (x3htm,        xx3midl, x3midl)
+
+    CALL collapx (xrhojm(:,:,1:metlay_sub),       xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+    CALL collapx (xdensam(:,:,1:metlay_sub),      xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+    CALL collapx (xpresm(:,:,1:metlay_sub),       xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+    CALL collapx (xtempm(:,:,1:metlay_sub),       xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+    CALL collapx (xwvapor(:,:,1:metlay_sub),      xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+    CALL collapx (x3htm(:,:,1:metlay_sub),        xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+
 
     IF ( nqspecies >= 2 ) THEN
-       CALL collapx (xcldwtr, xx3midl, x3midl)
-       CALL collapx (xranwtr, xx3midl, x3midl)
- 
+!       CALL collapx (xcldwtr, xx3midl, x3midl)
+!       CALL collapx (xranwtr, xx3midl, x3midl)
+       CALL collapx (xcldwtr(:,:,1:metlay_sub), xx3midl(1:metlay_sub), x3midl(1:metlay_sub))  
+       CALL collapx (xranwtr(:,:,1:metlay_sub), xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+
      IF ( nqspecies >= 4 ) THEN
-        CALL collapx (xqice,   xx3midl, x3midl)
-        CALL collapx (xqsnow,  xx3midl, x3midl)
+!        CALL collapx (xqice,   xx3midl, x3midl)
+!        CALL collapx (xqsnow,  xx3midl, x3midl)
+        CALL collapx (xqice(:,:,1:metlay_sub),   xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+        CALL collapx (xqsnow(:,:,1:metlay_sub),  xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
         IF ( nqspecies == 5 ) THEN
-          CALL collapx (xqgraup, xx3midl, x3midl)
+!          CALL collapx (xqgraup, xx3midl, x3midl)
+          CALL collapx (xqgraup(:,:,1:metlay_sub), xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
         ENDIF
       ENDIF
     ENDIF
 
     IF ( ( iftke ) .AND. ( .NOT. iftkef ) ) THEN  ! TKE on half-layers
-       CALL collapx (xtke,  xx3midl, x3midl)
+!       CALL collapx (xtke,  xx3midl, x3midl)
+       CALL collapx (xtke(:,:,1:metlay_sub),  xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
     ENDIF
 
     IF ( lpv > 0 ) THEN  ! Output potential vorticity
-      CALL collapx (xpvc,  xx3midl, x3midl)
+!      CALL collapx (xpvc,  xx3midl, x3midl)
+      CALL collapx (xpvc(:,:,1:metlay_sub),  xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
     ENDIF
 
     IF ( ifcld3d ) THEN
-      CALL collapx (xcfrac3d, xx3midl, x3midl)
+!      CALL collapx (xcfrac3d, xx3midl, x3midl)
+      CALL collapx (xcfrac3d(:,:,1:metlay_sub), xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
     ENDIF
     
-    CALL collapx (xrhojf,     xx3face, x3face)
-    CALL collapx (xwhat,      xx3face, x3face)
-    CALL collapx (x3htf,      xx3face, x3face)
-    CALL collapx (xdensaf,    xx3face, x3face)
+!    CALL collapx (xrhojf,     xx3face, x3face)
+!    CALL collapx (xwhat,      xx3face, x3face)
+!    CALL collapx (x3htf,      xx3face, x3face)
+!    CALL collapx (xdensaf,    xx3face, x3face)
 
+    CALL collapx (xrhojf(:,:,0:metlay_sub),     xx3face(0:metlay_sub), x3face(0:metlay_sub))
+    CALL collapx (xwhat(:,:,0:metlay_sub),      xx3face(0:metlay_sub), x3face(0:metlay_sub))
+    CALL collapx (x3htf(:,:,0:metlay_sub),      xx3face(0:metlay_sub), x3face(0:metlay_sub))
+    CALL collapx (xdensaf(:,:,0:metlay_sub),    xx3face(0:metlay_sub), x3face(0:metlay_sub))
 
     IF ( lwout > 0 ) THEN
-      CALL collapx (xwwind,  xx3face, x3face)
+!      CALL collapx (xwwind,  xx3face, x3face)
+      CALL collapx (xwwind(:,:,0:metlay_sub),  xx3face(0:metlay_sub), x3face(0:metlay_sub))
     ENDIF
 
     IF ( ( iftke ) .AND. ( iftkef ) ) THEN  ! TKE on full-levels
-      CALL collapx (xtke,  xx3face, x3face)
+!      CALL collapx (xtke,  xx3face, x3face)
+      CALL collapx (xtke(:,:,0:metlay_sub),  xx3face(0:metlay_sub), x3face(0:metlay_sub))
     ENDIF
 
   ENDIF
@@ -1177,10 +1206,16 @@ SUBROUTINE ctmproc
       ENDDO
     ENDDO
 
-    CALL collapx (xuhat_s, xx3midl, x3midl)
-    CALL collapx (xvhat_t, xx3midl, x3midl)
-    CALL collapx (xuu_d,   xx3midl, x3midl)
-    CALL collapx (xvv_d,   xx3midl, x3midl)
+!    CALL collapx (xuhat_s, xx3midl, x3midl)
+!    CALL collapx (xvhat_t, xx3midl, x3midl)
+!    CALL collapx (xuu_d,   xx3midl, x3midl)
+!    CALL collapx (xvv_d,   xx3midl, x3midl)
+   
+    CALL collapx (xuhat_s(:,:,1:metlay_sub), xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+    CALL collapx (xvhat_t(:,:,1:metlay_sub), xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+    CALL collapx (xuu_d(:,:,1:metlay_sub),   xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+    CALL collapx (xvv_d(:,:,1:metlay_sub),   xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+
 
 
     IF ( luvbout > 0 ) THEN
@@ -1192,8 +1227,10 @@ SUBROUTINE ctmproc
           ENDDO
         ENDDO
       ENDDO
-       CALL collapx (xuu_s,   xx3midl, x3midl)
-       CALL collapx (xvv_t,   xx3midl, x3midl)
+!       CALL collapx (xuu_s,   xx3midl, x3midl)
+!       CALL collapx (xvv_t,   xx3midl, x3midl)
+       CALL collapx (xuu_s(:,:,1:metlay_sub),   xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
+       CALL collapx (xvv_t(:,:,1:metlay_sub),   xx3midl(1:metlay_sub), x3midl(1:metlay_sub))
     ENDIF
 
   ENDIF
