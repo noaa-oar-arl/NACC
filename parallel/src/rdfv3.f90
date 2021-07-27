@@ -761,7 +761,8 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 
              mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
 
-             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_gvf(i,j),yindex_viirs_gvf(i,j),viirslat_gvf,viirslon_gvf,met_nx_viirs,met_ny_viirs)
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_gvf(i,j),  &
+                  yindex_viirs_gvf(i,j),viirslat_gvf,viirslon_gvf,met_nx_viirs,met_ny_viirs)
 
            ENDDO
          ENDDO
@@ -782,7 +783,8 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 
              mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
 
-             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_lai(i,j),yindex_viirs_lai(i,j),viirslat_lai,viirslon_lai,met_nx_viirs,met_ny_viirs)
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_lai(i,j),  &
+                  yindex_viirs_lai(i,j),viirslat_lai,viirslon_lai,met_nx_viirs,met_ny_viirs)
 
            ENDDO
          ENDDO
