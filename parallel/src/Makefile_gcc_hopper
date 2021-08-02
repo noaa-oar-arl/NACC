@@ -45,25 +45,23 @@ MODEL = mcip.exe
 #LIBS    = -L$(IOAPI_ROOT)/Linux2_x86_64 -lioapi  \
 #          -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
-FC = ifort
+FC = mpifort
 
 #NetCDF Settings
-NETCDF =  /opt/sw/spack/apps/linux-centos8-cascadelake/intel-20.0.2-intel-mpi-2019.8.254/netcdf-c-4.7.4-wr/
+NETCDF =  /opt/sw/spack/apps/linux-centos8-cascadelake/gcc-9.3.0-openmpi-4.0.4/netcdf-c-4.7.4-vh
 
 #IOAPI Settings
-IOAPI_ROOT =   /opt/sw/other/apps/linux-centos8-cascadelake/intel-19.1.2.254-impi-19.8.254/ioapi/3.2-spack
+IOAPI_ROOT =   /opt/sw/other/apps/linux-centos8-cascadelake/gnu-9.3.0-openmpi-4.0.4/ioapi/3.2-spack
 
 #MPI Settings for parallel
-#MPI_ROOT =    /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/3.3.2/
-MPI_ROOT =   /opt/intel/2020.2/compilers_and_libraries_2020.2.254/linux/mpi/intel64
+MPI_ROOT =    /opt/ohpc/pub/mpi/openmpi4-gnu9/4.0.4
 
-FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI_ROOT) -I$(MPI_ROOT)/include
+FFLAGS  = -O3 -I$(NETCDF)/include -I$(IOAPI_ROOT) -I$(MPI_ROOT)/include
 
 #Parallel
 LIBS     = -L$(IOAPI_ROOT) -lioapi \
-         -L$(NETCDF)/lib -lnetcdf -lnetcdff -qopenmp \
-         -L$(MPI_ROOT)/lib -lmpifort
-#         -L$(MPI_ROOT)/lib -lmpichf90 -lmpich 
+         -L$(NETCDF)/lib -lnetcdf -lnetcdff -fopenmp \
+         -L$(MPI_ROOT)/lib -lmpi 
 
 /EFS   = 
 

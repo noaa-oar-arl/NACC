@@ -49,10 +49,10 @@ MODEL = mcip.exe
 FC      = gfortran
 
 #NetCDF Settings
-NETCDF = /groups/ESS/yli74/software/Lib_netcdf_netcdff_orc
+NETCDF = /opt/sw/spack/apps/linux-centos8-cascadelake/gcc-9.3.0-openmpi-4.0.4/netcdf-c-4.7.4-vh
 
 #IOAPI Settings
-IOAPI_ROOT =  /groups/ESS/pcampbe8/lib/ioapi/3.2-spack
+IOAPI_ROOT =  /opt/sw/other/apps/linux-centos8-cascadelake/gnu-9.3.0-openmpi-4.0.4/ioapi/3.2-spack
 
 
 FFLAGS  = -O3 -I$(NETCDF)/include -I$(IOAPI_ROOT)
