@@ -259,6 +259,14 @@ MODULE mcipparm
   LOGICAL            :: ifpopuwrfout    ! population density in WRF history?
   LOGICAL            :: iflaie          ! leaf area index (ECCC) in input file?
   LOGICAL            :: iflaiewrfout    ! leaf area index (ECCC) in WRF history?
+  LOGICAL            :: ifc1r           ! cumulative LAI fraction hc to 0.75 * hc in input file?
+  LOGICAL            :: ifc1rwrfout     ! cumulative LAI fraction hc to 0.75 * hc in WRF history?
+  LOGICAL            :: ifc2r           ! cumulative LAI fraction hc to 0.50 * hc in input file?
+  LOGICAL            :: ifc2rwrfout     ! cumulative LAI fraction hc to 0.50 * hc in WRF history?
+  LOGICAL            :: ifc3r           ! cumulative LAI fraction hc to 0.35 * hc in input file?
+  LOGICAL            :: ifc3rwrfout     ! cumulative LAI fraction hc to 0.35 * hc in WRF history?
+  LOGICAL            :: ifc4r           ! cumulative LAI fraction hc to 0.20 * hc in input file?
+  LOGICAL            :: ifc4rwrfout     ! cumulative LAI fraction hc to 0.20 * hc in WRF history?
   LOGICAL            :: iflufrc         ! fractional land use available?
   LOGICAL            :: ifluwrfout      ! is fractional land use in WRF history?
   LOGICAL            :: iflu2wrfout     ! is fractional land use 2 in WRF history?

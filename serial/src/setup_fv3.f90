@@ -985,7 +985,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
     ENDIF
   ENDIF
 
- rcode2 = nf90_inq_varid (cdfid2, 'FRT', varid) !not in FV3GFSv16
+  rcode2 = nf90_inq_varid (cdfid2, 'FRT', varid) !not in FV3GFSv16
   IF ( rcode2 == nf90_noerr ) THEN
     iffrt     = .TRUE.   ! forest fraction is in the file
     iffrtwrfout = .TRUE.   ! forest fraction is not in the file
@@ -1116,7 +1116,139 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
       ENDIF
     ENDIF
   ENDIF
- ENDIF !Canopy variables
+
+  rcode2 = nf90_inq_varid (cdfid2, 'C1R', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifc1r     = .TRUE.   ! cumulative LAI fraction is in the file
+    ifc1rwrfout = .TRUE.   ! cumulative LAI fraction is not in the file
+  ELSE
+    ifc1rwrfout = .FALSE.  ! cumulative LAI fraction is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifc1r = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'C1R', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifc1r = .TRUE.  ! cumulative LAI fraction is in the file
+      ELSE
+        ifc1r = .FALSE. ! cumulative LAI fraction is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'C2R', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifc2r     = .TRUE.   ! cumulative LAI fraction is in the file
+    ifc2rwrfout = .TRUE.   ! cumulative LAI fraction is not in the file
+  ELSE
+    ifc2rwrfout = .FALSE.  ! cumulative LAI fraction is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifc2r = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'C2R', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifc2r = .TRUE.  ! cumulative LAI fraction is in the file
+      ELSE
+        ifc2r = .FALSE. ! cumulative LAI fraction is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'C3R', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifc3r     = .TRUE.   ! cumulative LAI fraction is in the file
+    ifc3rwrfout = .TRUE.   ! cumulative LAI fraction is not in the file
+  ELSE
+    ifc3rwrfout = .FALSE.  ! cumulative LAI fraction is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifc3r = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'C3R', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifc3r = .TRUE.  ! cumulative LAI fraction is in the file
+      ELSE
+        ifc3r = .FALSE. ! cumulative LAI fraction is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+
+  rcode2 = nf90_inq_varid (cdfid2, 'C4R', varid) !not in FV3GFSv16
+  IF ( rcode2 == nf90_noerr ) THEN
+    ifc4r     = .TRUE.   ! cumulative LAI fraction is in the file
+    ifc4rwrfout = .TRUE.   ! cumulative LAI fraction is not in the file
+  ELSE
+    ifc4rwrfout = .FALSE.  ! cumulative LAI fraction is not available in FV3 history
+    geofile = TRIM( file_geo )
+    INQUIRE ( FILE=geofile, EXIST=ifgeo )
+    IF ( .NOT. ifgeo ) THEN
+      WRITE (*,f9900) TRIM(pname)
+      ifc4r = .FALSE.
+    ELSE
+      flg = file_geo
+       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9600) TRIM(pname), TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+      rcode = nf90_inq_varid (cdfidg, 'C4R', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        ifc4r = .TRUE.  ! cumulative LAI fraction is in the file
+      ELSE
+        ifc4r = .FALSE. ! cumulative LAI fraction is not in the file
+      ENDIF
+      rcode = nf90_close (cdfidg)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (*,f9700)  TRIM(pname),TRIM(flg)
+        CALL graceful_stop (pname)
+      ENDIF
+    ENDIF
+  ENDIF
+ ENDIF !Canopy variables 
 
  IF ( ( ifviirs_lai ) ) THEN  !Check if user is using VIIRS LAI instead of FV3
    viirslai = TRIM( file_viirs_lai )
