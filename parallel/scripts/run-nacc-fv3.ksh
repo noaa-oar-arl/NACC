@@ -22,12 +22,12 @@ NTIMES=73
 export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/NACC_FV3GFS16_runs/sens8_nacc_cmaq531_nofire_viirs_lai/com/aqm/prod/aqm.20201017
-InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Youhua.Tang/nwdev/NAQFC-WCOSS/fix
+InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs16_testdata
+InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/nacc_geofiles
 InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
 InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
-OutDir=/gpfs/hps2/ptmp/$USER/NACC_test_bioseason/
-ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC_bioseason/parallel/src
+OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs16_testdata/nacc_output_parallel_canopy_shade
+ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC_canopy_shade/parallel/src
 
 if [ ! -s $InMetDir ]; then
   echo "No such input directory $InMetDir"
@@ -59,7 +59,7 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/gfs.t12z.atmf','.nc'
   file_sfc   = '$InMetDir/gfs.t12z.sfcf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.08.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.01.canopy.nc'
   file_viirs_gvf = '$InVIIRSDir_GVF/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2.nc'
   file_viirs_lai = '$InVIIRSDir_LAI/VIIRS_VNP15A2H.001_20190829.nc'
   ioform     =  1
@@ -78,10 +78,10 @@ cat>namelist.mcip<<!
   ifviirs_gvf = .FALSE. 
   ifviirs_lai = .FALSE.
   iffengsha_dust = .FALSE.
-  ifbioseason = .TRUE.
-  ifcanopy    = .FALSE.
-  mcip_start = "2020-10-17-12:00:00.0000"
-  mcip_end   = "2020-10-20-13:00:00.0000"
+  ifbioseason = .FALSE.
+  ifcanopy    = .TRUE.
+  mcip_start = "2020-01-12-12:00:00.0000"
+  mcip_end   = "2020-01-15-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"

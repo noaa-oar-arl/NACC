@@ -218,7 +218,7 @@ SUBROUTINE alloc_ctm
   ENDIF
 
   IF ( ifcanopy ) THEN
-    ncanopy = 5  ! FCH, FRT, CLU, POPU, LAIE
+    ncanopy = 9  ! FCH, FRT, CLU, POPU, LAIE, C1R, C2R, C3R, C4R
   ELSE
     ncanopy = 0
   ENDIF
@@ -307,6 +307,10 @@ SUBROUTINE alloc_ctm
    c_clu    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+3)
    c_popu   => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+4)
    c_laie   => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+5)
+   c_c1r    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+6)
+   c_c2r    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+7)
+   c_c3r    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+8)
+   c_c4r    => fld2dxyt(29+nwr+nsoil2d+npxwrf41+nfengsha+nbioseason+9)
   ENDIF
 
 

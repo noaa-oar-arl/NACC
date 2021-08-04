@@ -249,6 +249,21 @@ SUBROUTINE alloc_met
     ALLOCATE ( laie    (met_nx, met_ny) )
   ENDIF
 
+  IF ( ifc1r ) THEN  ! cumulative LAI fraction hc to 0.75 * hc
+    ALLOCATE ( c1r    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( ifc2r ) THEN  ! cumulative LAI fraction hc to 0.50 * hc
+    ALLOCATE ( c2r    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( ifc3r ) THEN  ! cumulative LAI fraction hc to 0.35 * hc
+    ALLOCATE ( c3r    (met_nx, met_ny) )
+  ENDIF
+
+  IF ( ifc4r ) THEN  ! cumulative LAI fraction hc to 0.20 * hc
+    ALLOCATE ( c4r    (met_nx, met_ny) )
+  ENDIF
 
  ENDIF
 

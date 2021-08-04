@@ -767,6 +767,50 @@ SUBROUTINE init_ctm
    c_laie%iend(1) = nx
    c_laie%iend(2) = ny
 
+   c_c1r%fld = fillreal
+   c_c1r%fldname = 'C1R'
+   c_c1r%long_name = 'cumulative LAI fraction hc to 0.75 * hc'
+   c_c1r%units = '1'
+   c_c1r%dimnames(1) = 'nx'
+   c_c1r%dimnames(2) = 'ny'
+   c_c1r%istart(1) = 1
+   c_c1r%istart(2) = 1
+   c_c1r%iend(1) = nx
+   c_c1r%iend(2) = ny
+
+   c_c2r%fld = fillreal
+   c_c2r%fldname = 'C2R'
+   c_c2r%long_name = 'cumulative LAI fraction hc to 0.50 * hc'
+   c_c2r%units = '1'
+   c_c2r%dimnames(1) = 'nx'
+   c_c2r%dimnames(2) = 'ny'
+   c_c2r%istart(1) = 1
+   c_c2r%istart(2) = 1
+   c_c2r%iend(1) = nx
+   c_c2r%iend(2) = ny
+
+   c_c3r%fld = fillreal
+   c_c3r%fldname = 'C3R'
+   c_c3r%long_name = 'cumulative LAI fraction hc to 0.35 * hc'
+   c_c3r%units = '1'
+   c_c3r%dimnames(1) = 'nx'
+   c_c3r%dimnames(2) = 'ny'
+   c_c3r%istart(1) = 1
+   c_c3r%istart(2) = 1
+   c_c3r%iend(1) = nx
+   c_c3r%iend(2) = ny
+
+   c_c4r%fld = fillreal
+   c_c4r%fldname = 'C4R'
+   c_c4r%long_name = 'cumulative LAI fraction hc to 0.20 * hc'
+   c_c4r%units = '1'
+   c_c4r%dimnames(1) = 'nx'
+   c_c4r%dimnames(2) = 'ny'
+   c_c4r%istart(1) = 1
+   c_c4r%istart(2) = 1
+   c_c4r%iend(1) = nx
+   c_c4r%iend(2) = ny
+
   ENDIF
 
   c_seaice%fld = fillreal

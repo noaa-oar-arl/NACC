@@ -183,6 +183,10 @@ SUBROUTINE alloc_x
    ALLOCATE ( xclu  (ncols_x, nrows_x) )
    ALLOCATE ( xpopu (ncols_x, nrows_x) )
    ALLOCATE ( xlaie (ncols_x, nrows_x) )
+   ALLOCATE ( xc1r  (ncols_x, nrows_x) )
+   ALLOCATE ( xc2r  (ncols_x, nrows_x) )
+   ALLOCATE ( xc3r  (ncols_x, nrows_x) )
+   ALLOCATE ( xc4r  (ncols_x, nrows_x) )
   ENDIF
 
 

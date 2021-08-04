@@ -482,6 +482,22 @@ SUBROUTINE metvars2ctm
    IF ( iflaie) THEN
      xlaie(:,:) = laie(sc:ec,sr:er)
    ENDIF
+
+   IF ( ifc1r) THEN
+     xc1r(:,:) = c1r(sc:ec,sr:er)
+   ENDIF
+
+   IF ( ifc2r) THEN
+     xc2r(:,:) = c2r(sc:ec,sr:er)
+   ENDIF
+
+   IF ( ifc3r) THEN
+     xc3r(:,:) = c3r(sc:ec,sr:er)
+   ENDIF
+
+   IF ( ifc4r) THEN
+     xc4r(:,:) = c4r(sc:ec,sr:er)
+   ENDIF
   ENDIF
   
 
