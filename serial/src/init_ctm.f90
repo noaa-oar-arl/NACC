@@ -711,6 +711,108 @@ SUBROUTINE init_ctm
     c_season%iend(2) = ny
   ENDIF
 
+  IF ( ( ifcanopy ) ) THEN
+   c_fch%fld = fillreal
+   c_fch%fldname = 'FCH'
+   c_fch%long_name = 'forest canopy height'
+   c_fch%units = 'm'
+   c_fch%dimnames(1) = 'nx'
+   c_fch%dimnames(2) = 'ny'
+   c_fch%istart(1) = 1
+   c_fch%istart(2) = 1
+   c_fch%iend(1) = nx
+   c_fch%iend(2) = ny
+
+   c_frt%fld = fillreal
+   c_frt%fldname = 'FRT'
+   c_frt%long_name = 'forest fraction'
+   c_frt%units = '1'
+   c_frt%dimnames(1) = 'nx'
+   c_frt%dimnames(2) = 'ny'
+   c_frt%istart(1) = 1
+   c_frt%istart(2) = 1
+   c_frt%iend(1) = nx
+   c_frt%iend(2) = ny
+
+   c_clu%fld = fillreal
+   c_clu%fldname = 'CLU'
+   c_clu%long_name = 'clumping index'
+   c_clu%units = '1'
+   c_clu%dimnames(1) = 'nx'
+   c_clu%dimnames(2) = 'ny'
+   c_clu%istart(1) = 1
+   c_clu%istart(2) = 1
+   c_clu%iend(1) = nx
+   c_clu%iend(2) = ny
+
+   c_popu%fld = fillreal
+   c_popu%fldname = 'POPU'
+   c_popu%long_name = 'population density'
+   c_popu%units = 'people/10km2'
+   c_popu%dimnames(1) = 'nx'
+   c_popu%dimnames(2) = 'ny'
+   c_popu%istart(1) = 1
+   c_popu%istart(2) = 1
+   c_popu%iend(1) = nx
+   c_popu%iend(2) = ny
+
+   c_laie%fld = fillreal
+   c_laie%fldname = 'LAIE'
+   c_laie%long_name = 'Leaf Area Index (ECCC)'
+   c_laie%units = 'm2 m-2'
+   c_laie%dimnames(1) = 'nx'
+   c_laie%dimnames(2) = 'ny'
+   c_laie%istart(1) = 1
+   c_laie%istart(2) = 1
+   c_laie%iend(1) = nx
+   c_laie%iend(2) = ny
+
+   c_c1r%fld = fillreal
+   c_c1r%fldname = 'C1R'
+   c_c1r%long_name = 'cumulative LAI fraction hc to 0.75 * hc'
+   c_c1r%units = '1'
+   c_c1r%dimnames(1) = 'nx'
+   c_c1r%dimnames(2) = 'ny'
+   c_c1r%istart(1) = 1
+   c_c1r%istart(2) = 1
+   c_c1r%iend(1) = nx
+   c_c1r%iend(2) = ny
+
+   c_c2r%fld = fillreal
+   c_c2r%fldname = 'C2R'
+   c_c2r%long_name = 'cumulative LAI fraction hc to 0.50 * hc'
+   c_c2r%units = '1'
+   c_c2r%dimnames(1) = 'nx'
+   c_c2r%dimnames(2) = 'ny'
+   c_c2r%istart(1) = 1
+   c_c2r%istart(2) = 1
+   c_c2r%iend(1) = nx
+   c_c2r%iend(2) = ny
+
+   c_c3r%fld = fillreal
+   c_c3r%fldname = 'C3R'
+   c_c3r%long_name = 'cumulative LAI fraction hc to 0.35 * hc'
+   c_c3r%units = '1'
+   c_c3r%dimnames(1) = 'nx'
+   c_c3r%dimnames(2) = 'ny'
+   c_c3r%istart(1) = 1
+   c_c3r%istart(2) = 1
+   c_c3r%iend(1) = nx
+   c_c3r%iend(2) = ny
+
+   c_c4r%fld = fillreal
+   c_c4r%fldname = 'C4R'
+   c_c4r%long_name = 'cumulative LAI fraction hc to 0.20 * hc'
+   c_c4r%units = '1'
+   c_c4r%dimnames(1) = 'nx'
+   c_c4r%dimnames(2) = 'ny'
+   c_c4r%istart(1) = 1
+   c_c4r%istart(2) = 1
+   c_c4r%iend(1) = nx
+   c_c4r%iend(2) = ny
+
+  ENDIF
+
   c_seaice%fld = fillreal
   c_seaice%fldname = 'SEAICE'
   c_seaice%long_name = 'sea ice'

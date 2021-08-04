@@ -205,6 +205,16 @@ MODULE xvars
 
   REAL, ALLOCATABLE :: xseason    ( : , : )  ! bioseason flag [1=summer, 0=winter]
 
+  REAL, ALLOCATABLE :: xfch       ( : , : )  ! forest canopy height [m]
+  REAL, ALLOCATABLE :: xfrt       ( : , : )  ! forest fraction [decimal]
+  REAL, ALLOCATABLE :: xclu       ( : , : )  ! forest clumping index []
+  REAL, ALLOCATABLE :: xpopu      ( : , : )  ! population density [people/10km2] 
+  REAL, ALLOCATABLE :: xlaie      ( : , : )  ! leaf area index (ECCC) [m2/m2]
+  REAL, ALLOCATABLE :: xc1r       ( : , : )  ! cumulative LAI fraction hc to 0.75 * hc [decimal]
+  REAL, ALLOCATABLE :: xc2r       ( : , : )  ! cumulative LAI fraction hc to 0.50 * hc [decimal]
+  REAL, ALLOCATABLE :: xc3r       ( : , : )  ! cumulative LAI fraction hc to 0.35 * hc [decimal]
+  REAL, ALLOCATABLE :: xc4r       ( : , : )  ! cumulative LAI fraction hc to 0.20 * hc [decimal]
+
   REAL, ALLOCATABLE :: xwsat_px   ( : , : )  ! soil saturation (PX) [m3/m3]
   REAL, ALLOCATABLE :: xwwlt_px   ( : , : )  ! soil wilt pt (PX) [m3/m3]
   REAL, ALLOCATABLE :: xwfc_px    ( : , : )  ! soil fld capacity (PX) [m3/m3]

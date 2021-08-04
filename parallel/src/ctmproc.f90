@@ -340,6 +340,19 @@ SUBROUTINE ctmproc
       IF ( ( ifbioseason ) ) THEN
        c_season%fld(col,row)  = xseason(c,r)
       ENDIF
+
+      IF ( ( ifcanopy ) ) THEN
+       c_fch%fld(col,row)  = xfch(c,r)
+       c_frt%fld(col,row)  = xfrt(c,r)
+       c_clu%fld(col,row)  = xclu(c,r)
+       c_popu%fld(col,row) = xpopu(c,r)
+       c_laie%fld(col,row) = xlaie(c,r)
+       c_c1r%fld(col,row)  = xc1r(c,r)
+       c_c2r%fld(col,row)  = xc2r(c,r)
+       c_c3r%fld(col,row)  = xc3r(c,r)
+       c_c4r%fld(col,row)  = xc4r(c,r)
+      ENDIF
+
       c_seaice%fld(col,row) = xseaice(c,r)
       c_snowh%fld(col,row)  = xsnowh(c,r)
 
