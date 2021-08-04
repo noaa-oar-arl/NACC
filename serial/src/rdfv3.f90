@@ -1716,6 +1716,404 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     ENDIF
    ENDIF !Fengsha WB dust variables
 
+   IF ( ( ifcanopy ) ) THEN  !User is trying to use in-canopy processes in CMAQ
+    IF ( iffch ) THEN
+      IF ( iffchwrfout ) THEN  ! FCH in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'FCH', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           fch(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'FCH      ',(fch(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'FCH', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! forest canopy height must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'FCH', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          fch(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'FCH ', fch(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'FCH', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( iffrt ) THEN
+      IF ( iffrtwrfout ) THEN  ! FRT in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'FRT', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           frt(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'FRT      ',(frt(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'FRT', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! forest fraction must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'FRT', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          frt(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'FRT ', frt(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'FRT', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifclu ) THEN
+      IF ( ifcluwrfout ) THEN  ! CLU in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'CLU', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           clu(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'CLU      ',(clu(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'CLU', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! forest clumping index must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'CLU', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          clu(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'CLU ', clu(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'CLU', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifpopu ) THEN
+      IF ( ifpopuwrfout ) THEN  ! POPU in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'POPU', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           popu(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'POPU      ',(popu(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'POPU', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! population density must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'POPU', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          popu(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'POPU ', popu(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'POPU', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( iflaie ) THEN
+      IF ( iflaiewrfout ) THEN  ! LAIE in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'LAIE', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           laie(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'LAIE      ',(laie(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'LAIE', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! leaf area index (ECCC) must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'LAIE', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          laie(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'LAIE ', laie(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'LAIE', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifc1r ) THEN
+      IF ( ifc1rwrfout ) THEN  ! C1R in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'C1R', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           c1r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'C1R      ',(c1r(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'C1R', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! cumulative LAI fraction must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'C1R', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          c1r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'C1R ', c1r(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'C1R', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifc2r ) THEN
+      IF ( ifc2rwrfout ) THEN  ! C2R in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'C2R', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           c2r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'C2R      ',(c2r(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'C2R', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! cumulative LAI fraction must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'C2R', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          c2r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'C2R ', c2r(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'C2R', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifc3r ) THEN
+      IF ( ifc3rwrfout ) THEN  ! C3R in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'C3R', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           c3r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'C3R      ',(c3r(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'C3R', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! cumulative LAI fraction must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'C3R', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          c3r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'C3R ', c3r(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'C3R', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+
+    IF ( ifc4r ) THEN
+      IF ( ifc4rwrfout ) THEN  ! C4R in FV3 history file
+        CALL get_var_2d_real_cdf (cdfid2, 'C4R', dum2d, it, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+           call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           c4r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!        IF ( ABS(MAXVAL(clayf)) < smallnum ) THEN
+!          IF ( met_soil_lsm == 2 ) THEN  ! NOAH LSM
+!            clayf(:,:) = 0.1
+!          ENDIF
+!        ENDIF
+          WRITE (*,ifmt2) 'C4R      ',(c4r(lprt_metx,lprt_mety))
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'C4R', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+      ELSE  ! cumulative LAI fraction must be in GEOGRID file from when ifcanopy=true
+       flg = file_geo
+        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9900) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+        CALL get_var_2d_real_cdf (cdfidg, 'C4R', dum2d, 1, rcode)
+        IF ( rcode == nf90_noerr ) THEN
+          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          c4r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+          ! CLAYF check over  water, set as negative numbers for improved error checking
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
+!           clayf = -1.0
+!          END WHERE
+          WRITE (*,ifmt2) 'C4R ', c4r(lprt_metx,lprt_mety)
+        ELSE
+          WRITE (*,f9400) TRIM(pname), 'C4R', TRIM(nf90_strerror(rcode))
+          CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_close (cdfidg)
+        IF ( rcode /= nf90_noerr ) THEN
+          WRITE (*,f9950) TRIM(pname)
+          CALL graceful_stop (pname)
+        ENDIF
+      ENDIF
+    ENDIF
+   ENDIF !Canopy variables
+
   IF ( iflai ) THEN
    IF ( iflaiwrfout ) THEN  ! leaf area index in FV3 history file
         CALL get_var_2d_real_cdf (cdfid2, 'LAI', dum2d, it, rcode)

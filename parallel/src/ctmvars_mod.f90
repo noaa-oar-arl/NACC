@@ -143,6 +143,15 @@ MODULE ctmvars
   TYPE(fld2ddata), POINTER     :: c_ssm
   TYPE(fld2ddata), POINTER     :: c_uthr
   TYPE(fld2ddata), POINTER     :: c_season
+  TYPE(fld2ddata), POINTER     :: c_fch
+  TYPE(fld2ddata), POINTER     :: c_frt
+  TYPE(fld2ddata), POINTER     :: c_clu
+  TYPE(fld2ddata), POINTER     :: c_popu
+  TYPE(fld2ddata), POINTER     :: c_laie
+  TYPE(fld2ddata), POINTER     :: c_c1r
+  TYPE(fld2ddata), POINTER     :: c_c2r
+  TYPE(fld2ddata), POINTER     :: c_c3r
+  TYPE(fld2ddata), POINTER     :: c_c4r
   TYPE(fld2ddata), POINTER     :: c_seaice
   TYPE(fld2ddata), POINTER     :: c_snowh
   TYPE(fld2ddata), POINTER     :: c_wr

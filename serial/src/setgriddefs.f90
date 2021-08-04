@@ -697,6 +697,71 @@ SUBROUTINE setgriddefs
   WRITE (*,f6150) 'UTHRES', TRIM(yesno)
  ENDIF
 
+ IF ( ( ifcanopy ) ) THEN
+  IF ( iffch ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'FCH', TRIM(yesno)
+
+  IF ( iffrt ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'FRT', TRIM(yesno)
+
+  IF ( ifclu ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'CLU', TRIM(yesno)
+
+  IF ( ifpopu ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'POPU', TRIM(yesno)
+
+  IF ( iflaie ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'LAIE', TRIM(yesno)
+ 
+  IF ( ifc1r ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'C1R', TRIM(yesno)
+ 
+  IF ( ifc2r ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'C2R', TRIM(yesno)
+ 
+  IF ( ifc3r ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'C3R', TRIM(yesno)
+
+  IF ( ifc4r ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6150) 'C4R', TRIM(yesno)
+ ENDIF
+
   IF ( iflufrc ) THEN
     yesno = ''
   ELSE
