@@ -1,25 +1,34 @@
-#!/bin/ksh -l
-#SBATCH -A arl
-#SBATCH -q windfall
-#SBATCH -n 73
-#SBATCH -N 12
-#SBATCH --time=00:10:00
+#!/bin/bash
+#SBATCH --partition=normal            # submit   to the debug partition
+#SBATCH --job-name=nacc-test          # name the job
+#SBATCH --output=nacc-test-%j.out     # write stdout/stderr   to named file
+#SBATCH --error=nacc-test-%j.err
+#SBATCH --time=0-00:10:00             # Run for max of 00 hrs, 10 mins, 00 secs
+#SBATCH --nodes=12                    # Request N nodes
+#SBATCH --ntasks=73                   # Request n tasks
+##SBATCH --cpus-per-task=12            # Request n cores per node
+#SBATCH --mem-per-cpu=7500MB             # Request nGB RAM per core
+
+#Load more than one library at a time.
+export LMOD_EXPERT=1
 
 #Module settings
-module load intel/18.0.5.274
-module load netcdf/4.6.1
-module load hdf5/1.10.4
-module load impi/2018.0.4
+module load intel impi
+#module load mpich
+module load netcdf-c
+module load ioapi/3.2-spack 
 
 #Set number of nacc times  = processors, and # of nodes
 NTIMES=73
 export NODES=12
 
 APPL=aqm.t12z
-InMetDir=/gpfs/hps2/ptmp/$USER/fv3gfs_v16_test/12z_hourly
-InGeoDir=$InMetDir
-OutDir=/gpfs/hps2/ptmp/$USER/fv3gfs_v16_test/output
-ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/parallel/src
+InMetDir=/groups/ESS/pcampbe8/fv3gfs16_testdata
+InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
+InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
+InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
+OutDir=/groups/ESS/pcampbe8/fv3gfs16_testdata/nacc_output_parallel
+ProgDir=/groups/ESS/pcampbe8/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then
   echo "No such input directory $InMetDir"
@@ -51,7 +60,9 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/gfs.t12z.atmf','.nc'
   file_sfc   = '$InMetDir/gfs.t12z.sfcf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.07.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.01.nc'
+  file_viirs_gvf = '$InVIIRSDir_GVF/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2.nc'
+  file_viirs_lai = '$InVIIRSDir_LAI/VIIRS_VNP15A2H.001_20190829.nc'
   ioform     =  1
  &END
 
@@ -69,24 +80,24 @@ cat>namelist.mcip<<!
   ifviirs_lai = .FALSE.
   iffengsha_dust = .FALSE.
   ifbioseason = .FALSE.
-  ifcanopy    = .FALSE.
-  mcip_start = "2019-07-12-12:00:00.0000"
-  mcip_end   = "2019-07-15-13:00:00.0000"
+  ifcanopy = .FALSE.
+  mcip_start = "2020-01-12-12:00:00.0000"
+  mcip_end   = "2020-01-15-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"
   ctmlays    =  1.000000, 0.995253, 0.990479, 0.985679, 0.980781,
-              0.975782, 0.970684, 0.960187, 0.954689, 0.936895, 
-              0.930397, 0.908404, 0.888811, 0.862914, 0.829314, 
-              0.786714, 0.735314, 0.645814, 0.614214, 0.582114, 
-              0.549714, 0.511711, 0.484394, 0.451894, 0.419694, 
-              0.388094, 0.356994, 0.326694, 0.297694, 0.270694, 
+              0.975782, 0.970684, 0.960187, 0.954689, 0.936895,
+              0.930397, 0.908404, 0.888811, 0.862914, 0.829314,
+              0.786714, 0.735314, 0.645814, 0.614214, 0.582114,
+              0.549714, 0.511711, 0.484394, 0.451894, 0.419694,
+              0.388094, 0.356994, 0.326694, 0.297694, 0.270694,
               0.245894, 0.223694, 0.203594, 0.154394, 0.127094, 0.000000
   cutlay_collapx = 22
   btrim      =  -1
   lprt_col   =  0
   lprt_row   =  0
-  ntimes     = $NTIMES
+  ntimes     = 73
   projparm = 2., 33.,45., -97., -97., 40.
   domains = -2508000., -1716000., 12000., 12000., 442, 265
  &END
@@ -116,4 +127,7 @@ export MOSAIC_CRO=${APPL}.mosaiccro.ncf
 rm -f *.ncf 
 
 #Slurm Parallel
-srun -n$NTIMES -m8000 $ProgDir/mcip.exe
+#srun -n$NTIMES $ProgDir/mcip.exe
+module load ucx libfabric
+export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi2.so
+prun $ProgDir/mcip.exe
