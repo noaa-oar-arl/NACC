@@ -1,10 +1,10 @@
 #!/bin/csh -f
 set APPL=aqm.t12z
-set InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/12z_hourly
-set InGeoDir=$InMetDir
+set InMetDir=/groups/ESS/pcampbe8/fv3gfs16_testdata
+set InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
 set InVIIRSDir=$InMetDir
-set OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/fv3gfs_v16_test/output
-set ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC/serial/src
+set OutDir=/groups/ESS/pcampbe8/fv3gfs16_testdata/nacc_output
+set ProgDir=/groups/ESS/pcampbe8/NACC/serial/src
 
 if ( ! -s $InMetDir ) then
   echo "No such input directory $InMetDir"
@@ -37,8 +37,8 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/gfs.t12z.atmf','.nc'
   file_sfc   = '$InMetDir/gfs.t12z.sfcf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.07.nc'
-  file_viirs_gvf = '$IVIIRSDir/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.01.nc'
+  file_viirs_gvf = '$InVIIRSDir/GVF-WKL-GLB_v2r3_j01_s20200824_e20200830_c202008311235100.grib2.nc'
   file_viirs_lai = '$InVIIRSDir/VIIRS_VNP15A2H.001_20190829.nc'
   ioform     =  1
  &END
@@ -57,9 +57,8 @@ cat>namelist.mcip<<!
   ifviirs_lai = .FALSE.
   iffengsha_dust = .FALSE. 
   ifbioseason = .FALSE.
-  ifcanopy    = .FALSE.
-  mcip_start = "2019-07-12-12:00:00.0000"
-  mcip_end   = "2019-07-15-13:00:00.0000"
+  mcip_start = "2020-01-12-12:00:00.0000"
+  mcip_end   = "2020-01-15-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"
