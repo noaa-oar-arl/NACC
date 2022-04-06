@@ -149,6 +149,7 @@ OBJS =\
  setup.o \
  setup_wrfem.o \
  setup_fv3.o \
+ setup_fv3_lam.o \
  sfclayer.o \
  statflds.o \
  vertarys.o \

@@ -48,6 +48,7 @@ SUBROUTINE setup (ctmlays)
 !           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
 !           15 Nov 2018  Allow WRFv4.0 input to be used.  (T. Spero)
 !           18 Nov 2019  Modified for FV3GFS Capability. (P. C. Campbell)
+!           06 Apr 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -113,7 +114,7 @@ SUBROUTINE setup (ctmlays)
     ! known as Eulerian mass, EM) version was used.
     !---------------------------------------------------------------------------
 
-   IF ( met_model == 2 ) THEN
+   IF ( met_model == 2 ) THEN  !WRF
 
     rcode = nf90_open (file_mm(1), nf90_nowrite, cdfid)
     IF ( rcode .ne. nf90_noerr) then
@@ -154,8 +155,9 @@ SUBROUTINE setup (ctmlays)
       WRITE (*,f9500) TRIM(pname), TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
     ENDIF
+   ENDIF
 
-   ELSE  ! FV3
+   IF ( met_model == 3 ) THEN  ! FV3GFS
 
         rcode = nf90_open (trim(file_mm(1))//'000'//trim(file_mm(2)),nf90_nowrite, cdfid)
         rcode2 = nf90_open (trim(file_sfc(1))//'000'//trim(file_sfc(2)),nf90_nowrite, cdfid2)
@@ -181,6 +183,41 @@ SUBROUTINE setup (ctmlays)
 
     IF ( ( fv3_version == "FV3GFS" ) .AND. ( gridtype(1:8) == "gaussian" ) ) THEN
       CALL setup_fv3 (cdfid, cdfid2, ctmlays)
+    ELSE
+      WRITE (*,f9200) TRIM(pname), fv3_version, gridtype
+      CALL graceful_stop (pname)
+    ENDIF
+    rcode = nf90_close (cdfid)
+    rcode = nf90_close (cdfid2)
+
+   END IF
+
+   IF ( met_model == 4 ) THEN  ! FV3 SRW-LAM
+
+        rcode = nf90_open (trim(file_mm(1))//'000'//trim(file_mm(2)),nf90_nowrite, cdfid)
+        rcode2 = nf90_open (trim(file_sfc(1))//'000'//trim(file_sfc(2)),nf90_nowrite, cdfid2)
+
+    IF ( rcode.ne.nf90_noerr .or. rcode2.ne.nf90_noerr ) then
+     WRITE (*,f9000) TRIM(pname), TRIM(file_mm(1)), TRIM(nf90_strerror(rcode))
+     WRITE (*,f9000) TRIM(pname), TRIM(file_sfc(1)), TRIM(nf90_strerror(rcode))
+     CALL graceful_stop (pname)
+    endif
+
+    rcode = nf90_get_att (cdfid, nf90_global, 'source', fv3_version)
+
+    IF ( rcode /= nf90_noerr ) THEN
+      WRITE (*,f9300) TRIM(pname), TRIM(nf90_strerror(rcode))
+      CALL graceful_stop (pname)
+    ENDIF
+
+    rcode = nf90_get_att (cdfid, nf90_global, 'grid', gridtype)
+    IF ( rcode /= nf90_noerr ) THEN
+      WRITE (*,f9300) TRIM(pname), 'grid', rcode
+      CALL graceful_stop (pname)
+    ENDIF
+
+    IF ( ( fv3_version == "FV3GFS" ) .AND. ( gridtype(1:8) == "lambert_conformal" ) ) THEN
+      CALL setup_fv3_lam (cdfid, cdfid2, ctmlays)
     ELSE
       WRITE (*,f9200) TRIM(pname), fv3_version, gridtype
       CALL graceful_stop (pname)

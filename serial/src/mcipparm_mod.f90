@@ -300,6 +300,7 @@ MODULE mcipparm
 !-------------------------------------------------------------------------------
   INTEGER :: inmetmodel      ! user input: 2 = WRF
                              !             3 = FV3
+                             !             4 = SRW-LAM
 
   INTEGER :: dx_in, dy_in    ! user input  meteorological model resolution
 
@@ -366,8 +367,8 @@ MODULE mcipparm
 !-------------------------------------------------------------------------------
  
   CHARACTER(LEN=16),  PARAMETER     :: progname_nacc   = 'NACC'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate_nacc      = '04/30/2020'
-  CHARACTER(LEN=8),   PARAMETER     :: ver_nacc        = 'V1.0.0'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate_nacc      = '04/06/2022'
+  CHARACTER(LEN=8),   PARAMETER     :: ver_nacc        = 'V2.0.0'
 
 
   real projparm(6)  ! map projection type, lat1,lat2,projlon, center_lon, center_lat

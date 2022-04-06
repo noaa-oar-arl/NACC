@@ -221,7 +221,7 @@ SUBROUTINE readnml (ctmlays)
   file_viirs_gvf = " "
   file_viirs_lai = " "
 !-------------------------------------------------------------------------------
-! Set default value for user-selected model (2 = WRF, 3 = FV3).
+! Set default value for user-selected model (2 = WRF, 3 = FV3, 4 = SRW-LAM).
   inmetmodel = 2
 !-------------------------------------------------------------------------------
 

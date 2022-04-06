@@ -1,1 +1,1 @@
-Makefile_gcc
+Makefile_intel_wcoss
