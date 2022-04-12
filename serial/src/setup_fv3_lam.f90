@@ -352,37 +352,37 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
 
   fl = file_mm(1)
 
-  rcode = nf90_get_att (cdfid, nf90_global, 'im', met_nx)
+  rcode = nf90_get_att (cdfid, nf90_global, 'nx', met_nx)
   IF ( rcode /= nf90_noerr ) THEN
-    WRITE (*,f9400) TRIM(pname), 'WEST-EAST_GRID_DIMENSION',  &
+    WRITE (*,f9400) TRIM(pname), 'DYN WEST-EAST_GRID_DIMENSION',  &
                     TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
   
-  rcode2 = nf90_get_att (cdfid2, nf90_global, 'im', imax2)
+  rcode2 = nf90_get_att (cdfid2, nf90_global, 'nx', imax2)
   IF ( rcode2 /= nf90_noerr ) THEN
-    WRITE (*,f9400) TRIM(pname), 'SFC WEST-EAST_GRID_DIMENSION',  &
+    WRITE (*,f9400) TRIM(pname), 'PHY WEST-EAST_GRID_DIMENSION',  &
                     TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
 
-  rcode = nf90_get_att (cdfid, nf90_global, 'jm',  &
+  rcode = nf90_get_att (cdfid, nf90_global, 'ny',  &
                         met_ny)
   IF ( rcode /= nf90_noerr ) THEN
-    WRITE (*,f9400) TRIM(pname), 'SOUTH-NORTH_GRID_DIMENSION',  &
+    WRITE (*,f9400) TRIM(pname), 'DYN SOUTH-NORTH_GRID_DIMENSION',  &
                     TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
 
-  rcode2 = nf90_get_att (cdfid2, nf90_global,'jm',jmax2)
+  rcode2 = nf90_get_att (cdfid2, nf90_global,'ny',jmax2)
   IF ( rcode2 /= nf90_noerr ) THEN
-    WRITE (*,f9400) TRIM(pname), 'SFC SOUTH-NORTH_GRID_DIMENSION',  &
+    WRITE (*,f9400) TRIM(pname), 'PHY SOUTH-NORTH_GRID_DIMENSION',  &
                     TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
   
   if(met_nx.ne.imax2.or.met_ny.ne.jmax2) then
-   print*,'inconsistent i,j dimension between ATM and SFC files ',&
+   print*,'inconsistent i,j dimension between DYN and PHY files ',&
      met_nx,imax2,met_ny,jmax2
    call graceful_stop(pname)
   endif   
@@ -484,7 +484,7 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
   met_y_11     = 1
 
 !     FV3 Gaussian Global Grid
-      met_mapproj    = 4                      ! FV3 Gaussian Map Projection      
+      met_mapproj    = 1                      ! FV3 Gaussian Map Projection      
 !      met_proj_clon  = 0.0
 !      met_p_alp_d  = 0.0                      ! lat of coord origin [deg]
 !      met_p_bet_d  = 0.0                      ! (not used)
@@ -606,12 +606,12 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
   ENDIF
 
    met_tapfrq = (times(1))*60  ! convert hrs --> min
-   IF ( met_model == 3 ) THEN !IF FV3 and first 000 forecast hour, assume hourly input = 60 min
+   IF ( met_model == 3 .OR. met_model == 4 ) THEN !IF FV3 and first 000 forecast hour, assume hourly input = 60 min
     IF (met_tapfrq == 0.0) THEN
      met_tapfrq = 60.0 !minutes
     ENDIF
    ENDIF
-   
+
 !-------------------------------------------------------------------------------
 ! If layer structure was not defined in user namelist, use use FV3 pressure
 ! to calculate ctmlays.
