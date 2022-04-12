@@ -180,6 +180,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 !           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
 !           24 Feb 2020  Added horiz LCC interpolation and wind rotation 
 !                        Y. Tang and P. C. Campbell)
+!           11 Apr 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell
 !-------------------------------------------------------------------------------
 
   USE date_pack
@@ -261,7 +262,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   INTEGER                           :: nxm
   INTEGER                           :: nym
   INTEGER                           :: nzp
-  CHARACTER(LEN=16),  PARAMETER     :: pname      = 'RDFV3'
+  CHARACTER(LEN=16),  PARAMETER     :: pname      = 'RDFV3_LAM'
   INTEGER                           :: rcode, rcode2
   REAL,               PARAMETER     :: rdovcp     = 2.0 / 7.0
   REAL,               PARAMETER     :: smallnum   = 1.0e-7
