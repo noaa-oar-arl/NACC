@@ -72,7 +72,8 @@ MODULE metinfo
   ! Input data format.
 
   INTEGER           :: met_model       ! 2=WRF (removed option: 1=MM5), 3=FV3-GFS
-  INTEGER           :: met_iversion    ! 2=WRF-ARW, 3=FV3-GFS
+                                       ! 4=FV3-LAM
+  INTEGER           :: met_iversion    ! 2=WRF-ARW, 3=FV3-GFS, 4=FV3-LAM
   CHARACTER(LEN=8)  :: met_release     ! release version
   CHARACTER(LEN=8)  :: fv3_version     ! FV3 Source Name
 

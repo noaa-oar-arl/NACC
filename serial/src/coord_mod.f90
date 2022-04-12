@@ -32,6 +32,8 @@ MODULE coord
 !           30 Aug 2011  Changed F77 character declarations to F90 standard.
 !                        (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
+!           11 Apr 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE

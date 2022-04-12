@@ -162,6 +162,7 @@ SUBROUTINE setgriddefs
 !                        variable with KF convective scheme with radiative
 !                        feedbacks.  (T. Spero)
 !           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
+!           11 Apr 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -342,7 +343,7 @@ SUBROUTINE setgriddefs
     CALL graceful_stop (pname)
   ENDIF
   
-  if( met_model.eq.3) then  ! fv3 interpolated
+  if( met_model.eq.3.or.met_model.eq.4) then  ! fv3 interpolated
     ncols=int(domains(5))
     nrows=int(domains(6))
     nrows_x = nrows + 2 * nthik
@@ -378,7 +379,7 @@ SUBROUTINE setgriddefs
     gdtyp_gd = polgrd3
   ELSE IF ( met_mapproj == 3 ) THEN  ! equatorial Mercator
     gdtyp_gd = eqmgrd3
-   ELSE IF ( met_mapproj == 4 ) THEN  ! Gaussian (FV3) currently set to equatorial mercator, wrong.
+   ELSE IF ( met_mapproj == 4 ) THEN  ! Gaussian (FV3) for NACC interpolation
     gdtyp_gd = int(projparm(1))
   ELSE
     WRITE (*,f9275) TRIM(pname), met_mapproj
@@ -420,7 +421,7 @@ SUBROUTINE setgriddefs
   IF ( ( met_model == 2 ) .AND. ( gdtyp_gd == lamgrd3 ) ) THEN
     xcent_gd = DBLE(met_proj_clon)  ! [degrees longitude]
     ycent_gd = DBLE(met_ref_lat)    ! [degrees latitude]
-  ELSE IF ( met_model.eq.3 ) then ! if FV3, using interpolation
+  ELSE IF ( met_model.eq.3.or.met_model.eq.4 ) then ! if FV3, using interpolation
     gdtyp_gd=int(projparm(1))
     p_alp_gd=dble(projparm(2)) ! lat1,lat2,projlon, center_lon, center_lat 
     p_bet_gd=dble(projparm(3))
@@ -468,7 +469,7 @@ SUBROUTINE setgriddefs
     ENDIF
   ENDIF
 
-  IF ( met_model == 3 ) THEN     ! FV3 only hybrid sigma-pressure vertical coordinate
+  IF ( met_model == 3.or.met_model == 4 ) THEN     ! FV3 only hybrid sigma-pressure vertical coordinate
       vgtyp_gd = imiss3
   ENDIF
 
@@ -551,7 +552,7 @@ SUBROUTINE setgriddefs
   IF ( met_model == 2 ) THEN  ! WRF or FV3 -- Allow trailing digits.
     xorig_gd   = DBLE(xorig_ctm)        ! X-origin [m]
     yorig_gd   = DBLE(yorig_ctm)        ! Y-origin [m]
-  else if (met_model.eq.3) then ! fv3 interpolated
+  else if (met_model.eq.3.or.met_model.eq.4) then ! fv3 interpolated
     xorig_gd  = DBLE(domains(1))       ! xorig, yorig,xcell,ycell,ncols,nrows,nthik
     yorig_gd  = DBLE(domains(2))
     xcell_gd  = DBLE(domains(3))
@@ -562,7 +563,7 @@ SUBROUTINE setgriddefs
 ! Check user-defined MCIP output time info against input meteorology.
 !-------------------------------------------------------------------------------
 
-  IF ( ABS( intvl - NINT(met_tapfrq) ) > ttol_min .and. (met_model.ne.3) ) THEN
+  IF ( ABS( intvl - NINT(met_tapfrq) ) > ttol_min .and. (met_model.ne.3.or.met_model.ne.4) ) THEN
     WRITE (*,f9300) TRIM(pname), intvl, met_tapfrq
     CALL graceful_stop (pname)
   ENDIF
