@@ -144,12 +144,14 @@ OBJS =\
  qsat.o \
  rdwrfem.o \
  rdfv3.o \
+ rdfv3_lam.o \
  readnml.o \
  resistcalc.o \
  setgriddefs.o \
  setup.o \
  setup_wrfem.o \
  setup_fv3.o \
+ setup_fv3_lam.o \
  sfclayer.o \
  statflds.o \
  vertarys.o \

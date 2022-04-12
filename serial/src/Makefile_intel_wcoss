@@ -143,6 +143,7 @@ OBJS =\
  qsat.o \
  rdwrfem.o \
  rdfv3.o \
+ rdfv3_lam.o \
  readnml.o \
  resistcalc.o \
  setgriddefs.o \
