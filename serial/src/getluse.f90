@@ -108,6 +108,8 @@ SUBROUTINE getluse
 !                        confusion.  (T. Spero)
 !           08 Aug 2018  Corrected bug in setting land use category names in
 !                        MCIP for USGS24 + lakes.  (T. Spero)
+!           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
+!           03 May 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell
 !-------------------------------------------------------------------------------
 
   USE lucats
@@ -239,7 +241,7 @@ SUBROUTINE getluse
 
         xluse (col,row,:)  = 0.0
     
-        IF ( met_model ==3 ) THEN !FV3
+        IF ( met_model == 3 .or. met_model == 4 ) THEN !FV3
          IF (lu == 0) THEN  !MODIS Water is set to 0 in FV3
           lu = met_lu_water
          ENDIF

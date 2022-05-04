@@ -851,47 +851,47 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
    call graceful_stop (pname)
   endif 
 
-  rcode = nf90_get_att (cdfid, nf90_global, 'im', ii)
+  rcode = nf90_get_att (cdfid, nf90_global, 'nx', ii)
   IF ( rcode /= nf90_noerr ) THEN
-   write(*,*)'error get im ATM file ',str3
+   write(*,*)'error get im DYN file ',str3
    call graceful_stop (pname)
   else 
    if(ii.ne.met_nx) then
-    print*,'inconsistent ATM x-dimension ',ii,met_nx,str3
+    print*,'inconsistent DYN x-dimension ',ii,met_nx,str3
     CALL graceful_stop (pname)
    endif
   endif
   
-  rcode2 = nf90_get_att (cdfid2, nf90_global, 'im', ii)
+  rcode2 = nf90_get_att (cdfid2, nf90_global, 'nx', ii)
   IF ( rcode2 /= nf90_noerr ) THEN
-   write(*,*)'error SFC file ',str3
+   write(*,*)'error PHY file ',str3
    call graceful_stop (pname)
   else 
    if(ii.ne.met_nx) then
-    print*,'inconsistent SFC x-dimension ',ii,met_nx,str3
+    print*,'inconsistent PHY x-dimension ',ii,met_nx,str3
     CALL graceful_stop (pname)
    endif
   endif
 
 
-  rcode = nf90_get_att(cdfid, nf90_global, 'jm', jj)
+  rcode = nf90_get_att(cdfid, nf90_global, 'ny', jj)
   IF ( rcode /= nf90_noerr ) THEN
-   write(*,*)'error get jm in ATM file ',str3
+   write(*,*)'error get jm in DYN file ',str3
    call graceful_stop (pname)
   else 
    if(jj.ne.met_ny) then
-    print*,'inconsistent ATM y-dimension ',jj,met_ny,str3
+    print*,'inconsistent DYN y-dimension ',jj,met_ny,str3
     CALL graceful_stop (pname)
    endif
   endif
   
-  rcode2 = nf90_get_att(cdfid2, nf90_global, 'jm', jj)
+  rcode2 = nf90_get_att(cdfid2, nf90_global, 'ny', jj)
   IF ( rcode2 /= nf90_noerr ) THEN
-   write(*,*)'error get jm in SFC file ',str3
+   write(*,*)'error get jm in PHY file ',str3
    call graceful_stop (pname)
   else 
    if(jj.ne.met_ny) then
-    print*,'inconsistent SFC y-dimension ',jj,met_ny,str3
+    print*,'inconsistent PHY y-dimension ',jj,met_ny,str3
     CALL graceful_stop (pname)
    endif
   endif
@@ -915,13 +915,13 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   mcip_rd(11:11)='-'
   rcode=nf90_get_var(cdfid,varid,rdtime)
   IF ( rcode /= nf90_noerr ) THEN
-   write(*,*)'error getting time in ATM file',str3
+   write(*,*)'error getting time in DYN file',str3
    CALL graceful_stop (pname)
   ENDIF
  ! print*,'process ATM file date ',mcip_rd,rdtime,intvl
   CALL geth_newdate (mcip_next, mcip_rd, int(rdtime)*intvl*60)
   if(mcip_next.ne.mcip_now) then
-   write(*,*)'time mismatch in ATM file ',mcip_now,mcip_next,mcip_rd,date_init,rdtime
+   write(*,*)'time mismatch in DYN file ',mcip_now,mcip_next,mcip_rd,date_init,rdtime
    CALL graceful_stop (pname)
   ENDIF   
 
@@ -942,13 +942,13 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   mcip_rd(11:11)='-'  
   rcode2=nf90_get_var(cdfid2,varid,rdtime)
   IF ( rcode /= nf90_noerr ) THEN
-   write(*,*)'error getting time in SFC file',str3
+   write(*,*)'error getting time in PHY file',str3
    CALL graceful_stop (pname)
   ENDIF
 
   CALL geth_newdate (mcip_next, mcip_rd, int(rdtime)*intvl*60)
   if(mcip_next.ne.mcip_now) then
-   write(*,*)'time mismatch in SFC file ',mcip_now,mcip_next,mcip_rd,date_init,rdtime
+   write(*,*)'time mismatch in PHY file ',mcip_now,mcip_next,mcip_rd,date_init,rdtime
    CALL graceful_stop (pname)
   ENDIF   
 

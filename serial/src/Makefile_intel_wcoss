@@ -103,6 +103,7 @@ OBJS =\
  e_aerk.o \
  dynflds.o \
  fv3mopts.o \
+ fv3lammopts.o \
  getluse.o \
  getmet.o \
  getpblht.o \
