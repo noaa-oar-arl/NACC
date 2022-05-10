@@ -1,11 +1,11 @@
 #!/bin/ksh -l
 
 APPL=aqm.srw-lam
-InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/srw-lam_test
+InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/srw-lam-test
 InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/nacc_geofiles
 InVIIRSDir_GVF=./
 InVIIRSDir_LAI=./
-OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/srw-lam_test/nacc_output_serial
+OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/srw-lam-test/nacc_output_serial
 ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC-srw_lam/serial/src
 
 if [ ! -s $InMetDir ]; then
@@ -38,7 +38,7 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/dynf','.nc'
   file_sfc   = '$InMetDir/phyf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.01.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.06.nc'
   file_viirs_gvf = '$InVIIRSDir_GVF/'
   file_viirs_lai = '$InVIIRSDir_LAI/'
   ioform     =  1
@@ -59,8 +59,8 @@ cat>namelist.mcip<<!
   iffengsha_dust = .FALSE.
   ifbioseason = .FALSE.
   ifcanopy    = .FALSE.
-  mcip_start = "2020-01-12-12:00:00.0000"
-  mcip_end   = "2020-01-15-13:00:00.0000"
+  mcip_start = "2019-06-15-00:00:00.0000"
+  mcip_end   = "2019-06-17-01:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"
@@ -75,7 +75,7 @@ cat>namelist.mcip<<!
   btrim      =  -1
   lprt_col   =  0
   lprt_row   =  0
-  ntimes     = 73
+  ntimes     = 49
   projparm = 2., 33.,45., -97., -97., 40.
   domains = -2508000., -1716000., 12000., 12000., 442, 265
  &END

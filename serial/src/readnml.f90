@@ -391,7 +391,7 @@ SUBROUTINE readnml (ctmlays)
 ! Verify values of user-defined options.
 !-------------------------------------------------------------------------------
 
-  IF ( ( inmetmodel /= 2 ) .AND. ( inmetmodel /= 3 ) ) THEN
+  IF ( ( inmetmodel /= 2 ) .AND. ( inmetmodel /= 3 ) .AND. ( inmetmodel /= 4 ) ) THEN
     WRITE (*,f9300) TRIM(pname), "InMetModel", inmetmodel
     CALL graceful_stop (pname)
   ENDIF
