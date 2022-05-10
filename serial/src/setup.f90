@@ -215,8 +215,7 @@ SUBROUTINE setup (ctmlays)
       WRITE (*,f9300) TRIM(pname), 'grid', rcode
       CALL graceful_stop (pname)
     ENDIF
-
-    IF ( ( fv3_version == "FV3GFS" ) .AND. ( gridtype(1:8) == "lambert_conformal" ) ) THEN
+    IF ( ( fv3_version == "FV3GFS" ) .AND. ( gridtype(1:17) == "lambert_conformal" ) ) THEN
       CALL setup_fv3_lam (cdfid, cdfid2, ctmlays)
     ELSE
       WRITE (*,f9200) TRIM(pname), fv3_version, gridtype
