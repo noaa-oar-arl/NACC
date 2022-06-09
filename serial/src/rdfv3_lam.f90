@@ -276,7 +276,8 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   REAL                              :: xxin
   REAL                              :: yoff
   REAL                              :: yyin
-  double precision  :: rdtime
+  double precision                  :: rdtime
+  REAL                              :: xorig_fv3lam, yorig_fv3lam
   ! Define roughness length as functions of land use and season in case
   ! it is not available in WRF output.
 
@@ -461,7 +462,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     & /, 1x, 70('*'))"
 
 !-------------------------------------------------------------------------------
-! Interfaces for FV3GFS getxyindex, horizontal interpolation, and wind rotation
+! Interfaces for FV3GFS getxyindex_2d, getxyindex, horizontal interpolation, and wind rotation
 ! 
 !-------------------------------------------------------------------------------
 
@@ -478,6 +479,22 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     REAL,               INTENT(OUT)   :: yj
 
     END SUBROUTINE getxyindex
+
+  END INTERFACE
+
+  INTERFACE
+
+    SUBROUTINE getxyindex_2d (xlat,xlon,xi,yj,tlat,tlon,ix,jy)
+    IMPLICIT NONE
+    REAL,               INTENT(IN)    :: xlat
+    REAL,               INTENT(IN)    :: xlon
+    REAL,               INTENT(IN)    :: tlat ( : , : )
+    REAL,               INTENT(IN)    :: tlon ( : , : )
+    INTEGER,            INTENT(IN)    :: ix, jy
+    REAL,               INTENT(OUT)   :: xi
+    REAL,               INTENT(OUT)   :: yj
+
+    END SUBROUTINE getxyindex_2d
 
   END INTERFACE
 
@@ -713,8 +730,11 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 	met_xxctr=sngl(xorig_gd)  ! in meter
 	met_yyctr=sngl(yorig_gd)
 
-	
-        DO j = 1, nrows_x+1
+        !get fv3_lam xorig and yorig offsets
+        call ll2xy_lam (fv3lam_lat1, fv3lam_lon1, fv3lam_p_alp_d, fv3lam_p_bet_d, &
+                        fv3lam_proj_clon, fv3lam_ref_lat, xorig_fv3lam, yorig_fv3lam)
+
+         DO j = 1, nrows_x+1
           DO i = 1, ncols_x+1
 
             xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
@@ -724,9 +744,11 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
                             met_ref_lat, latdot(i,j), londot(i,j))
 
             mapdot(i,j) = mapfac_lam (latdot(i,j), met_tru1, met_tru2)
-	    call getxyindex(latdot(i,j),londot(i,j),xdindex(i,j),ydindex(i,j),fv3lat,fv3lon,met_nx,met_ny)
-	    
-          ENDDO
+             call ll2xy_lam (latdot(i,j), londot(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, & 
+                             fv3lam_proj_clon, fv3lam_ref_lat, xdindex(i,j),ydindex(i,j))           
+              xdindex(i,j)=(xdindex(i,j)-sngl(xorig_fv3lam))/sngl(fv3lam_dx)+0.5
+              ydindex(i,j)=(ydindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5
+             ENDDO
         ENDDO
 
         xoff=-1.5
@@ -742,9 +764,11 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
             mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
 
-            call getxyindex(latcrs(i,j),loncrs(i,j),xindex(i,j),yindex(i,j),fv3lat,fv3lon,met_nx,met_ny)
-	    
-          ENDDO
+             call ll2xy_lam (latcrs(i,j), loncrs(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, &
+                              fv3lam_proj_clon, fv3lam_ref_lat, xindex(i,j),yindex(i,j))
+              xindex(i,j)=(xindex(i,j)-sngl(xorig_fv3lam))/sngl(fv3lam_dx)+0.5
+              yindex(i,j)=(yindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5
+         ENDDO
         ENDDO
 
        IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
@@ -763,7 +787,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
              call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_gvf(i,j), & 
                   yindex_viirs_gvf(i,j),viirslat_gvf,viirslon_gvf,met_nx_viirs,met_ny_viirs)
-
+ 
            ENDDO
          ENDDO
         ENDIF
@@ -805,9 +829,11 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
               mapu(i,j) = mapfac_lam (latu(i,j), met_tru1, met_tru2)
  	     
-	      call getxyindex(latu(i,j),lonu(i,j),xuindex(i,j),yuindex(i,j),fv3lat,fv3lon,met_nx,met_ny)
-
-            ENDDO
+              call ll2xy_lam (latu(i,j), lonu(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, &
+                              fv3lam_proj_clon, fv3lam_ref_lat, xuindex(i,j),yuindex(i,j))             
+              xuindex(i,j)=(xuindex(i,j)-sngl(xorig_fv3lam))/sngl(fv3lam_dx)+0.5
+              yuindex(i,j)=(yuindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5
+              ENDDO
           ENDDO
 
           xoff = -1.5  ! V-face: 0.5-cell offset in X from dot-point center value
@@ -824,9 +850,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
               mapv(i,j) = mapfac_lam (latv(i,j), met_tru1, met_tru2)
 
-	      call getxyindex(latv(i,j),lonv(i,j),xvindex(i,j),yvindex(i,j),fv3lat,fv3lon,met_nx,met_ny)
-
-
+              call ll2xy_lam (latv(i,j), lonv(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, &
+                              fv3lam_proj_clon, fv3lam_ref_lat, xvindex(i,j),yvindex(i,j))
+              xvindex(i,j)=(xvindex(i,j)-sngl(xorig_fv3lam))/sngl(fv3lam_dx)+0.5
+              yvindex(i,j)=(yvindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5
             ENDDO
           ENDDO
 
@@ -973,7 +1000,6 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   IF ( rcode == nf90_noerr ) THEN
   do k=1,met_nz
     call myinterp(dum3d_v(:,:,k),met_nx,met_ny,utmp,xdindex,ydindex,ncols_x+1,nrows_x+1,2)
-    
     kk=met_nz-k+1
     va(1:ncols_x+1,1:nrows_x+1,kk) = utmp(1:ncols_x+1,1:nrows_x+1)
      call windrotation(ua(1:ncols_x+1,1:nrows_x+1,kk),va(1:ncols_x+1,1:nrows_x+1,kk),londot(1:ncols_x+1,1:nrows_x+1), &
@@ -1208,6 +1234,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     IF ( rcode == nf90_noerr ) THEN
      call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
      t2(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!     t2(1:ncols_x,1:nrows_x) = dum2d((met_nx-ncols)/2:met_nx-((met_nx-ncols)/2),(met_ny-nrows)/2:met_ny-((met_ny-nrows)/2))
      WRITE (*,f6000) 'tmp2m      ', t2(lprt_metx, lprt_mety), 'K'
     ELSE
       WRITE (*,f9400) TRIM(pname), 'tmp2m', TRIM(nf90_strerror(rcode))

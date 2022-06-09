@@ -1,12 +1,12 @@
 #!/bin/ksh -l
 
 APPL=aqm.srw-lam
-InMetDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/srw-lam-test
-InGeoDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/nacc_geofiles
+InMetDir=/groups/ESS/pcampbe8/srw-lam-test
+InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
 InVIIRSDir_GVF=./
 InVIIRSDir_LAI=./
-OutDir=/gpfs/hps2/ptmp/Patrick.C.Campbell/srw-lam-test/nacc_output_serial
-ProgDir=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/NACC-srw_lam/serial/src
+OutDir=/groups/ESS/pcampbe8/srw-lam-test/nacc_output_serial
+ProgDir=/groups/ESS/pcampbe8/NACC-srw_lam/serial/src
 
 if [ ! -s $InMetDir ]; then
   echo "No such input directory $InMetDir"
@@ -38,7 +38,7 @@ cat>namelist.mcip<<!
   file_gd    = 'GRIDDESC'
   file_mm    = '$InMetDir/dynf','.nc'
   file_sfc   = '$InMetDir/phyf','.nc'
-  file_geo   = '$InGeoDir/gfs.t12z.geo.06.nc'
+  file_geo   = '$InGeoDir/gfs.t12z.geo.06.nc' !needed for valid LAI/LANDUSEF for CMAQ
   file_viirs_gvf = '$InVIIRSDir_GVF/'
   file_viirs_lai = '$InVIIRSDir_LAI/'
   ioform     =  1
@@ -48,8 +48,8 @@ cat>namelist.mcip<<!
   inmetmodel =  4
   dx_in      =  12000
   dy_in      =  12000
-  met_cen_lat_in =  0.0
-  met_cen_lon_in =  0.0
+!  met_cen_lat_in =  0.0
+!  met_cen_lon_in =  0.0
   lpv        =  0
   lwout      =  1
   luvbout    =  1
@@ -59,23 +59,24 @@ cat>namelist.mcip<<!
   iffengsha_dust = .FALSE.
   ifbioseason = .FALSE.
   ifcanopy    = .FALSE.
+  eradm       = 6378388.0 ! maybe needed for slightly different SRW-LAM rearth 
   mcip_start = "2019-06-15-00:00:00.0000"
-  mcip_end   = "2019-06-17-01:00:00.0000"
+  mcip_end   = "2019-06-15-01:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"
-  ctmlays    =  1.000000, 0.995253, 0.990479, 0.985679, 0.980781,
+  ctmlays    =  1.000000, 0.994670, 0.990479, 0.985679, 0.980781,
               0.975782, 0.970684, 0.960187, 0.954689, 0.936895, 
               0.930397, 0.908404, 0.888811, 0.862914, 0.829314, 
               0.786714, 0.735314, 0.645814, 0.614214, 0.582114, 
               0.549714, 0.511711, 0.484394, 0.451894, 0.419694, 
               0.388094, 0.356994, 0.326694, 0.297694, 0.270694, 
               0.245894, 0.223694, 0.203594, 0.154394, 0.127094, 0.000000
-  cutlay_collapx = 22
+  cutlay_collapx = 0
   btrim      =  -1
   lprt_col   =  0
   lprt_row   =  0
-  ntimes     = 49
+  ntimes     = 2
   projparm = 2., 33.,45., -97., -97., 40.
   domains = -2508000., -1716000., 12000., 12000., 442, 265
  &END

@@ -441,20 +441,32 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
   DEALLOCATE (dum1d)
   ENDIF
 !
-!---Read FV3 Lat/lon
+!---Read FV3 SRW-LAM Lat/lon
 
-  allocate(fv3lat(met_ny),fv3lon(met_nx))
-  
-  CALL get_var_1d_double_cdf (cdfid, 'grid_yt', fv3lat, 1, rcode)
+!  allocate(fv3lat(met_ny),fv3lon(met_nx))
+  allocate(fv3lat_2d(met_nx,met_ny),fv3lon_2d(met_nx,met_ny)) 
+!  CALL get_var_1d_double_cdf (cdfid, 'grid_yt', fv3lat, 1, rcode)
+!  IF ( rcode /= nf90_noerr ) THEN
+!    WRITE (*,f9400) TRIM(pname), 'grid_yt', TRIM(nf90_strerror(rcode))
+!    CALL graceful_stop (pname)
+!  ENDIF
+!  CALL get_var_1d_double_cdf (cdfid, 'grid_xt', fv3lon, 1, rcode)
+!  IF ( rcode /= nf90_noerr ) THEN
+!    WRITE (*,f9400) TRIM(pname), 'grid_xt', TRIM(nf90_strerror(rcode))
+!    CALL graceful_stop (pname)
+!  ENDIF
+  CALL get_var_2d_real_cdf (cdfid, 'lat', fv3lat_2d, 1, rcode)
   IF ( rcode /= nf90_noerr ) THEN
-    WRITE (*,f9400) TRIM(pname), 'grid_yt', TRIM(nf90_strerror(rcode))
+    WRITE (*,f9400) TRIM(pname), 'lat', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
-  CALL get_var_1d_double_cdf (cdfid, 'grid_xt', fv3lon, 1, rcode)
+  CALL get_var_2d_real_cdf (cdfid, 'lon', fv3lon_2d, 1, rcode)
   IF ( rcode /= nf90_noerr ) THEN
-    WRITE (*,f9400) TRIM(pname), 'grid_xt', TRIM(nf90_strerror(rcode))
+    WRITE (*,f9400) TRIM(pname), 'lon', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
+
+
 
 !-------------------------------------------------------------------------------
 ! Extract domain attributes.
@@ -483,8 +495,72 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
   met_x_11     = 1
   met_y_11     = 1
 
-!     FV3 Gaussian Global Grid
-      met_mapproj    = 1                      ! FV3 Gaussian Map Projection      
+
+!     FV3 SRW-LAM LCC Grid
+ rcode = nf90_get_att (cdfid, nf90_global, 'grid_id', fv3lam_grid_id)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'grid_id', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+ rcode = nf90_get_att (cdfid, nf90_global, 'cen_lon', fv3lam_proj_clon)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'cen_lon', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+ rcode = nf90_get_att (cdfid, nf90_global, 'stdlat1', fv3lam_p_alp_d)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'stdlat1', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+ rcode = nf90_get_att (cdfid, nf90_global, 'stdlat2', fv3lam_p_bet_d)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'stdlat2', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+ rcode = nf90_get_att (cdfid, nf90_global, 'cen_lon', fv3lam_p_gam_d)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'cen_lon', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+ rcode = nf90_get_att (cdfid, nf90_global, 'cen_lat', fv3lam_ref_lat)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'cen_lat', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+ rcode = nf90_get_att (cdfid, nf90_global, 'lat1', fv3lam_lat1)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'lat1', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+ rcode = nf90_get_att (cdfid, nf90_global, 'lon1', fv3lam_lon1)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'lon1', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+ rcode = nf90_get_att (cdfid, nf90_global, 'dx', fv3lam_dx)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'dx', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+ rcode = nf90_get_att (cdfid, nf90_global, 'dy', fv3lam_dy)
+   IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'dy', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
+  ENDIF
+
+       met_mapproj    = fv3lam_grid_id         ! FV3 SRW-LAM Map Projection
+
+       print*, fv3lam_grid_id, fv3lam_dy, fv3lam_dx, fv3lam_lon1, fv3lam_lat1, fv3lam_ref_lat
+       print*, fv3lam_p_gam_d, fv3lam_p_bet_d, fv3lam_p_alp_d, fv3lam_proj_clon, fv3lam_grid_id
+!       met_mapproj    = 1                      ! FV3 SRW-LAM Map Projection      
+
 !      met_proj_clon  = 0.0
 !      met_p_alp_d  = 0.0                      ! lat of coord origin [deg]
 !      met_p_bet_d  = 0.0                      ! (not used)
@@ -607,7 +683,8 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
 
    met_tapfrq = (times(1))*60  ! convert hrs --> min
    IF ( met_model == 3 .OR. met_model == 4 ) THEN !IF FV3 and first 000 forecast hour, assume hourly input = 60 min
-    IF (met_tapfrq == 0.0) THEN
+    IF (met_tapfrq.lt.1.0) THEN
+!    IF (met_tapfrq == 0.0) THEN
      met_tapfrq = 60.0 !minutes
     ENDIF
    ENDIF
