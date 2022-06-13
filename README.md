@@ -5,7 +5,8 @@ The NOAA-EPA Atmosphere-Chemistry Coupler (NACC) is adapted from the Meteorology
 NACC was developed by Dr. Patrick C. Campbell and Dr. Youhua Tang, with support from the entire NOAA-ARL research team (Contact:  Patrick.C.Campbell@noaa.gov).  Unless otherwise necessary, hereafter the documentation of the MCIP-based NACC code will only be referred to as the NACC.
 
 When using NACC, please appropriately cite the following:
-Campbell, P. C., Tang, Y., Lee, P., Baker, B., Tong, D., Saylor, R., Stein, A., Huang, J., Huang, H.-C., Strobach, E., McQueen, J., Pan, L., Stajner, I., Sims, J., Tirado-Delgado, J., Jung, Y., Yang, F., Spero, T. L., and Gilliam, R. C.: Development and evaluation of an advanced National Air Quality Forecasting Capability using the NOAA Global Forecast System version 16, Geosci. Model Dev., 15, 3281–3313, https://doi.org/10.5194/gmd-15-3281-2022, 2022.
+
+ - Campbell, P. C., Tang, Y., Lee, P., Baker, B., Tong, D., Saylor, R., Stein, A., Huang, J., Huang, H.-C., Strobach, E., McQueen, J., Pan, L., Stajner, I., Sims, J., Tirado-Delgado, J., Jung, Y., Yang, F., Spero, T. L., and Gilliam, R. C.: Development and evaluation of an advanced National Air Quality Forecasting Capability using the NOAA Global Forecast System version 16, Geosci. Model Dev., 15, 3281–3313, https://doi.org/10.5194/gmd-15-3281-2022, 2022.
 
 NACC performs the following functions using the output (history) file from WRF or FV3-based GFS and SRW-App (LAM) systems:
 
