@@ -203,11 +203,13 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   INTEGER                           :: dimids     ( nf90_max_var_dims )
   REAL,    SAVE,      ALLOCATABLE   :: dum1d      ( : )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d      ( : , : )
+  REAL,    SAVE,      ALLOCATABLE   :: dum2d_geo  ( : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d_viirs ( : , : )
   INTEGER, SAVE,      ALLOCATABLE   :: dum2d_i    ( : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d_u    ( : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum2d_v    ( : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_l    ( : , : , : )
+  REAL,    SAVE,      ALLOCATABLE   :: dum3d_l_geo    ( : , : , : )
   INTEGER, SAVE,      ALLOCATABLE   :: dum3d_li   ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_m    ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_p    ( : , : , : )
@@ -462,7 +464,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     & /, 1x, 70('*'))"
 
 !-------------------------------------------------------------------------------
-! Interfaces for FV3GFS getxyindex_2d, getxyindex, horizontal interpolation, and wind rotation
+! Interfaces for FV3GFS getxyindex, horizontal interpolation, and wind rotation
 ! 
 !-------------------------------------------------------------------------------
 
@@ -479,22 +481,6 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     REAL,               INTENT(OUT)   :: yj
 
     END SUBROUTINE getxyindex
-
-  END INTERFACE
-
-  INTERFACE
-
-    SUBROUTINE getxyindex_2d (xlat,xlon,xi,yj,tlat,tlon,ix,jy)
-    IMPLICIT NONE
-    REAL,               INTENT(IN)    :: xlat
-    REAL,               INTENT(IN)    :: xlon
-    REAL,               INTENT(IN)    :: tlat ( : , : )
-    REAL,               INTENT(IN)    :: tlon ( : , : )
-    INTEGER,            INTENT(IN)    :: ix, jy
-    REAL,               INTENT(OUT)   :: xi
-    REAL,               INTENT(OUT)   :: yj
-
-    END SUBROUTINE getxyindex_2d
 
   END INTERFACE
 
@@ -656,6 +642,8 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
   IF ( .NOT. ALLOCATED ( dum2d   ) )  &
     ALLOCATE ( dum2d   (met_nx, met_ny)      )        ! 2D, cross points
+  IF ( .NOT. ALLOCATED ( dum2d_geo   ) )  &
+    ALLOCATE ( dum2d_geo   (met_nx_geo, met_ny_geo)      )        ! 2D, cross points
   IF ( .NOT. ALLOCATED ( dum2d_i ) )  &
     ALLOCATE ( dum2d_i (met_nx, met_ny)      )        ! 2D integer, cross points
   IF ( .NOT. ALLOCATED ( dum2d_u ) )  &
@@ -664,6 +652,8 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     ALLOCATE ( dum2d_v (met_nx, met_ny  ) )        ! 2D, N-S flux pts
   IF ( .NOT. ALLOCATED ( dum3d_l ) )  &
     ALLOCATE ( dum3d_l (met_nx, met_ny, nummetlu ) )  ! 3D, cross points, lu
+  IF ( .NOT. ALLOCATED ( dum3d_l_geo ) )  &
+    ALLOCATE ( dum3d_l_geo (met_nx_geo, met_ny_geo, nummetlu ) )  ! 3D, cross points, lu
   IF ( .NOT. ALLOCATED ( dum3d_li ) ) &
     ALLOCATE ( dum3d_li (met_nx, met_ny, nummetlu ) ) ! 3D, cross points, lu int
   IF ( .NOT. ALLOCATED ( dum3d_m ) )  &
@@ -703,6 +693,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
    allocate(xindex(ncols_x,nrows_x), yindex(ncols_x,nrows_x), xuindex(ncols_x+1,nrows_x+1), &
     yuindex(ncols_x+1,nrows_x+1),xvindex(ncols_x+1,nrows_x+1),yvindex(ncols_x+1,nrows_x+1), &
     xdindex(ncols_x+1,nrows_x+1),ydindex(ncols_x+1,nrows_x+1))
+
+   allocate(xindex_geo(ncols_x,nrows_x), yindex_geo(ncols_x,nrows_x))
+
 
    IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
     allocate(xindex_viirs_gvf(ncols_x,nrows_x), yindex_viirs_gvf(ncols_x,nrows_x))
@@ -769,6 +762,23 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
               xindex(i,j)=(xindex(i,j)-sngl(xorig_fv3lam))/sngl(fv3lam_dx)+0.5
               yindex(i,j)=(yindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5
          ENDDO
+        ENDDO
+
+!For FV3 SRW-LAM we still need Gaussian Geogrid file as input and xyindex for geofile variables
+        xoff=-1.5
+        yoff=-1.5
+        DO j = 1, nrows_x
+          DO i = 1, ncols_x
+
+            xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+            yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+            CALL xy2ll_lam (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                            met_ref_lat, latcrs(i,j), loncrs(i,j))
+
+            mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
+            call getxyindex(latcrs(i,j),loncrs(i,j),xindex_geo(i,j),yindex_geo(i,j),fv3lat_geo1d,fv3lon_geo1d,met_nx_geo,met_ny_geo)
+          ENDDO
         ENDDO
 
        IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
@@ -1546,9 +1556,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'CLAY_FRAC', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'CLAY_FRAC', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           clayf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 and CLAYF < 0.0
@@ -1590,9 +1600,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'SAND_FRAC', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'SAND_FRAC', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           sandf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! SANDF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 land = 1 and SANDF < 0.0
@@ -1634,9 +1644,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'DRAG_PART', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'DRAG_PART', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           drag(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! DRAG check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and DRAG < 0.0
@@ -1678,9 +1688,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'SSM', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'SSM', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           ssm(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! SSM check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and CLAYF < 0.0
@@ -1722,9 +1732,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'UTHRES', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'UTHRES', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           uthr(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! SSM check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) ) ! FV3 water = 0 and CLAYF < 0.0
@@ -1768,9 +1778,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'FCH', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'FCH', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           fch(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -1812,9 +1822,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'FRT', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'FRT', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           frt(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -1856,9 +1866,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'CLU', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'CLU', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           clu(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -1900,9 +1910,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'POPU', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'POPU', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           popu(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -1944,9 +1954,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'LAIE', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'LAIE', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           laie(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -1988,9 +1998,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'C1R', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'C1R', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           c1r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -2032,9 +2042,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'C2R', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'C2R', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           c2r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -2076,9 +2086,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'C3R', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'C3R', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           c3r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -2120,9 +2130,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'C4R', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'C4R', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           c4r(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
 !          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
@@ -2165,9 +2175,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_2d_real_cdf (cdfidg, 'LAI', dum2d, 1, rcode)
+        CALL get_var_2d_real_cdf (cdfidg, 'LAI', dum2d_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
-          call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+          call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           lai(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! Another LAI Check in case LAI<=0 over land for processed satellite inputs
           ! Set to average LAI=4 for the representative pixels.
@@ -2448,10 +2458,10 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
           WRITE (*,f9900) TRIM(pname)
           CALL graceful_stop (pname)
         ENDIF
-        CALL get_var_3d_real_cdf (cdfidg, 'LANDUSEF', dum3d_l, 1, rcode)
+        CALL get_var_3d_real_cdf (cdfidg, 'LANDUSEF', dum3d_l_geo, 1, rcode)
         IF ( rcode == nf90_noerr ) THEN
          do k=1,nummetlu
-           call myinterp(dum3d_l(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
+           call myinterp(dum3d_l_geo(:,:,k),met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
            lufrac(1:ncols_x,1:nrows_x,k) = atmp(1:ncols_x,1:nrows_x)
          enddo
           WRITE (*,ifmt2) 'LANDUSEF ', (lufrac(lprt_metx,lprt_mety,k),k=1,nummetlu)

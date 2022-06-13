@@ -56,7 +56,7 @@ cat>namelist.mcip<<!
   ifdiag_pbl = .FALSE.
   ifviirs_gvf = .FALSE.
   ifviirs_lai = .FALSE.
-  iffengsha_dust = .FALSE.
+  iffengsha_dust = .TRUE.
   ifbioseason = .FALSE.
   ifcanopy    = .FALSE.
   eradm       = 6378388.0 ! maybe needed for slightly different SRW-LAM rearth 

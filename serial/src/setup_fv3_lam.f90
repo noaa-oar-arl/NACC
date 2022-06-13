@@ -345,6 +345,14 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
     & /, 1x, '***   NCF: ', a, &
     & /, 1x, 70('*'))"
 
+  CHARACTER(LEN=256), PARAMETER :: f9920 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR RETRIEVING VARIABLE FROM GEOFILE', &
+    & /, 1x, '***   WILL NOT USE GEOFILE LAT/LON' &
+    & /, 1x, '***   VARIABLE = ', a, &
+    & /, 1x, '***   NCF: ', a, &
+    & /, 1x, 70('*'))"
+
 !-------------------------------------------------------------------------------
 ! Extract NX, NY, and NZ.
 !-------------------------------------------------------------------------------
@@ -440,21 +448,10 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
 
   DEALLOCATE (dum1d)
   ENDIF
-!
-!---Read FV3 SRW-LAM Lat/lon
 
-!  allocate(fv3lat(met_ny),fv3lon(met_nx))
-  allocate(fv3lat_2d(met_nx,met_ny),fv3lon_2d(met_nx,met_ny)) 
-!  CALL get_var_1d_double_cdf (cdfid, 'grid_yt', fv3lat, 1, rcode)
-!  IF ( rcode /= nf90_noerr ) THEN
-!    WRITE (*,f9400) TRIM(pname), 'grid_yt', TRIM(nf90_strerror(rcode))
-!    CALL graceful_stop (pname)
-!  ENDIF
-!  CALL get_var_1d_double_cdf (cdfid, 'grid_xt', fv3lon, 1, rcode)
-!  IF ( rcode /= nf90_noerr ) THEN
-!    WRITE (*,f9400) TRIM(pname), 'grid_xt', TRIM(nf90_strerror(rcode))
-!    CALL graceful_stop (pname)
-!  ENDIF
+
+!---Read FV3 SRW-LAM 2D Lat/lon (LCC)
+  allocate(fv3lat_2d(met_nx,met_ny),fv3lon_2d(met_nx,met_ny))
   CALL get_var_2d_real_cdf (cdfid, 'lat', fv3lat_2d, 1, rcode)
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'lat', TRIM(nf90_strerror(rcode))
@@ -465,8 +462,6 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
     WRITE (*,f9400) TRIM(pname), 'lon', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
-
-
 
 !-------------------------------------------------------------------------------
 ! Extract domain attributes.
@@ -556,9 +551,6 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
   ENDIF
 
        met_mapproj    = fv3lam_grid_id         ! FV3 SRW-LAM Map Projection
-
-       print*, fv3lam_grid_id, fv3lam_dy, fv3lam_dx, fv3lam_lon1, fv3lam_lat1, fv3lam_ref_lat
-       print*, fv3lam_p_gam_d, fv3lam_p_bet_d, fv3lam_p_alp_d, fv3lam_proj_clon, fv3lam_grid_id
 !       met_mapproj    = 1                      ! FV3 SRW-LAM Map Projection      
 
 !      met_proj_clon  = 0.0
@@ -602,7 +594,8 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
   DEALLOCATE (dum2d_i)
   ENDIF
 
-! FV3 only  has MODIS 20-category ('MOD'):  Harcoded Ice, water, urban, lake         
+
+! FV3 only  has MODIS 20-category ('MOD'):  Harcoded Ice, water (=0), urban, etc        
 ! FV3 doesn't have lake, category 21, but if using geofile, we add it from MODIS
 ! input
           met_lu_src = 'MOD'
@@ -615,6 +608,7 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
           IF ( file_geo(1:7) == " " ) THEN
            met_lu_lake =  -1
           ELSE
+           nummetlu = nummetlu +1 !added category for geofile due to SRW-LAM (20) < geofile (21)
            nummetlu = nummetlu +1 !added lake category from geofile
            met_lu_lake =  21
           ENDIF
@@ -756,13 +750,75 @@ SUBROUTINE setup_fv3_lam (cdfid, cdfid2, ctmlays)
       WRITE (*,f9800) TRIM(pname)
       iflufrc = .FALSE.
     ELSE
-      flg = file_geo
+       flg = file_geo
        rcode = nf90_open (flg, nf90_nowrite, cdfidg)
 
       IF ( rcode /= nf90_noerr ) THEN
         WRITE (*,f9600) TRIM(pname), TRIM(flg)
         CALL graceful_stop (pname)
       ENDIF
+
+       !---Read Geofile 2D Lat/lon (Gaussian lat/lon)
+       !---Next Check Latitude/Longitude dimension and if present read Geofile
+      rcode = nf90_inq_varid (cdfidg, 'latitude', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        rcode = nf90_inquire_variable (cdfidg, varid, dimids=dimids)
+        IF ( rcode /= nf90_noerr ) THEN
+         WRITE (*,f9920) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
+         CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_inquire_dimension (cdfidg, dimids(1), len=ival)
+        IF ( rcode /= nf90_noerr ) THEN !longitude dimension is not there
+         WRITE (*,f9920) TRIM(pname), 'longitude dimension', TRIM(nf90_strerror(rcode))
+         CALL graceful_stop (pname)
+        ENDIF
+        met_nx_geo = ival
+        rcode = nf90_inquire_dimension (cdfidg, dimids(2), len=ival)
+        IF ( rcode /= nf90_noerr ) THEN !latitude dimension is not there
+         WRITE (*,f9920) TRIM(pname), 'latitude dimension', TRIM(nf90_strerror(rcode))
+         CALL graceful_stop (pname)
+        ENDIF
+        met_ny_geo = ival
+        if(.not.allocated(fv3lat_geo2d)) allocate(fv3lat_geo2d(met_nx_geo,met_ny_geo))
+        CALL get_var_2d_real_cdf (cdfidg, 'latitude', fv3lat_geo2d, 1, rcode)
+       ELSE
+        WRITE (*,f9920) TRIM(pname), 'latitude', TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+
+      rcode = nf90_inq_varid (cdfidg, 'longitude', varid)
+      IF ( rcode == nf90_noerr ) THEN
+        rcode = nf90_inquire_variable (cdfidg, varid, dimids=dimids)
+        IF ( rcode /= nf90_noerr ) THEN
+         WRITE (*,f9920) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
+         CALL graceful_stop (pname)
+        ENDIF
+        rcode = nf90_inquire_dimension (cdfidg, dimids(1), len=ival)
+        IF ( rcode /= nf90_noerr ) THEN !longitude dimension is not there
+         WRITE (*,f9920) TRIM(pname), 'longitude dimension', TRIM(nf90_strerror(rcode))
+         CALL graceful_stop (pname)
+        ENDIF
+        met_nx_geo = ival
+        rcode = nf90_inquire_dimension (cdfidg, dimids(2), len=ival)
+        IF ( rcode /= nf90_noerr ) THEN !latitude dimension is not there
+         WRITE (*,f9920) TRIM(pname), 'latitude dimension', TRIM(nf90_strerror(rcode))
+         CALL graceful_stop (pname)
+        ENDIF
+        met_ny_geo = ival
+        if(.not.allocated(fv3lon_geo2d)) allocate(fv3lon_geo2d(met_nx_geo,met_ny_geo))
+        CALL get_var_2d_real_cdf (cdfidg, 'longitude', fv3lon_geo2d, 1, rcode)
+       ELSE
+        WRITE (*,f9920) TRIM(pname), 'longitude', TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+
+       !---Filling 1D lat/lon geofile from 2D array
+       if(.not.allocated(fv3lat_geo1d)) allocate(fv3lat_geo1d(met_ny_geo))
+       if(.not.allocated(fv3lon_geo1d)) allocate(fv3lon_geo1d(met_nx_geo))
+       fv3lat_geo1d = fv3lat_geo2d(1,:)
+       fv3lon_geo1d = fv3lon_geo2d(:,1)
+
+
       rcode = nf90_inq_varid (cdfidg, 'LANDUSEF', varid)
       IF ( rcode == nf90_noerr ) THEN
         iflufrc = .TRUE.  ! fractional land use is in the file

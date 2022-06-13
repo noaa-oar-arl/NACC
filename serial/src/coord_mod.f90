@@ -196,6 +196,11 @@ MODULE coord
 !FV3GFS - SRW_LAM
  REAL, SAVE,    ALLOCATABLE   :: fv3lat_2d(:,:),fv3lon_2d(:,:)
 
+!Geofile 2D and 1D lat/lon
+ REAL, SAVE,    ALLOCATABLE   :: fv3lat_geo2d(:,:),fv3lon_geo2d(:,:),xindex_geo(:,:),yindex_geo(:,:)
+ REAL, SAVE,    ALLOCATABLE   :: fv3lat_geo1d(:),fv3lon_geo1d(:)
+
+
  INTEGER                         :: fv3lam_grid_id
  REAL                            :: fv3lam_proj_clon
  REAL                            :: fv3lam_p_alp_d
