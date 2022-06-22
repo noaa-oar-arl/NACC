@@ -215,7 +215,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_p    ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_s    ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_t    ( : , : , : )
-  REAL,    SAVE,      ALLOCATABLE   :: dum3d_u    ( : , : , : )
+  REAL,    SAVE,      ALLOCATABLE   :: dum3d    ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_v    ( : , : , : )
   REAL,    SAVE,      ALLOCATABLE   :: dum3d_w    ( : , : , : )
   CHARACTER(LEN=19)                 :: endseas
@@ -254,7 +254,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   REAL,               EXTERNAL      :: mapfac_lam
   REAL,               EXTERNAL      :: mapfac_merc
   REAL,               EXTERNAL      :: mapfac_ps
-  CHARACTER(LEN=24),  INTENT(IN)    :: mcip_now
+  CHARACTER(LEN=24),  INTENT(INOUT) :: mcip_now
   CHARACTER(LEN=24)                 :: mcip_previous,mcip_rd,mcip_next
   INTEGER                           :: m1count    = 1
   INTEGER, SAVE                     :: mmcount    = 1
@@ -278,8 +278,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   REAL                              :: xxin
   REAL                              :: yoff
   REAL                              :: yyin
-  double precision                  :: rdtime
+  double precision  :: rdtime
   REAL                              :: xorig_fv3lam, yorig_fv3lam
+
   ! Define roughness length as functions of land use and season in case
   ! it is not available in WRF output.
 
@@ -452,7 +453,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     & /, 1x, '***   ERROR CLOSING FV3 NETCDF FILE', &
     & /, 1x, 70('*'))"
 
-  CHARACTER(LEN=256), PARAMETER :: f9960 = "(/, 1x, 70('*'), &
+   CHARACTER(LEN=256), PARAMETER :: f9960 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   ERROR CLOSING VIIRS NETCDF FILE', &
     & /, 1x, 70('*'))"
@@ -639,11 +640,12 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 !-------------------------------------------------------------------------------
 ! Allocate necessary variables.
 !-------------------------------------------------------------------------------
-
+  IF ( .NOT. ALLOCATED ( dum3d ) )  &
+    ALLOCATE ( dum3d (met_nx, met_ny, met_nz ) ) ! 3D, N-S flux pts, full lvls
+  IF ( .NOT. ALLOCATED ( dum2d_geo   ) )  &
+    ALLOCATE ( dum2d_geo   (met_nx_geo, met_ny_geo)      )        ! 2D, cross points      
   IF ( .NOT. ALLOCATED ( dum2d   ) )  &
     ALLOCATE ( dum2d   (met_nx, met_ny)      )        ! 2D, cross points
-  IF ( .NOT. ALLOCATED ( dum2d_geo   ) )  &
-    ALLOCATE ( dum2d_geo   (met_nx_geo, met_ny_geo)      )        ! 2D, cross points
   IF ( .NOT. ALLOCATED ( dum2d_i ) )  &
     ALLOCATE ( dum2d_i (met_nx, met_ny)      )        ! 2D integer, cross points
   IF ( .NOT. ALLOCATED ( dum2d_u ) )  &
@@ -660,22 +662,19 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     ALLOCATE ( dum3d_m (met_nx, met_ny, nummosaic) )  ! 3D, cross pts in mosaic cat
   IF ( .NOT. ALLOCATED ( dum3d_s ) )  &
     ALLOCATE ( dum3d_s (met_nx, met_ny, met_ns ) )    ! 3D, cross points, soil lvls
-  IF ( .NOT. ALLOCATED ( dum3d_u ) )  &
-    ALLOCATE ( dum3d_u (met_nx, met_ny, met_nz ) ) ! 3D, E-W flux pts, full lvls
-  IF ( .NOT. ALLOCATED ( dum3d_v ) )  &
-    ALLOCATE ( dum3d_v (met_nx, met_ny, met_nz ) ) ! 3D, N-S flux pts, full lvls
-  IF ( .NOT. ALLOCATED ( dum3d_w ) )  &
-    ALLOCATE ( dum3d_w (met_nx, met_ny, met_nz ) )    ! 3D, cross points, full lvls
-  IF ( .NOT. ALLOCATED ( dum3d_t ) )  &
-    ALLOCATE ( dum3d_t (met_nx, met_ny, met_nz ) )    ! 3D, cross points, full lvls
+!  IF ( .NOT. ALLOCATED ( dum3d_w ) )  &
+!    ALLOCATE ( dum3d_w (met_nx, met_ny, met_nz ) )    ! 3D, cross points, full lvls
+!  IF ( .NOT. ALLOCATED ( dum3d_t ) )  &
+!    ALLOCATE ( dum3d_t (met_nx, met_ny, met_nz ) )    ! 3D, cross points, full lvls
   if(.not.allocated(atmp)) allocate(atmp(ncols_x,nrows_x))
   if(.not.allocated(utmp)) allocate(utmp(ncols_x+1,nrows_x+1))
 
- IF ( ifveg_viirs .OR. iflai_viirs ) THEN !If using VIIRS GVF or LAI-->Need to allocate array for VIIRS
+   IF ( ifveg_viirs .OR. iflai_viirs ) THEN !If using VIIRS GVF or LAI ->Need to allocate array for VIIRS
     IF ( .NOT. ALLOCATED ( dum2d_viirs   ) )  &
     ALLOCATE ( dum2d_viirs   (met_nx_viirs, met_ny_viirs)      )        ! 2D
 
- ENDIF
+   ENDIF
+  
 !-------------------------------------------------------------------------------
 ! If not processing the first output time of the WRF run (and if not using the
 ! incremental precipitation option available in WRFv3.2+), retrieve accumulated
@@ -696,15 +695,15 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
    allocate(xindex_geo(ncols_x,nrows_x), yindex_geo(ncols_x,nrows_x))
 
-
-   IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
+   IF ( ifveg_viirs ) THEN !If using VIIRS GVF 
     allocate(xindex_viirs_gvf(ncols_x,nrows_x), yindex_viirs_gvf(ncols_x,nrows_x))
    ENDIF
 
-    IF ( iflai_viirs ) THEN !If using VIIRS GVF for vegetation fraction
+    IF ( iflai_viirs) THEN !If using VIIRS LAI
     allocate(xindex_viirs_lai(ncols_x,nrows_x), yindex_viirs_lai(ncols_x,nrows_x))
    ENDIF
 
+ 
     ! Compute distance from origin (at reflat, standlon) to domain center, and
     ! store in MET_XXCTR and MET_YYCTR.  Then calculate latitude, longitude,
     ! and map-scale factors using offset distance of given grid point from
@@ -726,8 +725,8 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
         !get fv3_lam xorig and yorig offsets
         call ll2xy_lam (fv3lam_lat1, fv3lam_lon1, fv3lam_p_alp_d, fv3lam_p_bet_d, &
                         fv3lam_proj_clon, fv3lam_ref_lat, xorig_fv3lam, yorig_fv3lam)
-
-         DO j = 1, nrows_x+1
+	
+        DO j = 1, nrows_x+1
           DO i = 1, ncols_x+1
 
             xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
@@ -737,11 +736,12 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
                             met_ref_lat, latdot(i,j), londot(i,j))
 
             mapdot(i,j) = mapfac_lam (latdot(i,j), met_tru1, met_tru2)
-             call ll2xy_lam (latdot(i,j), londot(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, & 
-                             fv3lam_proj_clon, fv3lam_ref_lat, xdindex(i,j),ydindex(i,j))           
+            call ll2xy_lam (latdot(i,j), londot(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, &
+                             fv3lam_proj_clon, fv3lam_ref_lat, xdindex(i,j),ydindex(i,j))
               xdindex(i,j)=(xdindex(i,j)-sngl(xorig_fv3lam))/sngl(fv3lam_dx)+0.5
               ydindex(i,j)=(ydindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5
-             ENDDO
+ 
+          ENDDO
         ENDDO
 
         xoff=-1.5
@@ -757,11 +757,11 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
             mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
 
-             call ll2xy_lam (latcrs(i,j), loncrs(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, &
+            call ll2xy_lam (latcrs(i,j), loncrs(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, &
                               fv3lam_proj_clon, fv3lam_ref_lat, xindex(i,j),yindex(i,j))
               xindex(i,j)=(xindex(i,j)-sngl(xorig_fv3lam))/sngl(fv3lam_dx)+0.5
-              yindex(i,j)=(yindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5
-         ENDDO
+              yindex(i,j)=(yindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5 
+          ENDDO
         ENDDO
 
 !For FV3 SRW-LAM we still need Gaussian Geogrid file as input and xyindex for geofile variables
@@ -781,7 +781,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           ENDDO
         ENDDO
 
-       IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
+        IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
          xoff=-1.5
          yoff=-1.5
          DO j = 1, nrows_x
@@ -795,12 +795,13 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
              mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
 
-             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_gvf(i,j), & 
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_gvf(i,j),  &
                   yindex_viirs_gvf(i,j),viirslat_gvf,viirslon_gvf,met_nx_viirs,met_ny_viirs)
- 
+
            ENDDO
          ENDDO
         ENDIF
+
 
         IF ( iflai_viirs ) THEN !If using VIIRS LAI for vegetation fraction
          xoff=-1.5
@@ -816,13 +817,14 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
              mapcrs(i,j) = mapfac_lam (latcrs(i,j), met_tru1, met_tru2)
 
-             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_lai(i,j), &
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_lai(i,j),  &
                   yindex_viirs_lai(i,j),viirslat_lai,viirslon_lai,met_nx_viirs,met_ny_viirs)
 
            ENDDO
          ENDDO
         ENDIF
-        
+
+
         IF ( .NOT. gotfaces ) THEN  ! get lat, lon, map-scale factor on faces
 
           xoff = -2.0  ! U-face: no offset in X from dot-point center value
@@ -840,10 +842,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
               mapu(i,j) = mapfac_lam (latu(i,j), met_tru1, met_tru2)
  	     
               call ll2xy_lam (latu(i,j), lonu(i,j), fv3lam_p_alp_d, fv3lam_p_bet_d, &
-                              fv3lam_proj_clon, fv3lam_ref_lat, xuindex(i,j),yuindex(i,j))             
+                              fv3lam_proj_clon, fv3lam_ref_lat, xuindex(i,j),yuindex(i,j))
               xuindex(i,j)=(xuindex(i,j)-sngl(xorig_fv3lam))/sngl(fv3lam_dx)+0.5
               yuindex(i,j)=(yuindex(i,j)-sngl(yorig_fv3lam))/sngl(fv3lam_dy)+0.5
-              ENDDO
+            ENDDO
           ENDDO
 
           xoff = -1.5  ! V-face: 0.5-cell offset in X from dot-point center value
@@ -873,7 +875,12 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
   endif
 
-! open files and check headers
+!-------------------------------------------------------------------------------------
+! Open FV3GFS files and check headers
+!-------------------------------------------------------------------------------------
+
+
+!open 3d atm file
   write(str3,'(i3.3)')nn-1
   rcode = nf90_open (trim(file_mm(1))//str3//trim(file_mm(2)), nf90_nowrite,cdfid)
 
@@ -881,6 +888,8 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
    print*,'error open ATM file', nn,str3,trim(file_mm(1))//str3//trim(file_mm(2))
    call graceful_stop (pname)
   endif 
+
+!open 2d sfc file
   rcode2 = nf90_open (trim(file_sfc(1))//str3//trim(file_sfc(2)), nf90_nowrite,cdfid2)
 
   IF ( rcode2 /= nf90_noerr ) THEN
@@ -888,9 +897,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
    call graceful_stop (pname)
   endif 
 
+!dimension check
   rcode = nf90_get_att (cdfid, nf90_global, 'nx', ii)
   IF ( rcode /= nf90_noerr ) THEN
-   write(*,*)'error get im DYN file ',str3
+   write(*,*)'error get nx DYN file ',str3
    call graceful_stop (pname)
   else 
    if(ii.ne.met_nx) then
@@ -909,11 +919,9 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     CALL graceful_stop (pname)
    endif
   endif
-
-
   rcode = nf90_get_att(cdfid, nf90_global, 'ny', jj)
   IF ( rcode /= nf90_noerr ) THEN
-   write(*,*)'error get jm in DYN file ',str3
+   write(*,*)'error get ny in DYN file ',str3
    call graceful_stop (pname)
   else 
    if(jj.ne.met_ny) then
@@ -924,7 +932,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   
   rcode2 = nf90_get_att(cdfid2, nf90_global, 'ny', jj)
   IF ( rcode2 /= nf90_noerr ) THEN
-   write(*,*)'error get jm in PHY file ',str3
+   write(*,*)'error get ny in PHY file ',str3
    call graceful_stop (pname)
   else 
    if(jj.ne.met_ny) then
@@ -955,14 +963,18 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
    write(*,*)'error getting time in DYN file',str3
    CALL graceful_stop (pname)
   ENDIF
- ! print*,'process ATM file date ',mcip_rd,rdtime,intvl
+  if(nn-1.ne.int(rdtime)) then
+    print*,'time inconsistent ',nn,rdtime
+    stop
+  endif
+      
+
   CALL geth_newdate (mcip_next, mcip_rd, int(rdtime)*intvl*60)
-  if(mcip_next.ne.mcip_now) then
+  if(nn.eq.1.and.mcip_next.ne.mcip_now) then
    write(*,*)'time mismatch in DYN file ',mcip_now,mcip_next,mcip_rd,date_init,rdtime
    CALL graceful_stop (pname)
-  ENDIF   
-
-
+  ENDIF
+  mcip_now=mcip_next  ! update mcip_now for each task   
   rcode2 = nf90_inq_varid (cdfid2, 'time', varid)
   IF ( rcode /= nf90_noerr ) THEN
     WRITE (*,f9400) TRIM(pname), 'time',  &
@@ -993,10 +1005,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 ! Read FV3 data for this domain.
 !-------------------------------------------------------------------------------
   it=1
-  CALL get_var_3d_real_cdf (cdfid, 'ugrd', dum3d_u, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'ugrd', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
-    call myinterp(dum3d_u(:,:,k),met_nx,met_ny,utmp,xdindex,ydindex,ncols_x+1,nrows_x+1,2)  ! put it into Dot point for later rotation
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,utmp,xdindex,ydindex,ncols_x+1,nrows_x+1,2)  ! put it into Dot point for later rotation
     kk=met_nz-k+1                                            ! flip to bottom up
     ua(1:ncols_x+1,1:nrows_x+1,kk) = utmp(1:ncols_x+1,1:nrows_x+1)
    enddo 
@@ -1006,10 +1018,11 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     CALL graceful_stop (pname)
   ENDIF
 
-  CALL get_var_3d_real_cdf (cdfid, 'vgrd', dum3d_v, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'vgrd', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
   do k=1,met_nz
-    call myinterp(dum3d_v(:,:,k),met_nx,met_ny,utmp,xdindex,ydindex,ncols_x+1,nrows_x+1,2)
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,utmp,xdindex,ydindex,ncols_x+1,nrows_x+1,2)
+    
     kk=met_nz-k+1
     va(1:ncols_x+1,1:nrows_x+1,kk) = utmp(1:ncols_x+1,1:nrows_x+1)
      call windrotation(ua(1:ncols_x+1,1:nrows_x+1,kk),va(1:ncols_x+1,1:nrows_x+1,kk),londot(1:ncols_x+1,1:nrows_x+1), &
@@ -1021,10 +1034,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     CALL graceful_stop (pname)
   ENDIF
 
-  CALL get_var_3d_real_cdf (cdfid, 'dzdt', dum3d_w, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'dzdt', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
-    call myinterp(dum3d_w(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
     kk=met_nz-k+1
     wa(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
    enddo
@@ -1063,10 +1076,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   sigmaf = (pfull - pfull(met_nz+1)) / (pfull(1) - pfull(met_nz+1))
   sigmah = (phalf - phalf(met_nz)) / (phalf(1) - phalf(met_nz))
   
-  CALL get_var_3d_real_cdf (cdfid, 'dpres', dum3d_t, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'dpres', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
-    call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
     kk=met_nz-k+1
     dpres(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
    enddo
@@ -1076,10 +1089,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     CALL graceful_stop (pname)
   ENDIF
 
-  CALL get_var_3d_real_cdf (cdfid, 'delz', dum3d_t, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'delz', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
-    call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
     kk=met_nz-k+1
     delz(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
    enddo
@@ -1089,10 +1102,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     CALL graceful_stop (pname)
   ENDIF
 
-  CALL get_var_3d_real_cdf (cdfid, 'tmp', dum3d_t, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'tmp', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
-    call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
     kk=met_nz-k+1
     ta(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
    enddo
@@ -1102,10 +1115,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     CALL graceful_stop (pname)
   ENDIF
 
-  CALL get_var_3d_real_cdf (cdfid, 'spfh', dum3d_t, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'spfh', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
-    call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
     kk=met_nz-k+1
     qva(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
    enddo
@@ -1115,10 +1128,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     CALL graceful_stop (pname)
   ENDIF
 
-  CALL get_var_3d_real_cdf (cdfid, 'clwmr', dum3d_t, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'clwmr', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
-    call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
     kk=met_nz-k+1
     qca(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
    enddo
@@ -1128,10 +1141,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     CALL graceful_stop (pname)
   ENDIF
 
-  CALL get_var_3d_real_cdf (cdfid, 'rwmr', dum3d_t, it, rcode)
+  CALL get_var_3d_real_cdf (cdfid, 'rwmr', dum3d, it, rcode)
   IF ( rcode == nf90_noerr ) THEN
    do k=1,met_nz
-    call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+    call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
     kk=met_nz-k+1
     qra(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
    enddo
@@ -1143,10 +1156,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
   rcode = nf90_inq_varid (cdfid, 'icmr', rcode)
   IF ( rcode == nf90_noerr ) THEN
-    CALL get_var_3d_real_cdf (cdfid, 'icmr', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'icmr', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
      do k=1,met_nz
-      call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+      call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
       kk=met_nz-k+1
       qia(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
      enddo
@@ -1161,10 +1174,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
   rcode = nf90_inq_varid (cdfid, 'snmr', rcode)
   IF ( rcode == nf90_noerr ) THEN
-    CALL get_var_3d_real_cdf (cdfid, 'snmr', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'snmr', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
      do k=1,met_nz
-      call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+      call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
       kk=met_nz-k+1
       qsa(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
      enddo
@@ -1179,10 +1192,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
   rcode = nf90_inq_varid (cdfid, 'grle', rcode)
   IF ( rcode == nf90_noerr ) THEN
-    CALL get_var_3d_real_cdf (cdfid, 'grle', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'grle', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
      do k=1,met_nz
-      call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+      call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
       kk=met_nz-k+1
       qga(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
      enddo
@@ -1197,10 +1210,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
 !FV3 does not have TKE
   IF ( ( iftke ) .AND. ( iftkef ) ) THEN  ! TKE on full-levels
-    CALL get_var_3d_real_cdf (cdfid, 'TKE', dum3d_w, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'TKE', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
      do k=1,met_nz
-      call myinterp(dum3d_w(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+      call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
       kk=met_nz-k+1
       tke(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
      enddo
@@ -1210,10 +1223,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
       CALL graceful_stop (pname)
     ENDIF
   ELSE IF ( ( iftke ) .AND. ( .NOT. iftkef ) ) THEN  ! TKE on half-layers
-    CALL get_var_3d_real_cdf (cdfid, 'TKE_MYJ', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'TKE_MYJ', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
       do k=1,met_nz
-       call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+       call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
        kk=met_nz-k+1
        tke(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
       enddo
@@ -1225,10 +1238,10 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
   ENDIF
 
   IF ( ifcld3d ) THEN  ! 3D resolved cloud fraction
-    CALL get_var_3d_real_cdf (cdfid, 'cld_amt', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'cld_amt', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
      do k=1,met_nz
-      call myinterp(dum3d_t(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
+      call myinterp(dum3d(:,:,k),met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
       kk=met_nz-k+1
       cldfra(1:ncols_x,1:nrows_x,kk) = atmp(1:ncols_x,1:nrows_x)
      enddo
@@ -1315,17 +1328,19 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
         dum2d = 0.0
       ENDWHERE
       call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
-      if(nn.eq.1) then
-       raincon(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-      else
-       raincon(1:ncols_x,1:nrows_x) = amax1(0., atmp(1:ncols_x,1:nrows_x)*nn-  &
-          rcold(1:ncols_x,1:nrows_x)*(nn-1))
-      endif
-      rcold(1:ncols_x,1:nrows_x)=atmp(1:ncols_x,1:nrows_x)
+!      if(nn.eq.1) then
+!       raincon(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!      else
+!       raincon(1:ncols_x,1:nrows_x) = amax1(0., atmp(1:ncols_x,1:nrows_x)*nn-  &
+!          rcold(1:ncols_x,1:nrows_x)*(nn-1))
+!      endif
+!      rcold(1:ncols_x,1:nrows_x)=atmp(1:ncols_x,1:nrows_x)
       	  
       !Convert mass precip rate in FV3 (kg/m2/s) to column amount (cm/hour)
-      raincon(1:ncols_x,1:nrows_x)=raincon(1:ncols_x,1:nrows_x)/997.0 * 100.0*3600.
-
+!      raincon(1:ncols_x,1:nrows_x)=raincon(1:ncols_x,1:nrows_x)/997.0 * 100.0*3600.
+      
+      raincon(1:ncols_x,1:nrows_x)= atmp(1:ncols_x,1:nrows_x)/997.0 * 100.0*3600.
+      
       WRITE (*,f6000) 'cprat_ave ', raincon(lprt_metx, lprt_mety), 'cm'
     ELSE
       WRITE (*,f9400) TRIM(pname), 'cprat_ave', TRIM(nf90_strerror(rcode))
@@ -1338,17 +1353,17 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
         dum2d = 0.0
       ENDWHERE
       call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,2)
-      if(nn.eq.1) then
-       rainnon(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
-      else
-       rainnon(1:ncols_x,1:nrows_x) = amax1(0., atmp(1:ncols_x,1:nrows_x)*nn-  &
-          rnold(1:ncols_x,1:nrows_x)*(nn-1))
-      endif
-      rnold(1:ncols_x,1:nrows_x)=atmp(1:ncols_x,1:nrows_x)
+!      if(nn.eq.1) then
+!       rainnon(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+!      else
+!       rainnon(1:ncols_x,1:nrows_x) = amax1(0., atmp(1:ncols_x,1:nrows_x)*nn-  &
+!          rnold(1:ncols_x,1:nrows_x)*(nn-1))
+!      endif
+!      rnold(1:ncols_x,1:nrows_x)=atmp(1:ncols_x,1:nrows_x)
       	  
       !Convert mass precip rate in FV3 (kg/m2/s) to column amount (cm/hour)
-      rainnon(1:ncols_x,1:nrows_x)=rainnon(1:ncols_x,1:nrows_x)/997.0 * 100.0*3600.
-
+!      rainnon(1:ncols_x,1:nrows_x)=rainnon(1:ncols_x,1:nrows_x)/997.0 * 100.0*3600.
+       rainnon(1:ncols_x,1:nrows_x)=atmp(1:ncols_x,1:nrows_x)/997.0 * 100.0*3600.
       WRITE (*,f6000) 'prate_ave  ', rainnon(lprt_metx, lprt_mety), 'cm'
     ELSE
       WRITE (*,f9400) TRIM(pname), 'prate_ave', TRIM(nf90_strerror(rcode))
@@ -1560,7 +1575,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           clayf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! CLAYF check over  water, set as negative numbers for improved error checking
-!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 and CLAYF < 0.0
+!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 water = 0 or frac > 1, set CLAYF < 0.0
 !           clayf = -1.0
 !          END WHERE
           WRITE (*,ifmt2) 'CLAYF ', clayf(lprt_metx,lprt_mety)
@@ -1604,7 +1619,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           call myinterp(dum2d_geo,met_nx_geo,met_ny_geo,atmp,xindex_geo,yindex_geo,ncols_x,nrows_x,1)
           sandf(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
           ! SANDF check over  water, set as negative numbers for improved error checking
-!          WHERE ( (INT(landmask) == 0) .OR. (clayf > 1.0) ) ! FV3 land = 1 and SANDF < 0.0
+!          WHERE ( (INT(landmask) == 0) .OR. (sandf > 1.0) ) ! FV3 water = 0 or frac > 1, set SANDF < 0.0
 !           sandf = -1.0
 !          END WHERE
           WRITE (*,ifmt2) 'SANDF ', sandf(lprt_metx,lprt_mety)
@@ -1619,7 +1634,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
         ENDIF
       ENDIF
     ENDIF
-
+ 
     IF ( ifdrag ) THEN
       IF ( ifdragwrfout ) THEN  ! drag in FV3 history file
         CALL get_var_2d_real_cdf (cdfid2, 'DRAG_PART', dum2d, it, rcode)
@@ -2187,7 +2202,6 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           WHERE ( (INT(landmask) == 1) .AND. (lai <= 0.0))  ! FV3 land = 1 and LAI <= 0.0
            lai = smallnum
           END WHERE
-
           WRITE (*,ifmt2) 'LAI ', lai(lprt_metx,lprt_mety)
         ELSE
           WRITE (*,f9400) TRIM(pname), 'LAI', TRIM(nf90_strerror(rcode))
@@ -2199,7 +2213,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
           CALL graceful_stop (pname)
         ENDIF
    ENDIF
-  IF ( iflai_viirs ) THEN !Instead Using VIIRS LAI
+   IF ( iflai_viirs ) THEN !Instead Using VIIRS LAI
     !Open VIIRS LAI File
     flg = file_viirs_lai
     rcode = nf90_open (flg, nf90_nowrite, cdfid_vlai)
@@ -2212,7 +2226,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
          call myinterp(dum2d_viirs,met_nx_viirs,met_ny_viirs,atmp,xindex_viirs_lai,yindex_viirs_lai,ncols_x,nrows_x,1)
         lai(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
 !        where(lai.lt.0) lai=0.
-        where(lai.le.0) lai=smallnum
+         where(lai.le.0) lai=smallnum
         WRITE (*,f6000) 'lai   ', lai(lprt_metx, lprt_mety), ' from VIIRS LAI'
       ELSE
         WRITE (*,f9440) TRIM(pname), 'lai', TRIM(nf90_strerror(rcode))
@@ -2264,7 +2278,7 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
     ENDIF
   ENDIF
 
-  IF ( ifveg ) THEN
+  IF ( ifveg ) THEN  !Using FV3 vegetation fraction
       CALL get_var_2d_real_cdf (cdfid2, 'veg', dum2d, it, rcode)
       IF ( rcode == nf90_noerr ) THEN
         call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
@@ -2295,15 +2309,13 @@ SUBROUTINE rdfv3_lam (mcip_now,nn)
 
 !    Note the top two soil layers in FV3GFSv16 are at 0-10 cm and 10-40 cm
 !    Noah LSM
-!    Will need CMAQ adjustment to 0-1 cm and 1-10 cm.    
-CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
+!    Will need CMAQ adjustment to 0-1 cm and 1-10 cm.
+    CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
       call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
       wg(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+      soim3d(1:ncols_x,1:nrows_x,1) = atmp(1:ncols_x,1:nrows_x)
       WRITE (*,f6000) 'soilw1  ', wg(lprt_metx, lprt_mety), 'm3 m-3'
-      soim3d(1:nxm,1:nym,1) = dum2d(:,met_ny:1:-1)
-      soim3d(met_nx,:,1) = soim3d(nxm,:,1)
-      soim3d(:,met_ny,1) = soim3d(:,nym,1)
     ELSE
       WRITE (*,f9400) TRIM(pname), 'soilw1', TRIM(nf90_strerror(rcode))
       CALL graceful_stop (pname)
@@ -2340,9 +2352,8 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
       CALL graceful_stop (pname)
     ENDIF
 
-!    Note the top two soil layers in FV3GFSv16 are at 0-10 cm and 10-40 cm
-!    Noah LSM
-!    Will need CMAQ adjustment to 0-1 cm and 1-10 cm.
+    !    Note the top two soil layers in FV3GFSv16 are at 0-10 cm and 10-40 cm
+    !    Noah LSM
     CALL get_var_2d_real_cdf (cdfid2, 'soilt1', dum2d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
       call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
@@ -2525,6 +2536,7 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
     WRITE (*,f9400) TRIM(pname), 'snowc_ave', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
   ENDIF
+
 ! FV3 does not have sea ice fraction in output, use sea-ice thickness instead
 
   CALL get_var_2d_real_cdf (cdfid2, 'icetk', dum2d, it, rcode)
@@ -2538,7 +2550,7 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
     CALL graceful_stop (pname)
   ENDIF
 
-! Where seaice thickness in FV3GFS16 > 0 set to 1.0 for grid cell
+! Where seaice thickness in FV3GFS16 > 0 set to 1.0 for grid cell 
 ! (CMAQ expects seaice fraction, not thickness)
     WHERE ( seaice >  0.0 )
         seaice = 1.0
@@ -2705,9 +2717,9 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
 !No KF radiative extras in FV3 yet... :(
   IF ( ifkfradextras ) THEN  ! Extra vars from KF scheme w radiative feedbacks
 
-    CALL get_var_3d_real_cdf (cdfid, 'QC_CU', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'QC_CU', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
-      qc_cu(1:nxm,   1:nym,   :) = dum3d_t(:,met_ny:1:-1,met_nz:1:-1)
+      qc_cu(1:nxm,   1:nym,   :) = dum3d(:,met_ny:1:-1,met_nz:1:-1)
       qc_cu(  met_nx, :,      :) = qc_cu(nxm,:,:)
       qc_cu( :,        met_ny,:) = qc_cu(:,nym,:)
       WRITE (*,ifmt1a) 'QC_CU    ', (qc_cu(lprt_metx,lprt_mety,k),k=1,met_nz)
@@ -2716,9 +2728,9 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
       CALL graceful_stop (pname)
     ENDIF
 
-    CALL get_var_3d_real_cdf (cdfid, 'QI_CU', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'QI_CU', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
-      qi_cu(1:nxm,   1:nym,   :) = dum3d_t(:,met_ny:1:-1,met_nz:1:-1)
+      qi_cu(1:nxm,   1:nym,   :) = dum3d(:,met_ny:1:-1,met_nz:1:-1)
       qi_cu(  met_nx, :,      :) = qi_cu(nxm,:,:)
       qi_cu( :,        met_ny,:) = qi_cu(:,nym,:)
       WRITE (*,ifmt1a) 'QI_CU    ', (qi_cu(lprt_metx,lprt_mety,k),k=1,met_nz)
@@ -2727,9 +2739,9 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
       CALL graceful_stop (pname)
     ENDIF
 
-    CALL get_var_3d_real_cdf (cdfid, 'CLDFRA_DP', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'CLDFRA_DP', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
-      cldfra_dp(1:nxm,   1:nym,   :) = dum3d_t(:,met_ny:1:-1,met_nz:1:-1)
+      cldfra_dp(1:nxm,   1:nym,   :) = dum3d(:,met_ny:1:-1,met_nz:1:-1)
       cldfra_dp(  met_nx, :,      :) = cldfra_dp(nxm,:,:)
       cldfra_dp( :,        met_ny,:) = cldfra_dp(:,nym,:)
       WRITE (*,ifmt1a) 'CLDFRA_DP', (cldfra_dp(lprt_metx,lprt_mety,k),k=1,met_nz)
@@ -2738,9 +2750,9 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
       CALL graceful_stop (pname)
     ENDIF
 
-    CALL get_var_3d_real_cdf (cdfid, 'CLDFRA_SH', dum3d_t, it, rcode)
+    CALL get_var_3d_real_cdf (cdfid, 'CLDFRA_SH', dum3d, it, rcode)
     IF ( rcode == nf90_noerr ) THEN
-      cldfra_sh(1:nxm,   1:nym,   :) = dum3d_t(:,met_ny:1:-1,met_nz:1:-1)
+      cldfra_sh(1:nxm,   1:nym,   :) = dum3d(:,met_ny:1:-1,met_nz:1:-1)
       cldfra_sh(  met_nx, :,      :) = cldfra_sh(nxm,:,:)
       cldfra_sh( :,        met_ny,:) = cldfra_sh(:,nym,:)
       WRITE (*,ifmt1a) 'CLDFRA_SH', (cldfra_sh(lprt_metx,lprt_mety,k),k=1,met_nz)
@@ -2821,10 +2833,11 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
         met_season = 2   ! winter
       ENDIF
     ENDIF
+
 !-------------------------------------------------------------------------------
 ! If roughness length was not available in output, fill it from lookup tables.
 ! If the urban model was used in WRF, replace roughness length with urban-
-! specific arrays.
+! specific arrays. 
 !-------------------------------------------------------------------------------
 
     IF ( .NOT. gotznt ) THEN
@@ -2920,7 +2933,7 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
 ! DEALLOCATE ( dum3d_p )  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_s )  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_t )  ! commented out to avoid memory fragmentation
-! DEALLOCATE ( dum3d_u )  ! commented out to avoid memory fragmentation
+! DEALLOCATE ( dum3d_u)  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_v )  ! commented out to avoid memory fragmentation
 ! DEALLOCATE ( dum3d_w )  ! commented out to avoid memory fragmentation
 

@@ -93,6 +93,8 @@ SUBROUTINE pblsup
 !                        resistances over water cells.  (T. Spero)
 !           26 Jun 2018  Now use netCDF tokens for missing data.  (T. Spero)
 !           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
+!           09 May 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
   USE metinfo
   USE mcipparm
@@ -162,7 +164,7 @@ SUBROUTINE pblsup
 
     ! Compute 10-m wind speed and direction on scalar points.
 
-    IF ( met_model == 2 .OR. met_model == 3) THEN  ! WRF or FV3: use native flux-point winds
+    IF ( met_model == 2 .OR. met_model == 3 .OR. met_model == 4 ) THEN  ! WRF or FV3: use native flux-point winds
 
       DO c = 1, ncols_x
         cp1 = c + 1
@@ -198,7 +200,7 @@ SUBROUTINE pblsup
 
         ! Compute wind speed profile on scalar points.
 
-        IF ( met_model == 2 .OR. met_model == 3) THEN  ! WRF or FV3: use native flux-point winds
+        IF ( met_model == 2 .OR. met_model == 3 .OR. met_model == 4 ) THEN  ! WRF or FV3: use native flux-point winds
 
           DO k = 1, metlay
 
