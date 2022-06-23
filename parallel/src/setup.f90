@@ -218,7 +218,7 @@ SUBROUTINE setup (ctmlays, itimestep)
     ENDIF
 
     IF ( ( fv3_version == "FV3GFS" ) .AND. ( gridtype(1:17) == "lambert_conformal" ) ) THEN
-      CALL setup_fv3 (cdfid, cdfid2, ctmlays)
+      CALL setup_fv3_lam (cdfid, cdfid2, ctmlays)
     ELSE
       WRITE (*,f9200) TRIM(pname), fv3_version, gridtype
       CALL graceful_stop (pname)
