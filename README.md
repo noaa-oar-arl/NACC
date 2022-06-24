@@ -221,6 +221,13 @@ The location of the NACC output files is set in the NACC script using the `$OutD
 
 ***Current Version of NACC***
 
-NACCv1.2.0 (Pre-release)
+NACCv2.0.0 (Jul 01, 2022)
 
 **Previous Versions of NACC**
+v1.3.2 (Aug 04, 2021)
+v1.3.1 (Dec 07, 2021)
+v1.3.0 (Nov 24, 2021)
+v1.2.1 (Nov 10, 2021)
+v1.2.0 (Sep 16, 2021)
+v1.1.0 (Jul 06, 2020)
+v1.0.0 (May 06, 2020)
