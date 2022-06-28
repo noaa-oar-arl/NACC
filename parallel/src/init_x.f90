@@ -95,6 +95,8 @@ SUBROUTINE init_x
 !                        improve dust simulation in CCTM.  Added optional
 !                        variables from KF convective scheme with radiative
 !                        feedbacks.  (T. Spero)
+!           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
+!           11 Apr 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -181,7 +183,7 @@ SUBROUTINE init_x
     xwga  (:,:)   = fillreal
   ENDIF
 
-  IF ( met_model == 2 .OR. met_model == 3 ) THEN  ! WRF or FV3
+  IF ( met_model == 2 .OR. met_model == 3 .OR. met_model == 4 ) THEN  ! WRF or FV3
     xmu   (:,:)   = fillreal
     xgeof (:,:,:) = fillreal
   ENDIF

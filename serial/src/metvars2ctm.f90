@@ -141,6 +141,7 @@ SUBROUTINE metvars2ctm
 !           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
 !           24 Feb 2020  Added horiz LCC interpolation and wind rotation/interp
 !                        Y. Tang)
+!           09 May 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -396,7 +397,7 @@ SUBROUTINE metvars2ctm
 
           ilu = landuse(ii,jj)
 
-          IF ( met_model ==3 ) THEN !FV3
+          IF ( met_model == 3  .OR.  met_model == 4 ) THEN !FV3
          IF (ilu == met_lu_water_fv3) THEN  !MODIS Water is set to 0 in FV3
           ilu = met_lu_water                !Switch to MODIS IGBP water cat = 17
          ENDIF
@@ -558,7 +559,7 @@ SUBROUTINE metvars2ctm
 
   IF ( ifwr ) THEN
     xwr  (:,:)    = wr (sc:ec,sr:er)
-    IF ( met_model == 2 .OR. met_model == 3 ) THEN  ! WRF or FV3: divide by water density
+    IF ( met_model == 2 .OR. met_model == 3 .OR. met_model == 4 ) THEN  ! WRF or FV3: divide by water density
       xwr(:,:) = xwr(:,:) * 0.001  ! kg/m2 -> m
     ENDIF
   ELSE
@@ -642,7 +643,7 @@ SUBROUTINE metvars2ctm
 
      ENDIF
         
-     IF ( met_model == 3 )  THEN  ! FV3
+     IF ( met_model == 3 .OR. met_model == 4 )  THEN  ! FV3
        xwwind (:,:,1:) = wa(sc:ec,sr:er,1:)  !Vertical velocity on full-levels
         IF ( iftke ) THEN 
          xtke   (:,:,1:) = tke(sc:ec,sr:er,1:) !TKE on full levels
@@ -685,7 +686,7 @@ SUBROUTINE metvars2ctm
     xuu_s(:,:,:)         = ua(sc:ec,sr:er,:)
     xvv_t(:,:,:)         = va(sc:ec,sr:er,:)
 
-  ELSE IF ( met_model == 3 ) THEN ! interpolated Fv3 in B-grid
+  ELSE IF ( met_model == 3 .OR. met_model == 4 ) THEN ! interpolated Fv3 in B-grid
     xuu_d(:,:,:)= ua(sc:ec,sr:er,:)
     xvv_d(:,:,:)= va(sc:ec,sr:er,:)
     
@@ -743,7 +744,7 @@ SUBROUTINE metvars2ctm
 
   ENDIF
 
-  IF ( met_model == 3 )  THEN  ! FV3
+  IF ( met_model == 3 .OR. met_model == 4 )  THEN  ! FV3
 
     xprsfc(:,:) = psa(sc:ec,sr:er)  ! FV3 contains 2D surface pressure
     xmu   (:,:) = xprsfc(:,:) - met_ptop !FV3 does not have MU, so calculate 2D MU (Pa)
@@ -815,7 +816,7 @@ SUBROUTINE metvars2ctm
 ! If input meteorology has a time-varying vertical coordinate, compute Jacobian
 ! and layer heights.
 !-------------------------------------------------------------------------------
-  IF ( met_model == 2 .OR. met_model == 3 ) THEN
+  IF ( met_model == 2 .OR. met_model == 3 .OR. met_model == 4 ) THEN
 
     IF ( met_hybrid >= 0 ) THEN
       DO k = 0, metlay
@@ -854,7 +855,7 @@ SUBROUTINE metvars2ctm
 ! Calculate contravariant velocity (w-component).
 !-------------------------------------------------------------------------------
 
-  IF ( met_model == 2 .OR. met_model == 3 ) THEN  ! WRF-ARW or FV3
+  IF ( met_model == 2 .OR. met_model == 3 .OR. met_model == 4 ) THEN  ! WRF-ARW or FV3
     CALL vertnhy_wrf
   ENDIF
 
@@ -862,7 +863,7 @@ SUBROUTINE metvars2ctm
 ! Calculate depths of soil layers.
 !-------------------------------------------------------------------------------
 
-  IF ( met_model == 2 .OR. met_model == 3 ) THEN  ! WRF-ARW or FV3
+  IF ( met_model == 2 .OR. met_model == 3 .OR. met_model == 4 ) THEN  ! WRF-ARW or FV3
     IF ( met_ns > 0 ) THEN
       DO k = 1, met_ns
         xzsoil(k) = 0.0 - (SUM(dzs(1:k)))  ! m

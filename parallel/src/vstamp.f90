@@ -44,7 +44,7 @@ SUBROUTINE vstamp
 
   WRITE (*, "(/, 1x, 78('='), /)")
   WRITE (*, "(18x, a)") 'NATIONAL AIR QUALITY FORECAST CAPABILITY'
-  WRITE (*, "(20x, a, /)") 'NOAA-ARL ATMOSPHERE-CHEMISTRY COUPLER'
+  WRITE (*, "(20x, a, /)") 'NOAA-EPA ATMOSPHERE-CHEMISTRY COUPLER'
   WRITE (*, "(27x, a, 1x, a, ' FROZEN ', a)")  &
                                      TRIM(progname_nacc), TRIM(ver_nacc), vdate_nacc
   WRITE (*, "(/, 1x, 78('='), ///)")

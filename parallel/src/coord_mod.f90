@@ -32,6 +32,8 @@ MODULE coord
 !           30 Aug 2011  Changed F77 character declarations to F90 standard.
 !                        (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
+!           11 Apr 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -186,10 +188,31 @@ MODULE coord
 !-------------------------------------------------------------------------------
 
   REAL,          ALLOCATABLE   :: x3face_gd  ( : )
+
 !FV3GFS
-  REAL, SAVE,    ALLOCATABLE   :: fv3lat(:),fv3lon(:), xindex(:,:), yindex(:,:), xuindex(:,:), yuindex(:,:), &
+ REAL, SAVE,    ALLOCATABLE   :: fv3lat(:),fv3lon(:), xindex(:,:), yindex(:,:), xuindex(:,:), yuindex(:,:), &
     xvindex(:,:),yvindex(:,:),xdindex(:,:),ydindex(:,:)
-!VIIRS (Optional for GVF--> veg frac or LAI currently)
+
+!FV3GFS - SRW_LAM
+ REAL, SAVE,    ALLOCATABLE   :: fv3lat_2d(:,:),fv3lon_2d(:,:)
+
+!Geofile 2D and 1D lat/lon
+ REAL, SAVE,    ALLOCATABLE   :: fv3lat_geo2d(:,:),fv3lon_geo2d(:,:),xindex_geo(:,:),yindex_geo(:,:)
+ REAL, SAVE,    ALLOCATABLE   :: fv3lat_geo1d(:),fv3lon_geo1d(:)
+
+
+ INTEGER                         :: fv3lam_grid_id
+ REAL                            :: fv3lam_proj_clon
+ REAL                            :: fv3lam_p_alp_d
+ REAL                            :: fv3lam_p_bet_d
+ REAL                            :: fv3lam_p_gam_d
+ REAL                            :: fv3lam_ref_lat
+ REAL                            :: fv3lam_lat1
+ REAL                            :: fv3lam_lon1
+ REAL                            :: fv3lam_dx
+ REAL                            :: fv3lam_dy
+ 
+ !VIIRS (Optional for GVF--> veg frac or LAI currently)
   REAL, SAVE,    ALLOCATABLE   :: viirslat_gvf(:),viirslon_gvf(:),xindex_viirs_gvf(:,:),yindex_viirs_gvf(:,:)
   REAL, SAVE,    ALLOCATABLE   :: viirslat_lai(:),viirslon_lai(:),xindex_viirs_lai(:,:),yindex_viirs_lai(:,:)
 !-------------------------------------------------------------------------------

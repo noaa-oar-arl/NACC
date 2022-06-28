@@ -1,10 +1,14 @@
 # The NOAA-EPA Atmosphere-Chemistry Coupler (NACC)
 
-The NOAA-EPA Atmosphere-Chemistry Coupler (NACC) is adapted from the Meteorology-Chemistry Interface Processor (MCIP), and can ingest output from the [Finite Volume Cubed Sphere (FV3)](https://www.gfdl.noaa.gov/fv3/) version of the [Global Forecast System (GFS)](https://www.ncdc.noaa.gov/data-access/model-data/model-datasets/global-forcast-system-gfs) and the [Weather Research and Forecasting (WRF) Model](http://www.wrf-model.org) to prepare the meteorology files that are used within the CMAQ Modeling System. Where possible, MCIP uses data directly from the meteorological model to maximize consistency with the CMAQ Modeling System. When specific atmospheric fields are not explicitly output by WRF, MCIP uses scientific algorithms to create those fields for CMAQ.  MCIP output is used by the emissions model (for example, to provide time-varying temperatures for mobile emissions) and by the CCTM to define the atmospheric conditions. A scientific overview of MCIP is in [Otte and Pleim (2010)](https://www.geosci-model-dev.net/3/243/2010/).  
+The NOAA-EPA Atmosphere-Chemistry Coupler (NACC) is adapted from the Meteorology-Chemistry Interface Processor (MCIP), and can ingest output from the [Finite Volume Cubed Sphere (FV3)](https://www.gfdl.noaa.gov/fv3/) version of the [Global Forecast System (GFS)](https://www.ncdc.noaa.gov/data-access/model-data/model-datasets/global-forcast-system-gfs), Regional (i.e., Limited Area Model; LAM) [FV3-based Short Range Weather (SRW)-Application](https://ufscommunity.org/srwa/), and the [Weather Research and Forecasting (WRF) Model](http://www.wrf-model.org) to prepare the meteorology files that are used within the CMAQ Modeling System. Where possible, MCIP/NACC uses data directly from the meteorological model to maximize consistency with the CMAQ Modeling System. When specific atmospheric fields are not explicitly output by WRF or FV3-based systems, MCIP/NACC uses scientific algorithms to create those fields for CMAQ.  MCIP/NACC output is used by the emissions model (for example, to provide time-varying temperatures for mobile emissions) and by the CCTM to define the atmospheric conditions. A scientific overview of MCIP is in [Otte and Pleim (2010)](https://www.geosci-model-dev.net/3/243/2010/).  
 
 NACC was developed by Dr. Patrick C. Campbell and Dr. Youhua Tang, with support from the entire NOAA-ARL research team (Contact:  Patrick.C.Campbell@noaa.gov).  Unless otherwise necessary, hereafter the documentation of the MCIP-based NACC code will only be referred to as the NACC.
 
-NACC performs the following functions using the output (history) file from WRF or FV3-GFS:
+When using NACC, please appropriately cite the following:
+
+ - Campbell, P. C., Tang, Y., Lee, P., Baker, B., Tong, D., Saylor, R., Stein, A., Huang, J., Huang, H.-C., Strobach, E., McQueen, J., Pan, L., Stajner, I., Sims, J., Tirado-Delgado, J., Jung, Y., Yang, F., Spero, T. L., and Gilliam, R. C.: Development and evaluation of an advanced National Air Quality Forecasting Capability using the NOAA Global Forecast System version 16, Geosci. Model Dev., 15, 3281–3313, https://doi.org/10.5194/gmd-15-3281-2022, 2022.
+
+NACC performs the following functions using the output (history) file from WRF or FV3-based GFS and SRW-App (LAM) systems:
 
 -   Defines the computational domain for the CCTM. The CCTM typically uses a smaller computational domain than the meteorological model, and the lateral boundary cells from the meteorological model generally are not used by CCTM.
 
@@ -16,11 +20,11 @@ NACC performs the following functions using the output (history) file from WRF o
 
 -   Outputs files that contain meteorological and geospatial information used by the emissions model and the CCTM.  The output can be either in I/O API or netCDF.
 
-NACC is written in FORTRAN, and this version runs on a single (serial; WRF or FV3GFS) or multiple (parallel; only for FV3GFS) processors in a Unix/Linux environment. NACC is driven by a C-shell or K-shell script with several run-time options that are defined through a FORTRAN namelist. It is typical to use NACC to process hourly output fields from the meteorological model for each one-day period.
+NACC is written in FORTRAN, and this version runs on a single (serial; WRF or FV3GFS) or multiple (parallel; only for FV3GFS-based) processors in a Unix/Linux environment. NACC is driven by a C-shell or K-shell script with several run-time options that are defined through a FORTRAN namelist. It is typical to use NACC to process hourly output fields from the meteorological model for each one-day period.
 
 NACC is often updated concurrently with the CCTM.  The changes to NACC are documented with each update to the software, and a "Frequently Asked Questions" (FAQ) file exists that is specific to NACC.
 
-As of NACCv1.0.0 (based on MCIPv5.0), WRF and FV3-GFS are the only meteorological models that can be processed with NACC, but NACC could be expanded to process data from other meteorological models.
+As of NACCv2.0.0 (based on MCIPv5.0), WRF, FV3-GFS, and FV3-SRW Appi (LAM) based models are the only meteorological models that can be processed with NACC, but NACC could be expanded to process data from other meteorological models.
 
 NACC can be used to determine the spatial region that is processed by CMAQ. NACC can process the full meteorological modeling domain, uniformly trim cells from that domain, or "window" a rectilinear subset of that domain. Configuration options for NACC include the time periods over which to extract data from the meteorological model output files, horizontal and vertical grid definitions, native or collapsed vertical layer definition and selections for integrating satellite cloud observations into NACC output.
 
@@ -47,9 +51,9 @@ The variables listed here are set by the user in the NACC run script, and they a
 -   `DataPath [default: $CMAQ_DATA]`  
     Input/output data directory path
 -   `InMetDir [default: None]`  
-    Path of the input data directory containing the WRF‑ARW or FV3-GFS output data files
+    Path of the input data directory containing the WRF‑ARW, FV3-GFS, or FV3-SRW App (LAM) output data files
 -   `InGeoDir [default: None]`  
-    Path of the input data directory containing the WRF Geogrid file, or similar pre-processed "geofile" (e.g., LAI, LANDUSEF) used for FV3-GFS
+    Path of the input data directory containing the WRF Geogrid file, or similar pre-processed "geofile" (e.g., LAI, LANDUSEF) used for FV3-GFS and FV3-SRW-App (LAM)
 -   `InVIIRSDir [default: None]`  
     Path of the input data directory containing VIIRS input file   
 -   `OutDir [default: None]`  
@@ -78,6 +82,7 @@ The variables listed here are set by the user in the NACC run script, and they a
  Choose input meteorological model.
     -   `2`: WRF-ARW
     -   `3`: FV3-GFS
+    -   `4`: FV3-SRW App (LAM)
 -   `LPV: [default: 0]`  
     Compute and output potential vorticity. This must be activated to support the [CCTM O3 potential vorticity scaling](../../CCTM/docs/ReleaseNotes/Potential_Vorticity_Scaling.md).
     -   `0`: Do not compute and output potential vorticity
@@ -115,9 +120,9 @@ The variables listed here are set by the user in the NACC run script, and they a
     -   `False`: Do not input/output ECCC canopy parameters
     -   `True`: Input/output of ECCC canopy parameters
 -   `MCIP_START [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
-    Beginning date and time (UTC) of data to output from NACC. The start date and time must be contained within the input data from WRF or FV3-GFS.
+    Beginning date and time (UTC) of data to output from NACC. The start date and time must be contained within the input data from WRF, FV3-GFS, or FV3-SRW App (LAM).
 -   `MCIP_END [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
-    End date and time (UTC) of data to output from NACC. The end date and time must be contained within the input data from WRF or FV3-GFS.
+    End date and time (UTC) of data to output from NACC. The end date and time must be contained within the input data from WRF, FV3-GFS, or FV3-SRW App (LAM).
 -   `INTVL [default: 60]`  
     Output interval in minutes. This setting determines the amount of model time contained in each output time step. The output interval for NACC can be less frequent than the incoming meteorological model output (e.g., process 30-minute data for CCTM from 15-minute WRF output).
 -   `CTMLAYS [default: -1.0]`  
@@ -149,11 +154,12 @@ The variables listed here are set by the user in the NACC run script, and they a
     Row cell coordinate for diagnostic outputs on the NACC modeling domain
 -   `WRF_LC_REF_LAT [optional; used only for Lambert conformal projections; default: -999.0]`  
     WRF Lambert Conformal reference latitude. Use this setting to force the reference latitude in the output NACC data. If not set, NACC will use the average of the two true latitudes.
--   `projparm [FV3GFS-Only; used  to define projection parameters for subset of global grid; example set: GDTYP=2, P_ALP=33., P_BET=45., P_GAM=-97., XCENT=-97., YCENT=40.]`  
-    Required definition of grid projection parameters for FV3GFS. Use this setting to subset the FV3-GFS global domain that is regridded to use in CMAQ.
--   `domains [FV3GFS-Only; used  to define domain grid information for subset of global grid; example set XORIG=-2508000., YORIG=-1716000., DX=12000., DY=12000., NCOLS=442, NROWS=265]`  
-    Required definition of grid domain parameters for FV3GFS. Use this setting to subset the FV3-GFS global domain that is regridded to use in CMAQ.
--   `ntimes [WRF and FV3GFS; default = 0]`  
+-   `projparm [FV3GFS or FV3-SRW App (LAM) -Only; used  to define projection parameters for subset of global grid; example set: GDTYP=2, P_ALP=33., P_BET=45., P_GAM=-97., XCENT=-97., YCENT=40.]`  
+    Required definition of grid projection parameters for FV3GFS or FV3-SRW App (LAM). Use this setting to subset the FV3-GFS global or FV3-SRW App (LAM) domain that is regridded to use in CMAQ.
+-   `domains [FV3GFS-Only or FV3-SRW App (LAM); used  to define domain grid information for subset of global grid; example set XORIG=-2508000., YORIG=-1716000., DX=12000., DY=12000., NROWS=442, NCOLS=265]`  
+    Required definition of grid domain parameters for FV3GFS or FV3-SRW App (LAM). Use this setting to subset the FV3-GFS or FV3-SRW App (LAM) global domain that is regridded to use in CMAQ.
+-   `ntimes [WRF, FV3GFS, or FV3-SRW App (LAM); default = 0]`  
+
     Number of times to process for the model
     
   
@@ -165,8 +171,8 @@ The variables listed here are set by the user in the NACC run script, and they a
 
 **Compile NACC**
 
-NACC is compiled with a Makefile. The configuration options in the Makefile include the compiler and compiler flags to use for building the executable. Note that this version of NACC is either serial (WRF or FV3GFS) or parallelized code (FV3GFS Only), so MPI libraries are required for ONLY the parallel version.  The parallel version is meant to be used with the global FV3GFSv16, as it significantly speeds up the total IO throughput wall clock time. 
-Note:  To read the full vertical resolution of the FV3GFSv16, NACC must be compiled with a modified version of the IOAPI library that has an adjusted maximum possible input vertical levels of MXLAYS3 =  200 in PARMS3.EXT.  An example of the modified IOAPI library to use is included in the NACC/lib/ioapi-3.2 repository. See the [CMAS IOAPI Tutorial](https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html) to find the location of where this change to MXLAYS3 takes place.  The only other library needed to run NACC on your system is the NETCDF library. 
+NACC is compiled with a Makefile. The configuration options in the Makefile include the compiler and compiler flags to use for building the executable. Note that this version of NACC is either serial (WRF, FV3GFS, or FV3-SRW App (LAM)) or parallelized code (FV3GFS or FV3-SRW App (LAM)), so MPI libraries are required for ONLY the parallel version.  The parallel version is meant to be used with the global FV3GFSv16, as it significantly speeds up the total IO throughput wall clock time. 
+Note:  To read the full vertical resolution of the global FV3GFSv16, NACC must be compiled with a modified version of the IOAPI library that has an adjusted maximum possible input vertical levels of MXLAYS3 =  200 in PARMS3.EXT.  An example of the modified IOAPI library to use is included in the NACC/lib/ioapi-3.2 repository. See the [CMAS IOAPI Tutorial](https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html) to find the location of where this change to MXLAYS3 takes place.  The only other library needed to run NACC on your system is the NETCDF library. 
 
 The Makefile is located in the directory with the NACC source code (e.g., `NACC/serial/src` or `NACC/parallel/src`). To compile NACC, simply invoke the Makefile at the command line:
 
@@ -190,10 +196,10 @@ cd $NACC_home/serial/scripts
 
 |**File Name**|**Format**|**Description**|**Required**|
 |------------|------------------------------|-----------------------------------------------------|---------------------|
-|InMetFiles|netCDF (WRF or FV3-GFS)|List of WRF or FV3-GFS output files for input to NACC|required|
-|InSfcFiles|netCDF (FV3-GFS)|List of FV3-GFS output files for input to NACC|required (only FV3-GFS)|
-|InGeoFile|netCDF (WRFor FV3-GFS)|Output from WRF Geogrid processor|optional; only required if fractional land use, LAI, etc are not part of the WRF or FV3-GFS output.  Offline Pre-processed NOAA-ARL "geofiles" with LAI and LANDUSEF (based on 12-month climatological IGBP-MODIS) for the global GFSv16 Gaussian NetCDF Grid are available via FTP by request (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
-|InVIIRSFile|netCDF (FV3-GFS)|Input from VIIRS data |optional; only if global NetCDF VIIRS Input COARDS file is provided. Global ~ 4km VIIRS NetCDF Grid are available via FTP by request. (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
+|InMetFiles|netCDF (WRF, FV3-GFS, or FV3-SRW App (LAM))|List of WRF, FV3-GFS, or FV3-SRW App (LAM) output files for input to NACC|required|
+|InSfcFiles|netCDF (FV3-GFS or FV3-SRW App (LAM))|List of FV3-GFS or FV3-SRW App (LAM) output files for input to NACC|required (only FV3-GFS or FV3-SRW App (LAM))|
+|InGeoFile|netCDF (WRF, FV3-GFS, or FV3-SRW App (LAM))|Output from WRF Geogrid processor | optional; only required if fractional land use, LAI, etc are not part of the WRF, FV3-GFS, or FV3-SRW App (LAM) output.  Offline Pre-processed NOAA-ARL "geofiles" with LAI (VIIRS 2018-2020 climatology) and LANDUSEF (based on 12-month climatological IGBP-MODIS) for the global GFSv16 Gaussian NetCDF Grid are available via FTP by request (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
+|InVIIRSFile|netCDF (FV3-GFS or FV3-SRW App (LAM))|Input from VIIRS data |optional; only if global NetCDF VIIRS Input COARDS file is provided. Global ~ 4km VIIRS NetCDF Grid are available via FTP by request. (Contact:  Patrick C. Campbell; Patrick.C.Campbell@noaa.gov)|
 
 **Table 2. NACC output files**
 
@@ -204,18 +210,25 @@ cd $NACC_home/serial/scripts
 |GRID_CRO_2D|I/O API|Time-independent 2-D cross-point meteorology file|required|
 |GRID_CRO_3D|I/O API|Time-independent 3-D cross-point meteorology file|required|
 |GRID_DOT_2D|I/O API|Time-independent 2-D dot-point meteorology file|required|
-|LUFRAC_CRO|I/O API|Time-independent fractional land use by category|created if fractional land use was provided in WRF's or FV3-GFS's output or in Geogrid output|
+|LUFRAC_CRO|I/O API|Time-independent fractional land use by category|created if fractional land use was provided in WRF's, FV3-GFS's, or FV3-SRW App's (LAM) output or in Geogrid output|
 |MET_BDY_3D|I/O API|Time-varying 3-D boundary meteorology file|required|
 |MET_CRO_2D|I/O API|Time-varying 2-D cross-point meteorology file|required|
 |MET_CRO_3D|I/O API|Time-varying 3-D cross-point meteorology file|required|
 |MET_DOT_3D|I/O API|Time-varying 3-D dot-point meteorology file|required|
 |MOSAIC_CRO|I/O API|Time-varying 3-D output from mosaic land use|created if the Noah Mosaic land-surface model was run in WRF|
-|SOI_CRO|I/O API|Time-varying soil properties in each soil layer|created if a land-surface model was run in WRF or FV3-GFS|
+|SOI_CRO|I/O API|Time-varying soil properties in each soil layer|created if a land-surface model was run in WRF, FV3-GFS, or FV3-SRW App (LAM)|
 
 The location of the NACC output files is set in the NACC script using the `$OutDir` variable. The names of the NACC output files are generic and do not have any information about the model grid that they are simulating or the time period that is covered. These attributes can be controlled by the NACC script. For example, the name of the grid can be used in the output directory path. In addition, the default naming convention for all NACC output files appends the `APPL` environment variable to the file name to identify files by the time period that is represented by the file. All of the file naming variables for the NACC outputs are set in the run script, and they can be easily tailored to fit each user's application or style.
 
 ***Current Version of NACC***
 
-NACCv1.2.0 (Pre-release)
+NACCv2.0.0 (Jul 01, 2022)
 
 **Previous Versions of NACC**
+v1.3.2 (Aug 04, 2021)
+v1.3.1 (Dec 07, 2021)
+v1.3.0 (Nov 24, 2021)
+v1.2.1 (Nov 10, 2021)
+v1.2.0 (Sep 16, 2021)
+v1.1.0 (Jul 06, 2020)
+v1.0.0 (May 06, 2020)

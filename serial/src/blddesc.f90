@@ -38,6 +38,8 @@ SUBROUTINE blddesc
 !           26 Jan 2018  Added coefficient for spectral nudging of moisture to
 !                        metadata.  (T. Spero)
 !           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
+!           03 May 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -90,6 +92,12 @@ SUBROUTINE blddesc
 !For FV3  Only
   IF ( ( met_model == 3 ) ) THEN
     CALL fv3mopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
+                    txt_pbl, txt_sflay, txt_lsm, txt_urban, txt_shcu, txt_lu)
+  ENDIF
+
+!For FV3-LAM  Only
+  IF ( ( met_model == 4 ) ) THEN
+    CALL fv3lammopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
                     txt_pbl, txt_sflay, txt_lsm, txt_urban, txt_shcu, txt_lu)
   ENDIF
 

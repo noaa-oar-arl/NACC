@@ -70,6 +70,7 @@ SUBROUTINE alloc_met
 !                        variables from KF convective scheme with radiative
 !                        feedbacks.  (T. Spero)
 !           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
+!           11 Apr 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -99,7 +100,7 @@ SUBROUTINE alloc_met
   ALLOCATE ( mapv     (met_nx, met_ny) )
   ALLOCATE ( sigmaf                   (met_nz+1) )
   ALLOCATE ( sigmah                   (met_nz) )
-  IF ( met_model == 3 ) THEN  ! FV3
+  IF ( met_model == 3 .or. met_model == 4 ) THEN  ! FV3
    ALLOCATE ( pfull                    (met_nz+1) )
    ALLOCATE ( phalf                    (met_nz) )
    ALLOCATE ( dpres                    (met_nx, met_ny,met_nz) )

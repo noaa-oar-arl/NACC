@@ -221,7 +221,7 @@ SUBROUTINE readnml (ctmlays)
   file_viirs_gvf = " "
   file_viirs_lai = " "
 !-------------------------------------------------------------------------------
-! Set default value for user-selected model (2 = WRF, 3 = FV3).
+! Set default value for user-selected model (2 = WRF, 3 = FV3, 4 = SRW-LAM).
   inmetmodel = 2
 !-------------------------------------------------------------------------------
 
@@ -391,7 +391,7 @@ SUBROUTINE readnml (ctmlays)
 ! Verify values of user-defined options.
 !-------------------------------------------------------------------------------
 
-  IF ( ( inmetmodel /= 2 ) .AND. ( inmetmodel /= 3 ) ) THEN
+  IF ( ( inmetmodel /= 2 ) .AND. ( inmetmodel /= 3 ) .AND. ( inmetmodel /= 4 ) ) THEN
     WRITE (*,f9300) TRIM(pname), "InMetModel", inmetmodel
     CALL graceful_stop (pname)
   ENDIF
