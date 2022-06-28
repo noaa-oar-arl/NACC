@@ -65,6 +65,7 @@ MODULE metinfo
 !           22 Jun 2017  Added MET_HYBRID.  (T. Spero)
 !           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
 !           18 Nov 2019  Modified for FV3GFS Capability. (P. C. Campbell)
+!           12 Jun 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -72,7 +73,8 @@ MODULE metinfo
   ! Input data format.
 
   INTEGER           :: met_model       ! 2=WRF (removed option: 1=MM5), 3=FV3-GFS
-  INTEGER           :: met_iversion    ! 2=WRF-ARW, 3=FV3-GFS
+                                       ! 4=FV3-LAM
+  INTEGER           :: met_iversion    ! 2=WRF-ARW, 3=FV3-GFS, 4=FV3-LAM
   CHARACTER(LEN=8)  :: met_release     ! release version
   CHARACTER(LEN=8)  :: fv3_version     ! FV3 Source Name
 
@@ -112,6 +114,10 @@ MODULE metinfo
  ! Optional VIIRS Grid Information
   INTEGER           :: met_nx_viirs    ! VIIRS domain X (E-W) dimension
   INTEGER           :: met_ny_viirs    ! VIIRS domain X (E-W) dimension
+
+ ! Global 1D lat/lon geofile needed for regional NACC applications
+  INTEGER           :: met_nx_geo    ! Geofile domain X (E-W) dimension
+  INTEGER           :: met_ny_geo    ! Geofile domain X (E-W) dimension
 
   ! Non-hydrostatic base state variables.
 

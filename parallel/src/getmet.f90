@@ -43,6 +43,7 @@ SUBROUTINE getmet (mcip_now,nn)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
 !           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
 !           18 Nov 2019  Modified for FV3GFS Capability. (P. C. Campbell)
+!           11 Apr 2022  Modified for FV3GFS SRW-LAM Capability. (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   USE metinfo, ONLY: met_model
@@ -71,6 +72,8 @@ SUBROUTINE getmet (mcip_now,nn)
     CALL rdwrfem (mcip_now)
   ELSE IF ( met_model == 3 ) THEN  ! FV3-GFS 
     CALL rdfv3 (mcip_now,nn)
+  ELSE IF ( met_model == 4 ) THEN  ! FV3-LAM
+    CALL rdfv3_lam (mcip_now,nn)
   ELSE
     WRITE (*,f9000) TRIM(pname), met_model
     CALL graceful_stop (pname)

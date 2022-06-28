@@ -26,7 +26,6 @@ SUBROUTINE getxyindex (xlat,xlon,xi,yj,tlat,tlon,ix,jy)
 ! Revised:  26 Feb 2020 Adapted for FV3GFSv16 at NOAA-ARL (Y. Tang and 
 !           P. C. Campbell)
 !-------------------------------------------------------------------------------
-
   IMPLICIT NONE
 
   REAL,               INTENT(IN)    :: xlat        
