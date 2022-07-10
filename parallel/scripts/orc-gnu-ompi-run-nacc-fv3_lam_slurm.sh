@@ -5,7 +5,7 @@
 #SBATCH --output=nacc-test-%j.out     # write stdout/stderr   to named file
 #SBATCH --error=nacc-test-%j.err
 #SBATCH --time=0-00:10:00             # Run for max of 00 hrs, 10 mins, 00 secs
-#SBATCH --nodes=12                    # Request N nodes
+#SBATCH --nodes=2                    # Request N nodes
 #SBATCH --ntasks=2                    # Request n tasks
 ##SBATCH --cpus-per-task=12            # Request n cores per node
 #SBATCH --mem-per-cpu=8GB             # Request nGB RAM per core
@@ -20,7 +20,7 @@ module load ioapi/3.2-spack
 
 #Set number of nacc times  = processors, and # of nodes
 NTIMES=2
-export NODES=12
+export NODES=2
 
 APPL=aqm.srw-lam
 InMetDir=/groups/ESS/pcampbe8/srw-lam-test
@@ -28,7 +28,7 @@ InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
 InVIIRSDir_GVF=./
 InVIIRSDir_LAI=./
 OutDir=/groups/ESS/pcampbe8/srw-lam-test/nacc_output_parallel
-ProgDir=/groups/ESS/pcampbe8/NACC-srw_lam/parallel/src
+ProgDir=/groups/ESS/pcampbe8/NACC/parallel/src
 
 
 if [ ! -s $InMetDir ]; then

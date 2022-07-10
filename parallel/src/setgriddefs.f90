@@ -563,7 +563,7 @@ SUBROUTINE setgriddefs
 ! Check user-defined MCIP output time info against input meteorology.
 !-------------------------------------------------------------------------------
 
-  IF ( ABS( intvl - NINT(met_tapfrq) ) > ttol_min .and. (met_model.ne.3.or.met_model.ne.4) ) THEN
+  IF ( ABS( intvl - NINT(met_tapfrq) ) > ttol_min .and. (met_model.ne.3.and.met_model.ne.4) ) THEN
     WRITE (*,f9300) TRIM(pname), intvl, met_tapfrq
     CALL graceful_stop (pname)
   ENDIF
