@@ -1362,6 +1362,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     ENDIF
     call myinterp(dum2d,met_nx,met_ny,atmp,xindex,yindex,ncols_x,nrows_x,1)
     landuse(1:ncols_x,1:nrows_x) = atmp(1:ncols_x,1:nrows_x)
+    where(landuse.lt.0) landuse=0.0 !case of larger domains with fv3 water type/edge
     WRITE (*,f6100) 'vtype ', landuse(lprt_metx, lprt_mety), 'category'
   ELSE
     WRITE (*,f9400) TRIM(pname), 'vtype', TRIM(nf90_strerror(rcode))
