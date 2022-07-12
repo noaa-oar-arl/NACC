@@ -752,7 +752,7 @@ SUBROUTINE metvars2ctm
     xpresf(:,:,0) = xprsfc(:,:) 
 
         DO k = 1, metlay
-         xgeof (:,:,k) = xgeof (:,:,k-1) - ((1.0/giwrf) * delz(:,:,k))
+         xgeof (:,:,k) = xgeof (:,:,k-1) - ((1.0/giwrf) * delz(sc:ec,sr:er,k))
          xpresf(:,:,k) = xpresf(:,:,k-1) *  &
                       EXP( (xgeof(:,:,k-1) - xgeof(:,:,k)) /  &
                            (rdwrf * xtempm(:,:,k)) )
