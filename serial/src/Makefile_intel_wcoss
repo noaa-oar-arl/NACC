@@ -164,6 +164,7 @@ OBJS =\
  wrgdesc.o \
  xy2ll_lam.o \
  xy2ll_merc.o \
+ xy2ll_ps.o \
 
 all:
 	@$(MAKE) $(MODULES)

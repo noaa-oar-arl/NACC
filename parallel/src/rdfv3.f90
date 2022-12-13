@@ -694,13 +694,13 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     allocate(xindex_viirs_lai(ncols_x,nrows_x), yindex_viirs_lai(ncols_x,nrows_x))
    ENDIF
 
- 
+  !START INTERPOLATION Grid Output Projections---------------------------------------------------- 
     ! Compute distance from origin (at reflat, standlon) to domain center, and
     ! store in MET_XXCTR and MET_YYCTR.  Then calculate latitude, longitude,
     ! and map-scale factors using offset distance of given grid point from
     ! center of domain.
 
-      if (gdtyp_gd.eq.lamgrd3) then 
+    if (gdtyp_gd.eq.2) then !LCC Projection (IOAPI Type 2)
 
         xoff = -2.0  ! extend one more point from dot-point center value to cover boundary
         yoff = -2.0  
@@ -834,11 +834,145 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 
         ENDIF
 
-    endif
+    else if (gdtyp_gd.eq.6) then !polar secant stereographic projection (IOAPI Type 6)
 
-  endif
+        xoff = -2.0  ! extend one more point from dot-point center value to cover boundary
+        yoff = -2.0
 
-!-------------------------------------------------------------------------------------
+        met_tru1=sngl(p_alp_gd)
+        met_tru2=sngl(p_bet_gd)
+        met_proj_clon=sngl(p_gam_gd)
+        met_ref_lat=sngl(ycent_gd)
+
+        met_xxctr=sngl(xorig_gd)  ! in meter
+        met_yyctr=sngl(yorig_gd)
+
+
+        DO j = 1, nrows_x+1
+          DO i = 1, ncols_x+1
+
+            xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+            yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+            CALL xy2ll_ps (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                            latdot(i,j), londot(i,j))
+            mapdot(i,j) = mapfac_ps (latdot(i,j), met_tru2)
+            call getxyindex(latdot(i,j),londot(i,j),xdindex(i,j),ydindex(i,j),fv3lat,fv3lon,met_nx,met_ny)
+
+          ENDDO
+        ENDDO
+
+        xoff=-1.5
+        yoff=-1.5
+        DO j = 1, nrows_x
+          DO i = 1, ncols_x
+
+            xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+            yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+            CALL xy2ll_ps (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                            latcrs(i,j), loncrs(i,j))
+
+            mapcrs(i,j) = mapfac_ps (latcrs(i,j), met_tru2)
+
+            call getxyindex(latcrs(i,j),loncrs(i,j),xindex(i,j),yindex(i,j),fv3lat,fv3lon,met_nx,met_ny)
+
+          ENDDO
+        ENDDO
+
+        IF ( ifveg_viirs ) THEN !If using VIIRS GVF for vegetation fraction
+         xoff=-1.5
+         yoff=-1.5
+         DO j = 1, nrows_x
+           DO i = 1, ncols_x
+
+             xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+             yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+             CALL xy2ll_ps (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                             latcrs(i,j), loncrs(i,j))
+
+             mapcrs(i,j) = mapfac_ps (latcrs(i,j), met_tru2)
+
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_gvf(i,j),  &
+                  yindex_viirs_gvf(i,j),viirslat_gvf,viirslon_gvf,met_nx_viirs,met_ny_viirs)
+
+           ENDDO
+         ENDDO
+        ENDIF
+
+
+        IF ( iflai_viirs ) THEN !If using VIIRS LAI for vegetation fraction
+         xoff=-1.5
+         yoff=-1.5
+         DO j = 1, nrows_x
+           DO i = 1, ncols_x
+
+             xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+             yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+             CALL xy2ll_ps (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                             latcrs(i,j), loncrs(i,j))
+
+             mapcrs(i,j) = mapfac_ps (latcrs(i,j), met_tru2)
+
+             call getxyindex(latcrs(i,j),loncrs(i,j),xindex_viirs_lai(i,j),  &
+                  yindex_viirs_lai(i,j),viirslat_lai,viirslon_lai,met_nx_viirs,met_ny_viirs)
+
+           ENDDO
+         ENDDO
+        ENDIF
+
+
+        IF ( .NOT. gotfaces ) THEN  ! get lat, lon, map-scale factor on faces
+
+          xoff = -2.0  ! U-face: no offset in X from dot-point center value
+          yoff = -1.5  ! U-face: 0.5-cell offset in Y from dot-point center value
+
+          DO j = 1, nrows_x+1  ! use all Y to fill array; last row outside domain
+            DO i = 1, ncols_x+1
+
+              xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+              yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+              CALL xy2ll_ps (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                              latu(i,j), lonu(i,j))
+
+              mapu(i,j) = mapfac_ps (latu(i,j), met_tru2)
+
+              call getxyindex(latu(i,j),lonu(i,j),xuindex(i,j),yuindex(i,j),fv3lat,fv3lon,met_nx,met_ny)
+
+            ENDDO
+          ENDDO
+
+          xoff = -1.5  ! V-face: 0.5-cell offset in X from dot-point center value
+          yoff = -2.0  ! V-face: no offset in Y from dot-point center value
+
+          DO j = 1, nrows_x+1
+            DO i = 1, nrows_x+1  ! use all X to fill array; last col outside domain
+
+              xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
+              yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
+
+              CALL xy2ll_ps (xxin, yyin, met_tru1, met_tru2, met_proj_clon,  &
+                              latv(i,j), lonv(i,j))
+
+              mapv(i,j) = mapfac_ps (latv(i,j), met_tru2)
+
+              call getxyindex(latv(i,j),lonv(i,j),xvindex(i,j),yvindex(i,j),fv3lat,fv3lon,met_nx,met_ny)
+
+            ENDDO
+          ENDDO
+
+        ENDIF
+    else
+     write(*,*)'NACC does not yet support interpolating to grid type =  ', gdtyp_gd
+     call graceful_stop (pname)
+    endif !gdtyp_gd
+  endif   !first time
+
+  !END INTERPOLATION Grid Output Projections----------------------------------------------------
+
 ! Open FV3GFS files and check headers
 !-------------------------------------------------------------------------------------
 
