@@ -110,11 +110,10 @@ SUBROUTINE xy2ll_ps (xx, yy, phi1, phi2, lambda0, phi, lambda)
 !convert back to degrees
     phi=rad2deg*phi
     lambda=rad2deg*lambda
-!    if (lambda.lt.-180) then
-!     lambda = lambda + 360
-!    end if
-!    if (lambda.gt.180) then
-!     lambda = lambda - 360
-!    end if
-
+    if (lambda.lt.-180) then
+     lambda = lambda + 360
+    end if
+    if (lambda.gt.180) then
+     lambda = lambda - 360
+    end if
 END SUBROUTINE xy2ll_ps
