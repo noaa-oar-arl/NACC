@@ -68,8 +68,8 @@ cat>namelist.mcip<<!
 
  &USERDEFS
   inmetmodel =  3
-  dx_in      =  12000
-  dy_in      =  12000
+  dx_in      =  108000
+  dy_in      =  108000
   met_cen_lat_in =  0.0
   met_cen_lon_in =  0.0
   lpv        =  0
@@ -84,8 +84,8 @@ cat>namelist.mcip<<!
   mcip_start = "2020-01-12-12:00:00.0000"
   mcip_end   = "2020-01-12-13:00:00.0000"
   intvl      =  60
-  coordnam   = "FV3_RPO"
-  grdnam     = "FV3_CONUS"
+  coordnam   = "POLSTE_HEMI"
+  grdnam     = "108NHEMI2"
   ctmlays    =  1.000000, 0.995253, 0.990479, 0.985679, 0.980781,
               0.975782, 0.970684, 0.960187, 0.954689, 0.936895,
               0.930397, 0.908404, 0.888811, 0.862914, 0.829314,
@@ -98,15 +98,15 @@ cat>namelist.mcip<<!
   lprt_col   =  0
   lprt_row   =  0
   ntimes     = 2
-  projparm = 2., 33.,45., -97., -97., 40.
-  domains = -2508000., -1716000., 12000., 12000., 442, 265
+  projparm = 6., 1., 45., -98., -98., 90.
+  domains = -10098000.000, -10098000.000, 108000.000, 108000.000, 187, 187
  &END
 
  &WINDOWDEFS
   x0         =  1
   y0         =  1
-  ncolsin    =  442
-  nrowsin    =  265
+  ncolsin    =  187
+  nrowsin    =  187
  &END
 !
 

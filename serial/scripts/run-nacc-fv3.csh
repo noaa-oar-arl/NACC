@@ -3,8 +3,8 @@ set APPL=aqm.t12z
 set InMetDir=/groups/ESS/pcampbe8/fv3gfs16_testdata
 set InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
 set InVIIRSDir=$InMetDir
-set OutDir=/groups/ESS/pcampbe8/fv3gfs16_testdata/nacc_output
-set ProgDir=/groups/ESS/pcampbe8/NACC/serial/src
+set OutDir=/groups/ESS3/pcampbe8/fv3gfs16_testdata/nacc_output_serial
+set ProgDir=/groups/ESS3/pcampbe8/NACC/serial/src
 
 if ( ! -s $InMetDir ) then
   echo "No such input directory $InMetDir"

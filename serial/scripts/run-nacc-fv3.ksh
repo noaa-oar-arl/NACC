@@ -12,8 +12,8 @@ InMetDir=/groups/ESS/pcampbe8/fv3gfs16_testdata
 InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
 InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
 InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
-OutDir=/groups/ESS/pcampbe8/fv3gfs16_testdata/nacc_output_serial
-ProgDir=/groups/ESS/pcampbe8/NACC/serial/src
+OutDir=/groups/ESS3/pcampbe8/fv3gfs16_testdata/nacc_output_serial
+ProgDir=/groups/ESS3/pcampbe8/NACC/serial/src
 
 if [ ! -s $InMetDir ]; then
   echo "No such input directory $InMetDir"
@@ -67,7 +67,7 @@ cat>namelist.mcip<<!
   ifbioseason = .FALSE.
   ifcanopy    = .FALSE.
   mcip_start = "2020-01-12-12:00:00.0000"
-  mcip_end   = "2020-01-15-13:00:00.0000"
+  mcip_end   = "2020-01-12-13:00:00.0000"
   intvl      =  60
   coordnam   = "FV3_RPO"
   grdnam     = "FV3_CONUS"
@@ -82,7 +82,7 @@ cat>namelist.mcip<<!
   btrim      =  -1
   lprt_col   =  0
   lprt_row   =  0
-  ntimes     = 73
+  ntimes     = 2
   projparm = 2., 33.,45., -97., -97., 40.
   domains = -2508000., -1716000., 12000., 12000., 442, 265
  &END
