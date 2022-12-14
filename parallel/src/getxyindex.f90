@@ -50,7 +50,7 @@ SUBROUTINE getxyindex (xlat,xlon,xi,yj,tlat,tlon,ix,jy)
  if(xlontmp.lt.0) xlontmp=xlontmp+360
  if(xlontmp.gt.tlon(ix).and.xlontmp.le.tlon(1)+360) then
   xi=ix+(xlontmp-tlon(ix))/(tlon(1)-tlon(ix)+360)
- else if (xlontmp.ge.tlon(ix)) then 
+ else if (xlontmp.le.tlon(ix)) then 
   do i=1,ix-1
    if(xlontmp.ge.tlon(i).and.xlontmp.le.tlon(i+1)) then
     xi=i+(xlontmp-tlon(i))/(tlon(i+1)-tlon(i))

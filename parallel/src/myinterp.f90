@@ -94,7 +94,7 @@ SUBROUTINE myinterp (ain,met_nx,met_ny,aout,xindex,yindex,iout,jout,iflag)
   do i=1,iout
    do j=1,jout
     if(iflag.eq.1) then ! nearest neighbor
-     if(nint(xindex(i,j)).le.iout) then
+     if(nint(xindex(i,j)).le.met_nx) then
        aout(i,j)=ain(nint(xindex(i,j)),nint(yindex(i,j)))
      else
        aout(i,j)=ain(1,nint(yindex(i,j)))
@@ -104,12 +104,12 @@ SUBROUTINE myinterp (ain,met_nx,met_ny,aout,xindex,yindex,iout,jout,iflag)
      y(i,j)=yindex(i,j)
      xratio(i,j)=x(i,j)-int(x(i,j))
      yratio(i,j)=y(i,j)-int(y(i,j))
-     if(x(i,j).gt.iout.and.x(i,j).le.iout+1) then
+     if(x(i,j).gt.met_nx.and.x(i,j).le.met_nx+1) then
        aout(i,j)=(1-yratio(i,j))*(ain(int(x(i,j)),int(y(i,j)))*  &
           (1-xratio(i,j))+ain(1,int(y(i,j)))*xratio(i,j))+  &
           yratio(i,j)*(ain(int(x(i,j)),int(y(i,j))+1)*(1-xratio(i,j))+  &
           ain(1,int(y(i,j))+1)*xratio(i,j))
-     else if(x(i,j).le.iout) then
+     else if(x(i,j).le.met_nx) then
        aout(i,j)=(1-yratio(i,j))*(ain(int(x(i,j)),int(y(i,j)))*         &
           (1-xratio(i,j))+ain(int(x(i,j))+1,int(y(i,j)))*xratio(i,j))+     &
           yratio(i,j)*(ain(int(x(i,j)),int(y(i,j))+1)*(1-xratio(i,j))+     &
