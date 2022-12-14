@@ -25,6 +25,8 @@ SUBROUTINE getxyindex (xlat,xlon,xi,yj,tlat,tlon,ix,jy)
 ! Notes:       
 ! Revised:  26 Feb 2020 Adapted for FV3GFSv16 at NOAA-ARL (Y. Tang and 
 !           P. C. Campbell)
+!           14 Dec 2022 Modified to account for polar stereographic projections
+!           (Y. Tang and P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE

@@ -25,6 +25,8 @@ SUBROUTINE myinterp (ain,met_nx,met_ny,aout,xindex,yindex,iout,jout,iflag)
 ! Notes:       
 ! Revised:  26 Feb 2020 Adapted for FV3GFSv16 at NOAA-ARL (Y. Tang and 
 !           P. C. Campbell)
+!           14 Dec 2022 Modified to account for polar stereographic projections
+!           (Y. Tang and P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE

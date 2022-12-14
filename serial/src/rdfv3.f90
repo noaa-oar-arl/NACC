@@ -180,6 +180,8 @@ SUBROUTINE rdfv3 (mcip_now,nn)
 !           24 Feb 2020  Adapted for FV3GFSv16 at NOAA-ARL (P. C. Campbell)
 !           24 Feb 2020  Added horiz LCC interpolation and wind rotation 
 !                        Y. Tang and P. C. Campbell)
+!           14 Dec 2022 Modified to account for polar stereographic projections
+!                       (P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   USE date_pack
