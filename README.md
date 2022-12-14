@@ -154,11 +154,12 @@ The variables listed here are set by the user in the NACC run script, and they a
     Row cell coordinate for diagnostic outputs on the NACC modeling domain
 -   `WRF_LC_REF_LAT [optional; used only for Lambert conformal projections; default: -999.0]`  
     WRF Lambert Conformal reference latitude. Use this setting to force the reference latitude in the output NACC data. If not set, NACC will use the average of the two true latitudes.
--   `projparm [FV3GFS or FV3-SRW App (LAM) -Only; used  to define projection parameters for subset of global grid; example set: GDTYP=2, P_ALP=33., P_BET=45., P_GAM=-97., XCENT=-97., YCENT=40.]`  
+-   `projparm [FV3GFS or FV3-SRW App (LAM) Inputs  Only; used  to define projection parameters for subset of global grid; example set: GDTYP=2, P_ALP=33., P_BET=45., P_GAM=-97., XCENT=-97., YCENT=40.]`  
     Required definition of grid projection parameters for FV3GFS or FV3-SRW App (LAM). Use this setting to subset the FV3-GFS global or FV3-SRW App (LAM) domain that is regridded to use in CMAQ.
--   `domains [FV3GFS-Only or FV3-SRW App (LAM); used  to define domain grid information for subset of global grid; example set XORIG=-2508000., YORIG=-1716000., DX=12000., DY=12000., NROWS=442, NCOLS=265]`  
+    For FV3-GFS global inputs, GRDTYP options 2 (Lambert Conformal, e.g., Regional CMAQ ) and 6 (Polar Stereographic, e.g., Hemispheric CMAQ) are currently supported
+-   `domains [FV3GFS or FV3-SRW App (LAM) Inputs Only; used  to define domain grid information for subset of global grid; example set XORIG=-2508000., YORIG=-1716000., DX=12000., DY=12000., NROWS=442, NCOLS=265]`  
     Required definition of grid domain parameters for FV3GFS or FV3-SRW App (LAM). Use this setting to subset the FV3-GFS or FV3-SRW App (LAM) global domain that is regridded to use in CMAQ.
--   `ntimes [WRF, FV3GFS, or FV3-SRW App (LAM); default = 0]`  
+-   `ntimes [WRF, FV3GFS or FV3-SRW App (LAM) Inputs Only; default = 0]`  
 
     Number of times to process for the model
     

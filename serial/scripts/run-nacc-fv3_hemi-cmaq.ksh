@@ -12,7 +12,7 @@ InMetDir=/groups/ESS/pcampbe8/fv3gfs16_testdata
 InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
 InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
 InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
-OutDir=/groups/ESS3/pcampbe8/fv3gfs16_testdata/nacc_output_serial
+OutDir=/groups/ESS3/pcampbe8/fv3gfs16_testdata/nacc_output_serial_ps
 ProgDir=/groups/ESS3/pcampbe8/NACC/serial/src
 
 if [ ! -s $InMetDir ]; then
