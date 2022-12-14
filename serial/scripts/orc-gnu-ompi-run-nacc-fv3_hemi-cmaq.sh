@@ -10,25 +10,31 @@
 ##SBATCH --cpus-per-task=12            # Request n cores per node
 #SBATCH --mem-per-cpu=24GB             # Request nGB RAM per core
 
-#Load more than one library at a time.
 #export LMOD_EXPERT=1
+
+#Module settings
+#module load intel impi
+#module load mpich
+#module load netcdf-c
+#module load ioapi/3.2-spack
+
 
 #Module settings
 module load gnu9 openmpi4
 module load netcdf-c
-module load ioapi/3.2-spack 
+module load ioapi/3.2-spack
 
 #Set number of nacc times  = processors, and # of nodes
-NTIMES=2
 export NODES=2
+
 
 APPL=aqm.t12z
 InMetDir=/groups/ESS/pcampbe8/fv3gfs16_testdata
 InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
 InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
 InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
-OutDir=/groups/ESS3/pcampbe8/fv3gfs16_testdata/nacc_output_parallel_lcc
-ProgDir=/groups/ESS3/pcampbe8/NACC/parallel/src
+OutDir=/groups/ESS3/pcampbe8/fv3gfs16_testdata/nacc_output_serial_ps
+ProgDir=/groups/ESS3/pcampbe8/NACC/serial/src
 
 if [ ! -s $InMetDir ]; then
   echo "No such input directory $InMetDir"
@@ -68,8 +74,8 @@ cat>namelist.mcip<<!
 
  &USERDEFS
   inmetmodel =  3
-  dx_in      =  12000
-  dy_in      =  12000
+  dx_in      =  108000
+  dy_in      =  108000
   met_cen_lat_in =  0.0
   met_cen_lon_in =  0.0
   lpv        =  0
@@ -84,29 +90,29 @@ cat>namelist.mcip<<!
   mcip_start = "2020-01-12-12:00:00.0000"
   mcip_end   = "2020-01-12-13:00:00.0000"
   intvl      =  60
-  coordnam   = "FV3_RPO"
-  grdnam     = "FV3_CONUS"
+  coordnam   = "POLSTE_HEMI"
+  grdnam     = "108NHEMI2"
   ctmlays    =  1.000000, 0.995253, 0.990479, 0.985679, 0.980781,
-              0.975782, 0.970684, 0.960187, 0.954689, 0.936895,
-              0.930397, 0.908404, 0.888811, 0.862914, 0.829314,
-              0.786714, 0.735314, 0.645814, 0.614214, 0.582114,
-              0.549714, 0.511711, 0.484394, 0.451894, 0.419694,
-              0.388094, 0.356994, 0.326694, 0.297694, 0.270694,
+              0.975782, 0.970684, 0.960187, 0.954689, 0.936895, 
+              0.930397, 0.908404, 0.888811, 0.862914, 0.829314, 
+              0.786714, 0.735314, 0.645814, 0.614214, 0.582114, 
+              0.549714, 0.511711, 0.484394, 0.451894, 0.419694, 
+              0.388094, 0.356994, 0.326694, 0.297694, 0.270694, 
               0.245894, 0.223694, 0.203594, 0.154394, 0.127094, 0.000000
   cutlay_collapx = 22
   btrim      =  -1
   lprt_col   =  0
   lprt_row   =  0
   ntimes     = 2
-  projparm = 2., 33.,45., -97., -97., 40.
-  domains = -2508000., -1716000., 12000., 12000., 442, 265
+  projparm = 6., 1., 45., -98., -98., 90.
+  domains = -10098000.000, -10098000.000, 108000.000, 108000.000, 187, 187
  &END
 
  &WINDOWDEFS
   x0         =  1
   y0         =  1
-  ncolsin    =  442
-  nrowsin    =  265
+  ncolsin    =  187
+  nrowsin    =  187
  &END
 !
 
@@ -126,8 +132,14 @@ export MOSAIC_CRO=${APPL}.mosaiccro.ncf
 
 rm -f *.ncf 
 
+# Serial
+#$ProgDir/mcip.exe
+
 #Slurm Parallel
 #srun -n$NTIMES $ProgDir/mcip.exe
 module load ucx libfabric
 #export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi2.so
 prun $ProgDir/mcip.exe
+
+# LSF Serial
+#aprun -n${PROCS} -N${NODES} $ProgDir/mcip.exe

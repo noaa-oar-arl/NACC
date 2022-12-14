@@ -25,6 +25,8 @@ SUBROUTINE getxyindex (xlat,xlon,xi,yj,tlat,tlon,ix,jy)
 ! Notes:       
 ! Revised:  26 Feb 2020 Adapted for FV3GFSv16 at NOAA-ARL (Y. Tang and 
 !           P. C. Campbell)
+!           14 Dec 2022 Modified to account for polar stereographic projections
+!           (Y. Tang and P. C. Campbell)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -46,21 +48,47 @@ SUBROUTINE getxyindex (xlat,xlon,xi,yj,tlat,tlon,ix,jy)
 ! 
 !-------------------------------------------------------------------------------
  xlontmp=xlon
-
  if(xlontmp.lt.0) xlontmp=xlontmp+360
-  do i=1,ix
+
+ if(xlontmp.gt.tlon(ix).and.xlontmp.le.tlon(1)+360) then
+  xi=ix+(xlontmp-tlon(ix))/(tlon(1)-tlon(ix)+360)
+ else if (xlontmp.le.tlon(ix)) then 
+  do i=1,ix-1
    if(xlontmp.ge.tlon(i).and.xlontmp.le.tlon(i+1)) then
     xi=i+(xlontmp-tlon(i))/(tlon(i+1)-tlon(i))
     exit
    endif
   enddo
+ else
+  print*,'wrong xlontmp ',xlontmp,tlon(ix),tlon(1)
+ endif
 
-  do j=1,jy
+  yj=0.
+  do j=1,jy-1
    if(xlat.le.amax1(tlat(j),tlat(j+1)).and.xlat.ge.amin1(tlat(j),tlat(j+1))) then
 ! fv3 is from north to south
     yj=j+(xlat-tlat(j))/(tlat(j+1)-tlat(j))
     exit
    endif
   enddo
+  if(yj.le.1e-32) then
+     if(tlat(1).gt.tlat(2)) then ! north to south
+        if(xlat.ge.tlat(1)) then
+          yj=1.
+        else if (xlat.le.tlat(jy)) then
+          yj=jy
+        endif
+      else  ! south to north
+        if(xlat.le.tlat(1)) then
+           yj=1.
+        else if (xlat.ge.tlat(jy)) then
+           yj=jy
+        endif
+      endif
+   if(yj.le.1e-32) then
+      print*,'wrong xlat ',xlat
+      stop
+   endif
+ endif
  
 END SUBROUTINE getxyindex
