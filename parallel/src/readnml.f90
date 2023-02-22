@@ -109,7 +109,7 @@ SUBROUTINE readnml (ctmlays)
 
   NAMELIST /filenames/   file_gd, file_mm, file_sfc, file_geo, file_viirs_gvf, file_viirs_lai, ioform
 
-  NAMELIST /userdefs/    inmetmodel, dx_in, dy_in, met_cen_lat_in, met_cen_lon_in, &
+  NAMELIST /userdefs/    inmetmodel, dx_out, dy_out, met_cen_lat_in, met_cen_lon_in, &
                          lpv, lwout, luvbout, ifdiag_pbl, ifviirs_gvf, &
                          ifviirs_lai, iffengsha_dust, ifbioseason, ifcanopy,    &
                          eradm, mcip_start, mcip_end, ntimes, intvl,  &
@@ -226,9 +226,9 @@ SUBROUTINE readnml (ctmlays)
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
-! Set default value for input meteorological model resolution (m).
-  dx_in = 12000
-  dy_in = 12000
+! Set default value for output meteorological model resolution (m).
+  dx_out = 12000
+  dy_out = 12000
 !-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------

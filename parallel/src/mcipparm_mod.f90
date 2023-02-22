@@ -302,7 +302,7 @@ MODULE mcipparm
                              !             3 = FV3
                              !             4 = SRW-LAM
 
-  INTEGER :: dx_in, dy_in    ! user input  meteorological model resolution
+  INTEGER :: dx_out, dy_out  ! user output  meteorological model resolution
 
   REAL    :: met_cen_lat_in, met_cen_lon_in    ! user input reference center latitude and longitude
  
