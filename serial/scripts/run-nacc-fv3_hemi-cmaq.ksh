@@ -53,8 +53,8 @@ cat>namelist.mcip<<!
 
  &USERDEFS
   inmetmodel =  3
-  dx_in      =  108000
-  dy_in      =  108000
+  dx_out      =  108000
+  dy_out      =  108000
   met_cen_lat_in =  0.0
   met_cen_lon_in =  0.0
   lpv        =  0

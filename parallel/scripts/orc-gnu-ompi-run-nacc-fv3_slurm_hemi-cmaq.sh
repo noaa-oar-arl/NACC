@@ -27,7 +27,7 @@ InMetDir=/groups/ESS/pcampbe8/fv3gfs16_testdata
 InGeoDir=/groups/ESS/pcampbe8/nacc_geofiles
 InVIIRSDir_GVF=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_gvf_test/grib2
 InVIIRSDir_LAI=/gpfs/hps3/emc/naqfc/noscrub/Patrick.C.Campbell/viirs_lai_test/
-OutDir=/groups/ESS3/pcampbe8/fv3gfs16_testdata/nacc_output_parallel_ps
+OutDir=/groups/ESS3/pcampbe8/fv3gfs16_testdata/nacc_output_parallel_ps_test2
 ProgDir=/groups/ESS3/pcampbe8/NACC/parallel/src
 
 if [ ! -s $InMetDir ]; then
@@ -68,8 +68,8 @@ cat>namelist.mcip<<!
 
  &USERDEFS
   inmetmodel =  3
-  dx_in      =  108000
-  dy_in      =  108000
+  dx_out      =  108000
+  dy_out      =  108000
   met_cen_lat_in =  0.0
   met_cen_lon_in =  0.0
   lpv        =  0

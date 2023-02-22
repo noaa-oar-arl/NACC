@@ -83,6 +83,10 @@ The variables listed here are set by the user in the NACC run script, and they a
     -   `2`: WRF-ARW
     -   `3`: FV3-GFS
     -   `4`: FV3-SRW App (LAM)
+-   `dx_out [FV3;  default: 12000 m]`
+    Output dx grid met resolution in meters (must match DX in `domains` setting below)
+-   `dy_out [FV3;  default: 12000 m]`
+    Output dy grid met resolution in meters (must match DY in `domains` setting below)
 -   `LPV: [default: 0]`  
     Compute and output potential vorticity. This must be activated to support the [CCTM O3 potential vorticity scaling](../../CCTM/docs/ReleaseNotes/Potential_Vorticity_Scaling.md).
     -   `0`: Do not compute and output potential vorticity

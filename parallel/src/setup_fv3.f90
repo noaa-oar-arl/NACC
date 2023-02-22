@@ -465,9 +465,9 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
     CALL graceful_stop (pname)
   ENDIF
 
-!FV3 the user sets the input dx/dy resolutions in namelist
-   dx=dx_in
-   dy=dy_in
+!FV3 the user sets the output dx/dy resolutions in namelist
+   dx=dx_out
+   dy=dy_out
 !
   IF (dx == dy) THEN
     met_resoln = dx
