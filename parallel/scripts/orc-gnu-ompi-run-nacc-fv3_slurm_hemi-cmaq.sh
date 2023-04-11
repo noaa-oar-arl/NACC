@@ -72,7 +72,7 @@ cat>namelist.mcip<<!
   dy_out      =  108000
   met_cen_lat_in =  0.0
   met_cen_lon_in =  0.0
-  lpv        =  0
+  lpv        =  1
   lwout      =  1
   luvbout    =  1
   ifdiag_pbl = .FALSE.
