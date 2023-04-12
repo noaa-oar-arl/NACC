@@ -278,6 +278,11 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   REAL                              :: yoff
   REAL                              :: yyin
   double precision  :: rdtime
+  REAL(8)                           :: deg2rad ! convert degrees to radians 
+  REAL(8)                           :: pi
+  REAL(8)                           :: piover4 ! pi/4
+  REAL,    SAVE,      ALLOCATABLE   :: totpress   ( : , : , : )
+
   ! Define roughness length as functions of land use and season in case
   ! it is not available in WRF output.
 
@@ -461,6 +466,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     & /, 1x, '***   WILL DEFINE FROM OTHER FIELDS LATER', &
     & /, 1x, 70('*'))"
 
+
 !-------------------------------------------------------------------------------
 ! Interfaces for FV3GFS getxyindex, horizontal interpolation, and wind rotation
 ! 
@@ -511,6 +517,11 @@ SUBROUTINE rdfv3 (mcip_now,nn)
     END SUBROUTINE windrotation
 
   END INTERFACE
+
+! Some Constants
+  piover4 = DATAN(1.0d0)
+  pi      = 4.0d0 * piover4
+  deg2rad = pi / 1.8d2
 
 !-------------------------------------------------------------------------------
 ! Define additional staggered grid dimensions. (***No staggered FV3 dimensions,e.g., nxm=met_nx***)
@@ -1406,6 +1417,21 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   ELSE
     WRITE (*,f9400) TRIM(pname), 'pressfc', TRIM(nf90_strerror(rcode))
     CALL graceful_stop (pname)
+  ENDIF
+
+  IF ( lpv > 0 ) THEN  ! need theta for PV calculation later...
+    if (first) then      
+        if(.not.allocated(totpress)) allocate(totpress(ncols_x,nrows_x,met_nz))      
+    endif
+    totpress(1:ncols_x,1:nrows_x,:) = 0.0
+    do k=1,met_nz  
+      if ( k > 1) then 
+           totpress(1:ncols_x,1:nrows_x,k) = totpress(1:ncols_x,1:nrows_x,k) + dpres(1:ncols_x,1:nrows_x,k)
+      endif
+      theta(1:ncols_x,1:nrows_x,k) = ta(1:ncols_x,1:nrows_x,k)*(100000.0/((psa(1:ncols_x,1:nrows_x)- &
+                                         totpress(1:ncols_x,1:nrows_x,k))))**rdovcp
+    enddo
+    WRITE (*,ifmt1) 'THETA    ', (theta(lprt_metx,lprt_mety,k),k=1,met_nz)
   ENDIF
 
 !Assume at surface the FV3 geopotential height (gpm) = geometric height (m)
@@ -2606,8 +2632,10 @@ SUBROUTINE rdfv3 (mcip_now,nn)
         coriolis(:,met_ny) = coriolis(:,nym)
         WRITE (*,f6000) 'F        ', coriolis(lprt_metx, lprt_mety), 's-1'
       ELSE
-        WRITE (*,f9400) TRIM(pname), 'F      ', TRIM(nf90_strerror(rcode))
-        CALL graceful_stop (pname)
+!        WRITE (*,f9400) TRIM(pname), 'F      ', TRIM(nf90_strerror(rcode))
+        WRITE (*,*) 'Calculating coriolis, F = 2*Omega*Sin(Lat)'
+        coriolis(1:ncols_x,1:nrows_x) = 2.0 * 7.292115e-5 * SIN(latcrs*deg2rad) 
+!        CALL graceful_stop (pname)
       ENDIF
     ENDIF
   ENDIF

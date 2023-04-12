@@ -367,8 +367,8 @@ MODULE mcipparm
 !-------------------------------------------------------------------------------
  
   CHARACTER(LEN=16),  PARAMETER     :: progname_nacc   = 'NACC'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate_nacc      = '12/14/2022'
-  CHARACTER(LEN=8),   PARAMETER     :: ver_nacc        = 'V2.1.0'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate_nacc      = '04/11/2023'
+  CHARACTER(LEN=8),   PARAMETER     :: ver_nacc        = 'V2.1.1'
 
 
   real projparm(6)  ! map projection type, lat1,lat2,projlon, center_lon, center_lat
