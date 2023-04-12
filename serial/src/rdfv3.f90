@@ -281,6 +281,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   REAL(8)                           :: deg2rad ! convert degrees to radians
   REAL(8)                           :: pi
   REAL(8)                           :: piover4 ! pi/4
+  REAL,    SAVE,      ALLOCATABLE   :: totpress   ( : , : , : )
 
   ! Define roughness length as functions of land use and season in case
   ! it is not available in WRF output.
@@ -1405,9 +1406,16 @@ SUBROUTINE rdfv3 (mcip_now,nn)
   ENDIF
 
   IF ( lpv > 0 ) THEN  ! need theta for PV calculation later...
+    if (first) then
+        if(.not.allocated(totpress)) allocate(totpress(ncols_x,nrows_x,met_nz))
+    endif
+    totpress(1:ncols_x,1:nrows_x,:) = 0.0
     do k=1,met_nz
-      theta(1:ncols_x,1:nrows_x,k) = ta(1:ncols_x,1:nrows_x,k)*(100000.0/(psa(1:ncols_x,1:nrows_x) - &
-                                      dpres(1:ncols_x,1:nrows_x,k)))**rdovcp
+      if ( k > 1) then
+           totpress(1:ncols_x,1:nrows_x,k) = totpress(1:ncols_x,1:nrows_x,k) + dpres(1:ncols_x,1:nrows_x,k)
+      endif
+      theta(1:ncols_x,1:nrows_x,k) = ta(1:ncols_x,1:nrows_x,k)*(100000.0/((psa(1:ncols_x,1:nrows_x)- &
+                                         totpress(1:ncols_x,1:nrows_x,k))))**rdovcp
     enddo
     WRITE (*,ifmt1) 'THETA    ', (theta(lprt_metx,lprt_mety,k),k=1,met_nz)
   ENDIF
