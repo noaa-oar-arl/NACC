@@ -618,7 +618,7 @@ SUBROUTINE setup_fv3 (cdfid, cdfid2, ctmlays)
   IF ( needlayers ) THEN
      nlays=met_nz
      ctmlays(:) = 0.0 !Initialize
-     ctmlays = (pfull_lays(1:nlays+1) - pfull_lays(nlays+1)) / ((pfull_lays(1)) - phalf_lays(nlays+1))
+     ctmlays(1:nlays+1) = (pfull_lays(1:nlays+1) - pfull_lays(nlays+1)) / ((pfull_lays(1)) - phalf_lays(nlays+1))
   ENDIF
 
 !-------------------------------------------------------------------------------

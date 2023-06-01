@@ -2622,7 +2622,7 @@ CALL get_var_2d_real_cdf (cdfid2, 'soilw1', dum2d, it, rcode)
       ELSE
 !        WRITE (*,f9400) TRIM(pname), 'F      ', TRIM(nf90_strerror(rcode))
         WRITE (*,*) 'Calculating coriolis, F = 2*Omega*Sin(Lat)'
-        coriolis(1:ncols_x,1:nrows_x) = 2.0 * 7.292115e-5 * SIN(latcrs*deg2rad)
+        coriolis(1:ncols_x,1:nrows_x) = 2.0 * 7.292115e-5 * SIN(latcrs(1:ncols_x,1:nrows_x)*deg2rad)
 !        CALL graceful_stop (pname)              
       ENDIF
     ENDIF
