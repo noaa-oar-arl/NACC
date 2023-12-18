@@ -829,7 +829,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           yoff = -2.0  ! V-face: no offset in Y from dot-point center value
 
           DO j = 1, nrows_x+1
-            DO i = 1, nrows_x+1  ! use all X to fill array; last col outside domain
+            DO i = 1, ncols_x+1  ! use all X to fill array; last col outside domain
 
               xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
               yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
@@ -962,7 +962,7 @@ SUBROUTINE rdfv3 (mcip_now,nn)
           yoff = -2.0  ! V-face: no offset in Y from dot-point center value
 
           DO j = 1, nrows_x+1
-            DO i = 1, nrows_x+1  ! use all X to fill array; last col outside domain
+            DO i = 1, ncols_x+1  ! use all X to fill array; last col outside domain
 
               xxin = met_xxctr + (FLOAT(i) + xoff) * met_resoln
               yyin = met_yyctr + (FLOAT(j) + yoff) * met_resoln
